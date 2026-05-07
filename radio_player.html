@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f3;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #9a9a9a;
+    --accent: #1a1a1a;
+    --border: #e8e6e1;
+    --pill: #f0ede8;
+    --pill-active: #1a1a1a;
+    --pill-active-text: #ffffff;
+    --shadow: 0 2px 24px rgba(0,0,0,0.07);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding: 0 4px;
+  }
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+  }
+  .header-time {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* Genre pills */
+  .genres {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 0 4px;
+  }
+  .genre-pill {
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--pill);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+  }
+  .genre-pill.active {
+    background: var(--pill-active);
+    color: var(--pill-active-text);
+  }
+  .genre-pill:hover:not(.active) {
+    background: #e4e1db;
+    color: var(--text);
+  }
+
+  /* Main player card */
+  .player-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+
+  .station-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .station-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .station-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .station-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .station-genre {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+  .fav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 20px;
+    padding: 4px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .fav-btn.active { color: #e05555; }
+  .fav-btn:hover { transform: scale(1.15); }
+
+  /* Waveform / visualizer */
+  .visualizer {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 28px;
+  }
+  .bar {
+    flex: 1;
+    background: var(--border);
+    border-radius: 4px;
+    transition: height 0.15s ease;
+  }
+  .bar.active {
+    background: var(--accent);
+    animation: pulse var(--dur, 0.8s) ease-in-out infinite alternate;
+  }
+  @keyframes pulse {
+    from { height: var(--min, 4px); }
+    to { height: var(--max, 32px); }
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ctrl-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 8px;
+    border-radius: 50%;
+  }
+  .ctrl-btn:hover { color: var(--text); background: var(--pill); }
+  .ctrl-btn svg { width: 22px; height: 22px; }
+
+  .play-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .play-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+  .play-btn:active { transform: scale(0.97); }
+  .play-btn svg { width: 22px; height: 22px; fill: white; margin-left: 2px; }
+  .play-btn.playing svg { margin-left: 0; }
+
+  /* Volume */
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .vol-icon { color: var(--muted); }
+  .vol-icon svg { width: 16px; height: 16px; display: block; }
+  .volume-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Station list */
+  .stations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .station-row {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+  .station-row:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .station-row.active { box-shadow: 0 2px 16px rgba(0,0,0,0.1); }
+  .row-emoji { font-size: 20px; width: 36px; height: 36px; background: var(--pill); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .row-info { flex: 1; min-width: 0; }
+  .row-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 1px; }
+  .row-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
+  .station-row.active .row-dot { background: #4caf7d; animation: blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* Now playing ticker */
+  .now-playing {
+    margin-top: 10px;
+    padding: 10px 16px;
+    background: var(--card);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .np-label { font-weight: 500; color: var(--text); flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.4px; font-size: 11px; }
+  .np-track { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Status */
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+    display: inline-block;
+    margin-right: 6px;
+    transition: background 0.3s;
+  }
+  .status-dot.live { background: #4caf7d; animation: blink 1.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-title">Radio <span id="liveIndicator"><span class="status-dot" id="statusDot"></span></span></div>
+    <div class="header-time" id="clock">--:--</div>
+  </div>
+
+  <div class="genres" id="genrePills"></div>
+
+  <!-- Main player -->
+  <div class="player-card">
+    <div class="station-meta">
+      <div class="station-logo" id="stationEmoji">🎵</div>
+      <div class="station-info">
+        <div class="station-name" id="stationName">Выберите станцию</div>
+        <div class="station-genre" id="stationGenre">—</div>
+      </div>
+      <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
+    </div>
+
+    <div class="visualizer" id="visualizer"></div>
+
+    <div class="controls">
+      <button class="ctrl-btn" onclick="prevStation()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
+        </svg>
+      </button>
+
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">
+        <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+
+      <button class="ctrl-btn" onclick="nextStation()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="volume-row">
+      <span class="vol-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      </span>
+      <input type="range" class="volume-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+    </div>
+  </div>
+
+  <div class="now-playing" id="nowPlaying" style="display:none">
+    <span class="np-label">В эфире</span>
+    <span class="np-track" id="npTrack">—</span>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="stations-list" id="stationsList"></div>
+
+</div>
+
+<audio id="audioEl"></audio>
+
+<script>
+const stations = [
+  { name: "Soundpark Deep",  genre: "Deep House",  emoji: "🌊", url: "https://h.getradio.me/spdeep/hls.m3u8",         tag: "deep" },
+  { name: "SomaFM Drone",    genre: "Ambient",      emoji: "🌌", url: "https://ice6.somafm.com/dronezone-128-mp3",     tag: "chill" },
+  { name: "Frisky Deep",     genre: "Deep House",   emoji: "🎧", url: "https://deep.friskyradio.com/friskydeep_aachi", tag: "deep" },
+  { name: "SomaFM Groove",   genre: "Jazz / Soul",  emoji: "🎷", url: "https://ice6.somafm.com/groovesalad-128-mp3",  tag: "jazz" },
+  { name: "SomaFM Chill",    genre: "Chillout",     emoji: "❄️", url: "https://ice6.somafm.com/missioncontrol-128-mp3", tag: "chill" },
+  { name: "Jazz FM",         genre: "Jazz",         emoji: "🎺", url: "https://ice6.somafm.com/lush-128-mp3",         tag: "jazz" },
+  { name: "Nightwave Plaza", genre: "Lo-fi / Vaporwave", emoji: "🌆", url: "https://radio.plaza.one/mp3",           tag: "lofi" },
+];
+
+const genres = [
+  { id: "all",   label: "Все" },
+  { id: "deep",  label: "Deep House" },
+  { id: "chill", label: "Chill" },
+  { id: "jazz",  label: "Jazz" },
+  { id: "lofi",  label: "Lo-fi" },
+];
+
+let current = 0;
+let playing = false;
+let activeGenre = "all";
+let favorites = JSON.parse(localStorage.getItem("favs") || "[]");
+const audio = document.getElementById("audioEl");
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.getHours().toString().padStart(2,"0") + ":" +
+    now.getMinutes().toString().padStart(2,"0");
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Visualizer bars
+const viz = document.getElementById("visualizer");
+const barCount = 28;
+const bars = [];
+for (let i = 0; i < barCount; i++) {
+  const b = document.createElement("div");
+  b.className = "bar";
+  const minH = 3 + Math.random() * 6;
+  const maxH = 12 + Math.random() * 22;
+  const dur = 0.5 + Math.random() * 0.7;
+  b.style.cssText = `height:${minH}px;--min:${minH}px;--max:${maxH}px;--dur:${dur}s;animation-delay:${Math.random()*0.5}s`;
+  viz.appendChild(b);
+  bars.push(b);
+}
+
+function setVizPlaying(on) {
+  bars.forEach(b => {
+    if (on) b.classList.add("active");
+    else { b.classList.remove("active"); b.style.height = "4px"; }
+  });
+}
+
+// Genre pills
+function renderGenres() {
+  const el = document.getElementById("genrePills");
+  el.innerHTML = "";
+  genres.forEach(g => {
+    const btn = document.createElement("button");
+    btn.className = "genre-pill" + (g.id === activeGenre ? " active" : "");
+    btn.textContent = g.label;
+    btn.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); };
+    el.appendChild(btn);
+  });
+}
+
+// Station list
+function renderList() {
+  const el = document.getElementById("stationsList");
+  el.innerHTML = "";
+  const filtered = stations.filter(s => activeGenre === "all" || s.tag === activeGenre);
+  filtered.forEach((s, i) => {
+    const idx = stations.indexOf(s);
+    const row = document.createElement("div");
+    row.className = "station-row" + (idx === current ? " active" : "");
+    row.innerHTML = `
+      <div class="row-emoji">${s.emoji}</div>
+      <div class="row-info">
+        <div class="row-name">${s.name}</div>
+        <div class="row-genre">${s.genre}</div>
+      </div>
+      <div class="row-dot"></div>`;
+    row.onclick = () => { current = idx; loadStation(); if (!playing) togglePlay(); else loadStation(true); renderList(); };
+    el.appendChild(row);
+  });
+}
+
+// Update player UI
+function updatePlayer() {
+  const s = stations[current];
+  document.getElementById("stationEmoji").textContent = s.emoji;
+  document.getElementById("stationName").textContent = s.name;
+  document.getElementById("stationGenre").textContent = s.genre;
+  const isFav = favorites.includes(current);
+  const fb = document.getElementById("favBtn");
+  fb.textContent = isFav ? "♥" : "♡";
+  fb.classList.toggle("active", isFav);
+}
+
+function loadStation(autoplay = false) {
+  const s = stations[current];
+  audio.src = s.url;
+  updatePlayer();
+  renderList();
+  if (autoplay || playing) {
+    audio.play().catch(() => {});
+  }
+}
+
+function togglePlay() {
+  if (!playing) {
+    playing = true;
+    if (!audio.src || audio.src === window.location.href) loadStation(true);
+    else audio.play().catch(() => {});
+    setVizPlaying(true);
+    document.getElementById("playBtn").classList.add("playing");
+    document.getElementById("playIcon").innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    document.getElementById("statusDot").classList.add("live");
+    document.getElementById("nowPlaying").style.display = "flex";
+    document.getElementById("npTrack").textContent = stations[current].name + " · Live";
+  } else {
+    playing = false;
+    audio.pause();
+    setVizPlaying(false);
+    document.getElementById("playBtn").classList.remove("playing");
+    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    document.getElementById("statusDot").classList.remove("live");
+  }
+}
+
+function prevStation() {
+  current = (current - 1 + stations.length) % stations.length;
+  loadStation(playing);
+}
+function nextStation() {
+  current = (current + 1) % stations.length;
+  loadStation(playing);
+}
+
+function setVolume(v) {
+  audio.volume = v / 100;
+}
+
+function toggleFav() {
+  const idx = favorites.indexOf(current);
+  if (idx === -1) favorites.push(current);
+  else favorites.splice(idx, 1);
+  localStorage.setItem("favs", JSON.stringify(favorites));
+  updatePlayer();
+}
+
+// Init
+audio.volume = 0.8;
+renderGenres();
+renderList();
+updatePlayer();
+</script>
+</body>
+</html>
