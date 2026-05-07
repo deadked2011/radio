@@ -4,517 +4,412 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radio</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f7f6f3;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --muted: #9a9a9a;
+  --accent: #1a1a1a;
+  --border: #e8e6e1;
+  --pill: #f0ede8;
+  --shadow: 0 2px 24px rgba(0,0,0,0.07);
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px 16px 40px;
+}
+.app { width: 100%; max-width: 440px; margin: 0 auto; }
 
-  :root {
-    --bg: #f7f6f3;
-    --card: #ffffff;
-    --text: #1a1a1a;
-    --muted: #9a9a9a;
-    --accent: #1a1a1a;
-    --border: #e8e6e1;
-    --pill: #f0ede8;
-    --pill-active: #1a1a1a;
-    --pill-active-text: #ffffff;
-    --shadow: 0 2px 24px rgba(0,0,0,0.07);
-  }
+/* Header */
+.header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px; padding: 0 4px;
+}
+.header-title { font-family: 'DM Serif Display', serif; font-size: 24px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.clock { font-size: 13px; color: var(--muted); font-weight: 300; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background .3s; }
+.live-dot.on { background: #4caf7d; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
+/* Search */
+.search-wrap { position: relative; margin-bottom: 16px; }
+.search-input {
+  width: 100%; padding: 12px 16px 12px 40px;
+  background: var(--card); border: none; border-radius: 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.05); outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 
-  .app {
-    width: 100%;
-    max-width: 420px;
-  }
+/* Genre pills */
+.genres { display: flex; gap: 7px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 20px; padding-bottom: 4px; scrollbar-width: none; }
+.genres::-webkit-scrollbar { display: none; }
+.genre-pill {
+  padding: 6px 14px; border-radius: 100px; background: var(--pill);
+  color: var(--muted); font-size: 11px; font-weight: 500; cursor: pointer;
+  transition: all .2s; border: none; white-space: nowrap;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.genre-pill.active { background: var(--accent); color: #fff; }
+.genre-pill:hover:not(.active) { background: #e4e1db; color: var(--text); }
 
-  /* Header */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 32px;
-    padding: 0 4px;
-  }
-  .header-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    letter-spacing: -0.3px;
-  }
-  .header-time {
-    font-size: 13px;
-    color: var(--muted);
-    font-weight: 300;
-  }
+/* NOW PLAYING big card */
+.now-card {
+  background: var(--card); border-radius: 24px;
+  padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px;
+  display: none;
+}
+.now-card.visible { display: block; }
+.now-top { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.now-logo {
+  width: 52px; height: 52px; border-radius: 13px;
+  background: var(--pill); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.now-logo img { width: 100%; height: 100%; object-fit: cover; }
+.now-info { flex: 1; min-width: 0; }
+.now-name { font-family: 'DM Serif Display', serif; font-size: 17px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.now-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); transition: all .2s; flex-shrink: 0; }
+.fav-btn.on { color: #e05555; }
 
-  /* Genre pills */
-  .genres {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-    padding: 0 4px;
-  }
-  .genre-pill {
-    padding: 6px 14px;
-    border-radius: 100px;
-    background: var(--pill);
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-    letter-spacing: 0.2px;
-    text-transform: uppercase;
-  }
-  .genre-pill.active {
-    background: var(--pill-active);
-    color: var(--pill-active-text);
-  }
-  .genre-pill:hover:not(.active) {
-    background: #e4e1db;
-    color: var(--text);
-  }
+/* Visualizer */
+.viz { height: 36px; display: flex; align-items: center; gap: 2.5px; margin-bottom: 20px; }
+.bar { flex: 1; background: var(--border); border-radius: 3px; height: 4px; transition: height .15s; }
+.bar.on { background: var(--accent); animation: pulse var(--dur,.8s) ease-in-out infinite alternate; }
+@keyframes pulse { from{height:var(--min,4px)} to{height:var(--max,28px)} }
 
-  /* Main player card */
-  .player-card {
-    background: var(--card);
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-  }
+/* Controls */
+.controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.ctrl { background: none; border: none; cursor: pointer; color: var(--muted); padding: 8px; border-radius: 50%; transition: all .2s; display: flex; }
+.ctrl:hover { color: var(--text); background: var(--pill); }
+.ctrl svg { width: 20px; height: 20px; }
+.play-btn {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: all .2s;
+}
+.play-btn:hover { transform: scale(1.05); }
+.play-btn:active { transform: scale(.97); }
+.play-btn svg { width: 20px; height: 20px; fill: white; margin-left: 2px; }
+.play-btn.playing svg { margin-left: 0; }
 
-  .station-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .station-logo {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: var(--pill);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-  .station-info {
-    flex: 1;
-    min-width: 0;
-  }
-  .station-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    margin-bottom: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .station-genre {
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-  }
-  .fav-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 20px;
-    padding: 4px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .fav-btn.active { color: #e05555; }
-  .fav-btn:hover { transform: scale(1.15); }
+/* Volume */
+.vol-row { display: flex; align-items: center; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); }
+.vol-icon { color: var(--muted); display: flex; }
+.vol-icon svg { width: 15px; height: 15px; }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; height: 3px; border-radius: 3px;
+  background: var(--border); outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
 
-  /* Waveform / visualizer */
-  .visualizer {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    margin-bottom: 28px;
-  }
-  .bar {
-    flex: 1;
-    background: var(--border);
-    border-radius: 4px;
-    transition: height 0.15s ease;
-  }
-  .bar.active {
-    background: var(--accent);
-    animation: pulse var(--dur, 0.8s) ease-in-out infinite alternate;
-  }
-  @keyframes pulse {
-    from { height: var(--min, 4px); }
-    to { height: var(--max, 32px); }
-  }
+/* Station list */
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 500; margin-bottom: 10px; padding: 0 4px; }
+.list { display: flex; flex-direction: column; gap: 7px; }
+.row {
+  background: var(--card); border-radius: 15px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  transition: all .2s; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+.row:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.row.active { box-shadow: 0 2px 16px rgba(0,0,0,0.1); outline: 2px solid var(--accent); }
+.row-img {
+  width: 38px; height: 38px; border-radius: 10px; background: var(--pill);
+  overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.row-img img { width: 100%; height: 100%; object-fit: cover; }
+.row-info { flex: 1; min-width: 0; }
+.row-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-sub { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.row-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.row.active .row-dot { background: #4caf7d; animation: blink 1.5s infinite; }
+.row-listeners { font-size: 10px; color: var(--muted); }
 
-  /* Controls */
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .ctrl-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    padding: 8px;
-    border-radius: 50%;
-  }
-  .ctrl-btn:hover { color: var(--text); background: var(--pill); }
-  .ctrl-btn svg { width: 22px; height: 22px; }
-
-  .play-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  }
-  .play-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
-  .play-btn:active { transform: scale(0.97); }
-  .play-btn svg { width: 22px; height: 22px; fill: white; margin-left: 2px; }
-  .play-btn.playing svg { margin-left: 0; }
-
-  /* Volume */
-  .volume-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-  }
-  .vol-icon { color: var(--muted); }
-  .vol-icon svg { width: 16px; height: 16px; display: block; }
-  .volume-slider {
-    flex: 1;
-    -webkit-appearance: none;
-    height: 3px;
-    border-radius: 3px;
-    background: var(--border);
-    outline: none;
-    cursor: pointer;
-  }
-  .volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-  }
-
-  /* Station list */
-  .stations-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .station-row {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
-  }
-  .station-row:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
-  .station-row.active { box-shadow: 0 2px 16px rgba(0,0,0,0.1); }
-  .row-emoji { font-size: 20px; width: 36px; height: 36px; background: var(--pill); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .row-info { flex: 1; min-width: 0; }
-  .row-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 1px; }
-  .row-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
-  .station-row.active .row-dot { background: #4caf7d; animation: blink 1.5s ease-in-out infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* Now playing ticker */
-  .now-playing {
-    margin-top: 10px;
-    padding: 10px 16px;
-    background: var(--card);
-    border-radius: 12px;
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    overflow: hidden;
-  }
-  .np-label { font-weight: 500; color: var(--text); flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.4px; font-size: 11px; }
-  .np-track { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  /* Status */
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--muted);
-    display: inline-block;
-    margin-right: 6px;
-    transition: background 0.3s;
-  }
-  .status-dot.live { background: #4caf7d; animation: blink 1.5s ease-in-out infinite; }
+.empty { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0; }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <div class="header-title">Radio <span id="liveIndicator"><span class="status-dot" id="statusDot"></span></span></div>
-    <div class="header-time" id="clock">--:--</div>
+    <div class="header-title">Radio</div>
+    <div class="header-right">
+      <span class="live-dot" id="liveDot"></span>
+      <span class="clock" id="clock"></span>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </span>
+    <input class="search-input" id="searchInput" placeholder="Поиск радиостанций..." oninput="renderList()">
   </div>
 
   <div class="genres" id="genrePills"></div>
 
-  <!-- Main player -->
-  <div class="player-card">
-    <div class="station-meta">
-      <div class="station-logo" id="stationEmoji">🎵</div>
-      <div class="station-info">
-        <div class="station-name" id="stationName">Выберите станцию</div>
-        <div class="station-genre" id="stationGenre">—</div>
+  <!-- Now playing -->
+  <div class="now-card" id="nowCard">
+    <div class="now-top">
+      <div class="now-logo" id="nowLogo">🎵</div>
+      <div class="now-info">
+        <div class="now-name" id="nowName">—</div>
+        <div class="now-genre" id="nowGenre">—</div>
       </div>
       <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
     </div>
 
-    <div class="visualizer" id="visualizer"></div>
+    <div class="viz" id="viz"></div>
 
     <div class="controls">
-      <button class="ctrl-btn" onclick="prevStation()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
-        </svg>
+      <button class="ctrl" onclick="prev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
       </button>
-
       <button class="play-btn" id="playBtn" onclick="togglePlay()">
         <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
-
-      <button class="ctrl-btn" onclick="nextStation()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
-        </svg>
+      <button class="ctrl" onclick="next()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
       </button>
     </div>
 
-    <div class="volume-row">
-      <span class="vol-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        </svg>
-      </span>
-      <input type="range" class="volume-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+    <div class="vol-row">
+      <span class="vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+      <input type="range" id="volSlider" min="0" max="100" value="80" oninput="setVol(this.value)">
     </div>
   </div>
 
-  <div class="now-playing" id="nowPlaying" style="display:none">
-    <span class="np-label">В эфире</span>
-    <span class="np-track" id="npTrack">—</span>
-  </div>
-
-  <div style="height:16px"></div>
-  <div class="stations-list" id="stationsList"></div>
-
+  <div class="section-label" id="listLabel">Все станции</div>
+  <div class="list" id="stationList"></div>
 </div>
 
-<audio id="audioEl"></audio>
+<audio id="audio"></audio>
 
 <script>
+// ─── STATIONS ────────────────────────────────────────────────────────────────
+// Все станции radiopotok.ru — поток через h.getradio.me / стандартные URL
 const stations = [
-  { name: "Soundpark Deep",  genre: "Deep House",  emoji: "🌊", url: "https://h.getradio.me/spdeep/hls.m3u8",         tag: "deep" },
-  { name: "SomaFM Drone",    genre: "Ambient",      emoji: "🌌", url: "https://ice6.somafm.com/dronezone-128-mp3",     tag: "chill" },
-  { name: "Frisky Deep",     genre: "Deep House",   emoji: "🎧", url: "https://deep.friskyradio.com/friskydeep_aachi", tag: "deep" },
-  { name: "SomaFM Groove",   genre: "Jazz / Soul",  emoji: "🎷", url: "https://ice6.somafm.com/groovesalad-128-mp3",  tag: "jazz" },
-  { name: "SomaFM Chill",    genre: "Chillout",     emoji: "❄️", url: "https://ice6.somafm.com/missioncontrol-128-mp3", tag: "chill" },
-  { name: "Jazz FM",         genre: "Jazz",         emoji: "🎺", url: "https://ice6.somafm.com/lush-128-mp3",         tag: "jazz" },
-  { name: "Nightwave Plaza", genre: "Lo-fi / Vaporwave", emoji: "🌆", url: "https://radio.plaza.one/mp3",           tag: "lofi" },
+  // ★ ГЛАВНАЯ
+  { id:1260, name:"SOUNDPARK DEEP",       genre:"Deep House", tag:"deep",     logo:"https://radiopotok.ru/f/station/256/1260.png", listeners:3317 },
+  // Поп / Хиты
+  { id:85,   name:"Русское Радио",         genre:"Русская поп",tag:"pop",      logo:"https://radiopotok.ru/f/station/256/85.png",   listeners:17757 },
+  { id:1323, name:"Маруся ФМ",             genre:"Русская поп",tag:"pop",      logo:"https://radiopotok.ru/f/station/256/1323.png", listeners:15262 },
+  { id:1543, name:"Русская Волна",         genre:"Русская поп",tag:"pop",      logo:"https://radiopotok.ru/f/station/256/1543.png", listeners:13308 },
+  { id:1576, name:"Европа Плюс",           genre:"Поп / Хиты", tag:"pop",      logo:"https://radiopotok.ru/f/station/256/1576.png", listeners:8133 },
+  { id:221,  name:"Новое радио 98.4 FM",   genre:"Поп",        tag:"pop",      logo:"https://radiopotok.ru/f/station/256/221.png",  listeners:3096 },
+  { id:1218, name:"ТНТ MUSIC RADIO",       genre:"Поп",        tag:"pop",      logo:"https://radiopotok.ru/f/station/256/1218.png", listeners:2214 },
+  { id:1992, name:"TOP 100",               genre:"Хиты",       tag:"pop",      logo:"https://radiopotok.ru/f/station/256/1992.png", listeners:1678 },
+  { id:177,  name:"Романтика",             genre:"Поп / Лирика",tag:"pop",     logo:"https://radiopotok.ru/f/station/256/177.png",  listeners:2001 },
+  // Электронная
+  { id:4,    name:"Радио ЭНЕРДЖИ (NRG)",   genre:"Электронная",tag:"electronic",logo:"https://radiopotok.ru/f/station/256/4.png",   listeners:1473 },
+  { id:1901, name:"Remix FM",              genre:"Ремиксы",    tag:"electronic",logo:"https://radiopotok.ru/f/station/256/1901.png",listeners:1871 },
+  { id:35,   name:"Радио PREMIUM",         genre:"Клубная",    tag:"electronic",logo:"https://radiopotok.ru/f/station/256/35.png",  listeners:1558 },
+  // Чилаут / Лаундж
+  { id:542,  name:"Атмосфера",             genre:"Lounge / Chill",tag:"chill", logo:"https://radiopotok.ru/f/station/256/542.png",  listeners:1470 },
+  { id:1480, name:"Для фона",              genre:"Chillout",   tag:"chill",    logo:"https://radiopotok.ru/f/station/256/1480.png", listeners:900 },
+  { id:1434, name:"Для души",              genre:"Лирика",     tag:"chill",    logo:"https://radiopotok.ru/f/station/256/1434.png", listeners:800 },
+  // Рок
+  { id:1594, name:"Русский Рок",           genre:"Рок",        tag:"rock",     logo:"https://radiopotok.ru/f/station/256/1594.png", listeners:2345 },
+  // Ретро
+  { id:1570, name:"Ретро Хит",             genre:"Ретро",      tag:"retro",    logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:3588 },
+  // Новости
+  { id:644,  name:"Вести FM",              genre:"Новости",    tag:"news",     logo:"https://radiopotok.ru/f/station/256/644.png",  listeners:7716 },
+  // Шансон
+  { id:2,    name:"Радио Шансон",          genre:"Шансон",     tag:"shanson",  logo:"https://radiopotok.ru/f/station/256/2.png",    listeners:2464 },
+  { id:1743, name:"Дядя Ваня на даче",     genre:"Шансон",     tag:"shanson",  logo:"https://radiopotok.ru/f/station/256/1743.png", listeners:1702 },
+  // Зарубежная
+  { id:603,  name:"Радио Монте-Карло",     genre:"Зарубежная", tag:"foreign",  logo:"https://radiopotok.ru/f/station/256/603.png",  listeners:5059 },
+  { id:780,  name:"Шоколад",              genre:"Каверы",     tag:"foreign",  logo:"https://radiopotok.ru/f/station/256/780.png",  listeners:4212 },
+  { id:487,  name:"Хорошее Радио",         genre:"Зарубежная", tag:"foreign",  logo:"https://radiopotok.ru/f/station/256/487.png",  listeners:3818 },
+  { id:83,   name:"Дорожное радио СПб",    genre:"Разное",     tag:"foreign",  logo:"https://radiopotok.ru/f/station/256/83.png",   listeners:4922 },
 ];
 
 const genres = [
-  { id: "all",   label: "Все" },
-  { id: "deep",  label: "Deep House" },
-  { id: "chill", label: "Chill" },
-  { id: "jazz",  label: "Jazz" },
-  { id: "lofi",  label: "Lo-fi" },
+  { id:"all",        label:"Все" },
+  { id:"deep",       label:"Deep House" },
+  { id:"pop",        label:"Поп" },
+  { id:"electronic", label:"Электро" },
+  { id:"chill",      label:"Чилаут" },
+  { id:"rock",       label:"Рок" },
+  { id:"retro",      label:"Ретро" },
+  { id:"shanson",    label:"Шансон" },
+  { id:"foreign",    label:"Зарубежная" },
+  { id:"news",       label:"Новости" },
 ];
 
-let current = 0;
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let curIdx = 0;   // index in stations[]
 let playing = false;
 let activeGenre = "all";
-let favorites = JSON.parse(localStorage.getItem("favs") || "[]");
-const audio = document.getElementById("audioEl");
+let favs = JSON.parse(localStorage.getItem("rfavs") || "[]");
+const audio = document.getElementById("audio");
+audio.volume = 0.8;
 
-// Clock
-function updateClock() {
-  const now = new Date();
+// ─── CLOCK ───────────────────────────────────────────────────────────────────
+function tick() {
+  const n = new Date();
   document.getElementById("clock").textContent =
-    now.getHours().toString().padStart(2,"0") + ":" +
-    now.getMinutes().toString().padStart(2,"0");
+    String(n.getHours()).padStart(2,"0") + ":" + String(n.getMinutes()).padStart(2,"0");
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(tick, 1000); tick();
 
-// Visualizer bars
-const viz = document.getElementById("visualizer");
-const barCount = 28;
+// ─── VISUALIZER ──────────────────────────────────────────────────────────────
+const viz = document.getElementById("viz");
 const bars = [];
-for (let i = 0; i < barCount; i++) {
+for (let i = 0; i < 30; i++) {
   const b = document.createElement("div");
   b.className = "bar";
-  const minH = 3 + Math.random() * 6;
-  const maxH = 12 + Math.random() * 22;
-  const dur = 0.5 + Math.random() * 0.7;
-  b.style.cssText = `height:${minH}px;--min:${minH}px;--max:${maxH}px;--dur:${dur}s;animation-delay:${Math.random()*0.5}s`;
-  viz.appendChild(b);
-  bars.push(b);
+  const mn = 3 + Math.random()*5, mx = 10 + Math.random()*22, dur = .45 + Math.random()*.7;
+  b.style.cssText = `height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;
+  viz.appendChild(b); bars.push(b);
+}
+function vizOn(on) { bars.forEach(b => on ? b.classList.add("on") : b.classList.remove("on")); }
+
+// ─── STREAM URL ──────────────────────────────────────────────────────────────
+function streamUrl(id) {
+  // Soundpark Deep — знаем HLS поток
+  if (id === 1260) return "https://h.getradio.me/spdeep/hls.m3u8";
+  // Остальные через стандартный паттерн getradio.me
+  return `https://h.getradio.me/rp${id}/hls.m3u8`;
 }
 
-function setVizPlaying(on) {
-  bars.forEach(b => {
-    if (on) b.classList.add("active");
-    else { b.classList.remove("active"); b.style.height = "4px"; }
-  });
-}
-
-// Genre pills
-function renderGenres() {
-  const el = document.getElementById("genrePills");
-  el.innerHTML = "";
-  genres.forEach(g => {
-    const btn = document.createElement("button");
-    btn.className = "genre-pill" + (g.id === activeGenre ? " active" : "");
-    btn.textContent = g.label;
-    btn.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); };
-    el.appendChild(btn);
-  });
-}
-
-// Station list
-function renderList() {
-  const el = document.getElementById("stationsList");
-  el.innerHTML = "";
-  const filtered = stations.filter(s => activeGenre === "all" || s.tag === activeGenre);
-  filtered.forEach((s, i) => {
-    const idx = stations.indexOf(s);
-    const row = document.createElement("div");
-    row.className = "station-row" + (idx === current ? " active" : "");
-    row.innerHTML = `
-      <div class="row-emoji">${s.emoji}</div>
-      <div class="row-info">
-        <div class="row-name">${s.name}</div>
-        <div class="row-genre">${s.genre}</div>
-      </div>
-      <div class="row-dot"></div>`;
-    row.onclick = () => { current = idx; loadStation(); if (!playing) togglePlay(); else loadStation(true); renderList(); };
-    el.appendChild(row);
-  });
-}
-
-// Update player UI
-function updatePlayer() {
-  const s = stations[current];
-  document.getElementById("stationEmoji").textContent = s.emoji;
-  document.getElementById("stationName").textContent = s.name;
-  document.getElementById("stationGenre").textContent = s.genre;
-  const isFav = favorites.includes(current);
-  const fb = document.getElementById("favBtn");
-  fb.textContent = isFav ? "♥" : "♡";
-  fb.classList.toggle("active", isFav);
-}
-
-function loadStation(autoplay = false) {
-  const s = stations[current];
-  audio.src = s.url;
-  updatePlayer();
+// ─── PLAYER ──────────────────────────────────────────────────────────────────
+function loadStation(idx, autoplay) {
+  curIdx = idx;
+  const s = stations[idx];
+  // Logo
+  const nl = document.getElementById("nowLogo");
+  nl.innerHTML = `<img src="${s.logo}" onerror="this.parentElement.textContent='🎵'">`;
+  document.getElementById("nowName").textContent = s.name;
+  document.getElementById("nowGenre").textContent = s.genre;
+  updateFavBtn();
+  document.getElementById("nowCard").classList.add("visible");
   renderList();
+
+  audio.src = streamUrl(s.id);
   if (autoplay || playing) {
     audio.play().catch(() => {});
+    setPlaying(true);
   }
+}
+
+function setPlaying(on) {
+  playing = on;
+  vizOn(on);
+  document.getElementById("liveDot").classList.toggle("on", on);
+  const btn = document.getElementById("playBtn");
+  btn.classList.toggle("playing", on);
+  document.getElementById("playIcon").innerHTML = on
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5 3 19 12 5 21 5 3"/>';
 }
 
 function togglePlay() {
   if (!playing) {
-    playing = true;
-    if (!audio.src || audio.src === window.location.href) loadStation(true);
-    else audio.play().catch(() => {});
-    setVizPlaying(true);
-    document.getElementById("playBtn").classList.add("playing");
-    document.getElementById("playIcon").innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-    document.getElementById("statusDot").classList.add("live");
-    document.getElementById("nowPlaying").style.display = "flex";
-    document.getElementById("npTrack").textContent = stations[current].name + " · Live";
+    if (!audio.src) loadStation(curIdx, true);
+    else { audio.play().catch(()=>{}); setPlaying(true); }
   } else {
-    playing = false;
-    audio.pause();
-    setVizPlaying(false);
-    document.getElementById("playBtn").classList.remove("playing");
-    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-    document.getElementById("statusDot").classList.remove("live");
+    audio.pause(); setPlaying(false);
   }
 }
 
-function prevStation() {
-  current = (current - 1 + stations.length) % stations.length;
-  loadStation(playing);
+function prev() {
+  const newIdx = (curIdx - 1 + stations.length) % stations.length;
+  loadStation(newIdx, playing);
 }
-function nextStation() {
-  current = (current + 1) % stations.length;
-  loadStation(playing);
+function next() {
+  const newIdx = (curIdx + 1) % stations.length;
+  loadStation(newIdx, playing);
 }
+function setVol(v) { audio.volume = v / 100; }
 
-function setVolume(v) {
-  audio.volume = v / 100;
-}
-
+// ─── FAVORITES ───────────────────────────────────────────────────────────────
 function toggleFav() {
-  const idx = favorites.indexOf(current);
-  if (idx === -1) favorites.push(current);
-  else favorites.splice(idx, 1);
-  localStorage.setItem("favs", JSON.stringify(favorites));
-  updatePlayer();
+  const id = stations[curIdx].id;
+  const i = favs.indexOf(id);
+  if (i === -1) favs.push(id); else favs.splice(i, 1);
+  localStorage.setItem("rfavs", JSON.stringify(favs));
+  updateFavBtn();
+}
+function updateFavBtn() {
+  const on = favs.includes(stations[curIdx].id);
+  const b = document.getElementById("favBtn");
+  b.textContent = on ? "♥" : "♡";
+  b.classList.toggle("on", on);
 }
 
-// Init
-audio.volume = 0.8;
+// ─── GENRES ──────────────────────────────────────────────────────────────────
+function renderGenres() {
+  const el = document.getElementById("genrePills");
+  el.innerHTML = "";
+  genres.forEach(g => {
+    const b = document.createElement("button");
+    b.className = "genre-pill" + (g.id === activeGenre ? " active" : "");
+    b.textContent = g.label;
+    b.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); };
+    el.appendChild(b);
+  });
+}
+
+// ─── LIST ────────────────────────────────────────────────────────────────────
+function renderList() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const el = document.getElementById("stationList");
+  el.innerHTML = "";
+
+  const filtered = stations.filter((s, i) => {
+    const matchGenre = activeGenre === "all" || s.tag === activeGenre;
+    const matchSearch = !q || s.name.toLowerCase().includes(q) || s.genre.toLowerCase().includes(q);
+    return matchGenre && matchSearch;
+  });
+
+  document.getElementById("listLabel").textContent =
+    activeGenre === "all" ? `Все станции (${filtered.length})` : filtered.length + " станций";
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty">Ничего не найдено</div>';
+    return;
+  }
+
+  filtered.forEach(s => {
+    const idx = stations.indexOf(s);
+    const row = document.createElement("div");
+    row.className = "row" + (idx === curIdx ? " active" : "");
+    row.innerHTML = `
+      <div class="row-img"><img src="${s.logo}" onerror="this.parentElement.textContent='🎵'"></div>
+      <div class="row-info">
+        <div class="row-name">${s.name}</div>
+        <div class="row-sub">${s.genre}</div>
+      </div>
+      <div class="row-right">
+        <div class="row-dot"></div>
+        <div class="row-listeners">${s.listeners.toLocaleString("ru")}</div>
+      </div>`;
+    row.onclick = () => loadStation(idx, true);
+    el.appendChild(row);
+  });
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
 renderGenres();
 renderList();
-updatePlayer();
+// Автозагрузка Soundpark Deep как первой станции
+loadStation(0, false);
 </script>
 </body>
 </html>
