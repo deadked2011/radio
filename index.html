@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Radio</title>
-<!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- ✅ ИСПРАВЛЕНИЕ: hls.js для воспроизведения .m3u8 в Chrome/Firefox -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -87,6 +88,18 @@ body {
 .now-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
 .fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); flex-shrink: 0; padding: 4px; }
 .fav-btn.on { color: #e05555; }
+
+/* Буферизация */
+.loading-bar {
+  height: 2px; background: var(--border); border-radius: 2px;
+  margin-bottom: 14px; overflow: hidden; display: none;
+}
+.loading-bar.active { display: block; }
+.loading-bar-inner {
+  height: 100%; width: 30%; background: var(--accent);
+  border-radius: 2px; animation: loading 1.2s ease-in-out infinite;
+}
+@keyframes loading { 0%{transform:translateX(-100%)} 100%{transform:translateX(400%)} }
 
 /* Visualizer */
 .viz { height: 34px; display: flex; align-items: center; gap: 2px; margin-bottom: 18px; }
@@ -184,6 +197,8 @@ input[type=range]::-webkit-slider-thumb {
       </div>
       <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
     </div>
+    <!-- Полоска загрузки -->
+    <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
     <div class="viz" id="viz"></div>
     <div class="controls">
       <button class="ctrl" onclick="prev()">
@@ -213,9 +228,8 @@ input[type=range]::-webkit-slider-thumb {
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
-  tg.expand(); // раскрыть на весь экран
-  tg.enableClosingConfirmation(); // спросить перед закрытием если играет
-  // Применяем цвета темы Telegram если есть
+  tg.expand();
+  tg.enableClosingConfirmation();
   if (tg.colorScheme === "dark") {
     document.documentElement.style.setProperty("--bg", "#1c1c1e");
     document.documentElement.style.setProperty("--card", "#2c2c2e");
@@ -228,9 +242,7 @@ if (tg) {
 }
 
 const stations = [
-  // ★ ГЛАВНАЯ — Soundpark Deep
   { id:1260, name:"SOUNDPARK DEEP",      genre:"Deep House",    tag:"deep",       logo:"https://radiopotok.ru/f/station/256/1260.png", listeners:3317 },
-  // Поп
   { id:85,   name:"Русское Радио",        genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/85.png",   listeners:17757 },
   { id:1323, name:"Маруся ФМ",            genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1323.png", listeners:15262 },
   { id:1543, name:"Русская Волна",        genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1543.png", listeners:13308 },
@@ -239,24 +251,17 @@ const stations = [
   { id:1218, name:"ТНТ MUSIC RADIO",      genre:"Поп",          tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1218.png", listeners:2214 },
   { id:1992, name:"TOP 100",              genre:"Хиты",         tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1992.png", listeners:1678 },
   { id:177,  name:"Романтика",            genre:"Лирика",       tag:"pop",        logo:"https://radiopotok.ru/f/station/256/177.png",  listeners:2001 },
-  // Электронная
   { id:4,    name:"Радио ЭНЕРДЖИ (NRG)",  genre:"Электронная",  tag:"electronic", logo:"https://radiopotok.ru/f/station/256/4.png",    listeners:1473 },
   { id:1901, name:"Remix FM",             genre:"Ремиксы",      tag:"electronic", logo:"https://radiopotok.ru/f/station/256/1901.png", listeners:1871 },
   { id:35,   name:"Радио PREMIUM",        genre:"Клубная",      tag:"electronic", logo:"https://radiopotok.ru/f/station/256/35.png",   listeners:1558 },
-  // Чилаут
   { id:542,  name:"Атмосфера",            genre:"Lounge / Chill",tag:"chill",     logo:"https://radiopotok.ru/f/station/256/542.png",  listeners:1470 },
   { id:1480, name:"Для фона",             genre:"Chillout",     tag:"chill",      logo:"https://radiopotok.ru/f/station/256/1480.png", listeners:900 },
   { id:1434, name:"Для души",             genre:"Лирика",       tag:"chill",      logo:"https://radiopotok.ru/f/station/256/1434.png", listeners:800 },
-  // Рок
   { id:1594, name:"Русский Рок",          genre:"Рок",          tag:"rock",       logo:"https://radiopotok.ru/f/station/256/1594.png", listeners:2345 },
-  // Ретро
   { id:1570, name:"Ретро Хит",            genre:"Ретро",        tag:"retro",      logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:3588 },
-  // Новости
   { id:644,  name:"Вести FM",             genre:"Новости",      tag:"news",       logo:"https://radiopotok.ru/f/station/256/644.png",  listeners:7716 },
-  // Шансон
   { id:2,    name:"Радио Шансон",         genre:"Шансон",       tag:"shanson",    logo:"https://radiopotok.ru/f/station/256/2.png",    listeners:2464 },
   { id:1743, name:"Дядя Ваня на даче",    genre:"Шансон",       tag:"shanson",    logo:"https://radiopotok.ru/f/station/256/1743.png", listeners:1702 },
-  // Зарубежная
   { id:603,  name:"Радио Монте-Карло",    genre:"Зарубежная",   tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/603.png",  listeners:5059 },
   { id:780,  name:"Шоколад",             genre:"Каверы",       tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/780.png",  listeners:4212 },
   { id:487,  name:"Хорошее Радио",        genre:"Зарубежная",   tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/487.png",  listeners:3818 },
@@ -281,6 +286,9 @@ let favs = JSON.parse(localStorage.getItem("rfavs") || "[]");
 const audio = document.getElementById("audio");
 audio.volume = 0.8;
 
+// ✅ ИСПРАВЛЕНИЕ: глобальный экземпляр hls.js
+let hlsInstance = null;
+
 // Часы
 function tick() {
   const n = new Date();
@@ -300,11 +308,70 @@ for (let i = 0; i < 30; i++) {
   viz.appendChild(b); bars.push(b);
 }
 function vizOn(on) { bars.forEach(b => on ? b.classList.add("on") : b.classList.remove("on")); }
+function setLoading(on) { document.getElementById("loadingBar").classList.toggle("active", on); }
 
 // Stream URL
 function streamUrl(id) {
   if (id === 1260) return "https://h.getradio.me/spdeep/hls.m3u8";
   return `https://h.getradio.me/rp${id}/hls.m3u8`;
+}
+
+// ✅ ИСПРАВЛЕНИЕ: универсальная функция воспроизведения HLS
+function playHLS(url) {
+  // Уничтожаем предыдущий экземпляр hls
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+
+  setLoading(true);
+  vizOn(false);
+
+  // Safari поддерживает HLS нативно
+  if (audio.canPlayType("application/vnd.apple.mpegurl")) {
+    audio.src = url;
+    audio.play()
+      .then(() => { setLoading(false); setPlaying(true); })
+      .catch(e => { console.warn("Safari play error:", e); setLoading(false); setPlaying(false); });
+    return;
+  }
+
+  // Chrome/Firefox/другие — используем hls.js
+  if (typeof Hls !== "undefined" && Hls.isSupported()) {
+    hlsInstance = new Hls({
+      enableWorker: true,
+      lowLatencyMode: true,
+      backBufferLength: 30,
+    });
+    hlsInstance.loadSource(url);
+    hlsInstance.attachMedia(audio);
+
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+      audio.play()
+        .then(() => { setLoading(false); setPlaying(true); })
+        .catch(e => { console.warn("HLS play error:", e); setLoading(false); setPlaying(false); });
+    });
+
+    hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        console.error("HLS fatal error:", data.type, data.details);
+        setLoading(false);
+        setPlaying(false);
+        // Пробуем восстановить поток
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          hlsInstance.startLoad();
+        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          hlsInstance.recoverMediaError();
+        }
+      }
+    });
+  } else {
+    // Фоллбэк: прямая подстановка (для очень старых браузеров)
+    audio.src = url;
+    audio.play()
+      .then(() => { setLoading(false); setPlaying(true); })
+      .catch(() => { setLoading(false); setPlaying(false); });
+  }
 }
 
 // Загрузить станцию
@@ -318,14 +385,18 @@ function loadStation(idx, autoplay) {
   updateFavBtn();
   document.getElementById("nowCard").classList.add("visible");
 
-  // Уведомить Telegram о смене станции
   if (tg) tg.setHeaderColor(tg.colorScheme === "dark" ? "#2c2c2e" : "#f7f6f3");
 
   renderList();
-  audio.src = streamUrl(s.id);
+
   if (autoplay || playing) {
-    audio.play().catch(() => {});
-    setPlaying(true);
+    playHLS(streamUrl(s.id));
+  } else {
+    // Остановить воспроизведение при смене без автоплея
+    if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+    audio.pause();
+    audio.src = "";
+    setPlaying(false);
   }
 }
 
@@ -343,10 +414,12 @@ function setPlaying(on) {
 function togglePlay() {
   if (tg) tg.HapticFeedback?.impactOccurred("light");
   if (!playing) {
-    if (!audio.src) loadStation(curIdx, true);
-    else { audio.play().catch(()=>{}); setPlaying(true); }
+    playHLS(streamUrl(stations[curIdx].id));
   } else {
-    audio.pause(); setPlaying(false);
+    if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+    audio.pause();
+    setPlaying(false);
+    setLoading(false);
   }
 }
 
