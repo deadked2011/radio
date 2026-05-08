@@ -4,173 +4,199 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Radio</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- ✅ ИСПРАВЛЕНИЕ: hls.js для воспроизведения .m3u8 в Chrome/Firefox -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f7f6f3;
-  --card: #ffffff;
-  --text: #1a1a1a;
-  --muted: #9a9a9a;
-  --accent: #1a1a1a;
-  --border: #e8e6e1;
-  --pill: #f0ede8;
-  --shadow: 0 2px 24px rgba(0,0,0,0.07);
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-}
-html, body {
-  height: 100%;
-  overscroll-behavior: none;
-  -webkit-tap-highlight-color: transparent;
-}
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 24px);
-}
-.app { width: 100%; max-width: 480px; margin: 0 auto; }
 
-/* Header */
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 0 2px; }
-.header-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.clock { font-size: 12px; color: var(--muted); font-weight: 300; }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background .3s; flex-shrink: 0; }
-.live-dot.on { background: #4caf7d; animation: blink 1.5s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* Search */
-.search-wrap { position: relative; margin-bottom: 14px; }
-.search-input {
-  width: 100%; padding: 11px 16px 11px 40px;
-  background: var(--card); border: none; border-radius: 14px;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
-  box-shadow: 0 1px 8px rgba(0,0,0,0.05); outline: none;
-  -webkit-appearance: none;
-}
-.search-input::placeholder { color: var(--muted); }
-.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; display: flex; }
-
-/* Genres */
-.genres { display: flex; gap: 7px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.genres::-webkit-scrollbar { display: none; }
-.genre-pill {
-  padding: 6px 13px; border-radius: 100px; background: var(--pill);
-  color: var(--muted); font-size: 11px; font-weight: 500; cursor: pointer;
-  transition: all .2s; border: none; white-space: nowrap;
-  text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-.genre-pill.active { background: var(--accent); color: #fff; }
-
-/* Now playing card */
-.now-card {
-  background: var(--card); border-radius: 22px;
-  padding: 20px; box-shadow: var(--shadow); margin-bottom: 14px;
-  display: none;
-}
-.now-card.visible { display: block; }
-.now-top { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
-.now-logo {
-  width: 50px; height: 50px; border-radius: 13px;
-  background: var(--pill); overflow: hidden; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
-}
-.now-logo img { width: 100%; height: 100%; object-fit: cover; }
-.now-info { flex: 1; min-width: 0; }
-.now-name { font-family: 'DM Serif Display', serif; font-size: 16px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.now-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); flex-shrink: 0; padding: 4px; }
-.fav-btn.on { color: #e05555; }
-
-/* Буферизация */
-.loading-bar {
-  height: 2px; background: var(--border); border-radius: 2px;
-  margin-bottom: 14px; overflow: hidden; display: none;
-}
-.loading-bar.active { display: block; }
-.loading-bar-inner {
-  height: 100%; width: 30%; background: var(--accent);
-  border-radius: 2px; animation: loading 1.2s ease-in-out infinite;
-}
-@keyframes loading { 0%{transform:translateX(-100%)} 100%{transform:translateX(400%)} }
-
-/* Visualizer */
-.viz { height: 34px; display: flex; align-items: center; gap: 2px; margin-bottom: 18px; }
-.bar { flex: 1; background: var(--border); border-radius: 3px; height: 4px; }
-.bar.on { background: var(--accent); animation: pulse var(--dur,.8s) ease-in-out infinite alternate; }
-@keyframes pulse { from{height:var(--min,4px)} to{height:var(--max,26px)} }
-
-/* Controls */
-.controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.ctrl {
-  background: none; border: none; cursor: pointer; color: var(--muted);
-  padding: 10px; border-radius: 50%; transition: all .15s; display: flex;
-  -webkit-tap-highlight-color: transparent;
-}
-.ctrl:active { background: var(--pill); color: var(--text); }
-.ctrl svg { width: 20px; height: 20px; }
-.play-btn {
-  width: 58px; height: 58px; border-radius: 50%;
-  background: var(--accent); border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.18); transition: transform .15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.play-btn:active { transform: scale(.95); }
-.play-btn svg { width: 20px; height: 20px; fill: white; margin-left: 2px; }
-.play-btn.playing svg { margin-left: 0; }
-
-/* Volume */
-.vol-row { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border); }
-.vol-icon { color: var(--muted); display: flex; }
-.vol-icon svg { width: 15px; height: 15px; }
-input[type=range] {
-  flex: 1; -webkit-appearance: none; height: 3px; border-radius: 3px;
-  background: var(--border); outline: none; cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 16px; height: 16px;
-  border-radius: 50%; background: var(--accent); cursor: pointer;
-}
-
-/* List */
-.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 500; margin-bottom: 9px; padding: 0 2px; }
-.list { display: flex; flex-direction: column; gap: 7px; }
-.row {
-  background: var(--card); border-radius: 15px; padding: 11px 14px;
-  display: flex; align-items: center; gap: 12px; cursor: pointer;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-  transition: box-shadow .2s;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-.row:active { box-shadow: var(--shadow); }
-.row.active { outline: 2px solid var(--accent); }
-.row-img {
-  width: 40px; height: 40px; border-radius: 10px; background: var(--pill);
-  overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px;
-}
-.row-img img { width: 100%; height: 100%; object-fit: cover; }
-.row-info { flex: 1; min-width: 0; }
-.row-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.row-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.row-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
-.row.active .row-dot { background: #4caf7d; animation: blink 1.5s infinite; }
-.row-cnt { font-size: 10px; color: var(--muted); }
-.empty { text-align: center; color: var(--muted); font-size: 13px; padding: 28px 0; }
-</style>
-
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a1a">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Telegram Mini App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- HLS.js для воспроизведения потоков .m3u8 в Chrome/Android -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f7f6f3; --card: #ffffff; --text: #1a1a1a; --muted: #9a9a9a;
+  --accent: #1a1a1a; --border: #e8e6e1; --pill: #f0ede8;
+  --shadow: 0 2px 24px rgba(0,0,0,0.07);
+  --safe-top: env(safe-area-inset-top,0px);
+  --safe-bottom: env(safe-area-inset-bottom,0px);
+  --touch-size: 48px; /* минимум для авто-экрана */
+}
+
+/* ── АВТО-РЕЖИМ: тёмная тема по умолчанию ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#111113; --card:#1e1e20; --text:#f0f0f0; --muted:#6e6e73;
+    --accent:#f0f0f0; --border:#2e2e30; --pill:#2a2a2c;
+  }
+}
+
+html, body { height:100%; overscroll-behavior:none; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text);
+  min-height:100vh;
+  padding:calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 20px);
+}
+.app { width:100%; max-width:520px; margin:0 auto; }
+
+/* ═══ HEADER ═══ */
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.header-title { font-family:'DM Serif Display',serif; font-size:22px; letter-spacing:-.3px; }
+.header-right { display:flex; align-items:center; gap:10px; }
+.clock { font-size:13px; color:var(--muted); font-weight:300; font-variant-numeric:tabular-nums; }
+.live-pill {
+  display:flex; align-items:center; gap:5px;
+  padding:4px 10px; border-radius:100px; background:var(--pill);
+  font-size:11px; font-weight:500; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.4px;
+  transition:all .3s;
+}
+.live-pill.on { background:#1a3a2a; color:#4caf7d; }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); }
+.live-pill.on .live-dot { background:#4caf7d; animation:blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ═══ SEARCH ═══ */
+.search-wrap { position:relative; margin-bottom:12px; }
+.search-input {
+  width:100%; padding:12px 16px 12px 42px;
+  background:var(--card); border:none; border-radius:14px;
+  font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text);
+  box-shadow:0 1px 8px rgba(0,0,0,0.06); outline:none; -webkit-appearance:none;
+}
+.search-input::placeholder { color:var(--muted); }
+.search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; display:flex; }
+
+/* ═══ GENRES ═══ */
+.genres { display:flex; gap:7px; overflow-x:auto; margin-bottom:14px; padding-bottom:2px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+.genres::-webkit-scrollbar { display:none; }
+.genre-pill {
+  padding:8px 15px; border-radius:100px; background:var(--pill);
+  color:var(--muted); font-size:12px; font-weight:500; cursor:pointer;
+  border:none; white-space:nowrap; text-transform:uppercase; letter-spacing:.3px;
+  flex-shrink:0; min-height:var(--touch-size); display:flex; align-items:center;
+  transition:all .15s;
+}
+.genre-pill.active { background:var(--accent); color:var(--bg); }
+
+/* ═══ NOW PLAYING CARD ═══ */
+.now-card {
+  background:var(--card); border-radius:22px; padding:20px;
+  box-shadow:var(--shadow); margin-bottom:14px; display:none;
+}
+.now-card.visible { display:block; }
+
+.now-top { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.now-logo {
+  width:56px; height:56px; border-radius:14px; background:var(--pill);
+  overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px;
+}
+.now-logo img { width:100%; height:100%; object-fit:cover; }
+.now-info { flex:1; min-width:0; }
+.now-name { font-family:'DM Serif Display',serif; font-size:18px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.now-genre { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+.fav-btn {
+  background:none; border:none; cursor:pointer; font-size:24px; color:var(--muted);
+  flex-shrink:0; width:var(--touch-size); height:var(--touch-size);
+  display:flex; align-items:center; justify-content:center; border-radius:50%;
+  transition:all .15s;
+}
+.fav-btn:active { background:var(--pill); }
+.fav-btn.on { color:#e05555; }
+
+/* Loading bar */
+.loading-bar { height:2px; background:var(--border); border-radius:2px; margin-bottom:12px; overflow:hidden; display:none; }
+.loading-bar.active { display:block; }
+.loading-bar-inner { height:100%; width:30%; background:var(--accent); border-radius:2px; animation:loading 1.2s ease-in-out infinite; }
+@keyframes loading { 0%{transform:translateX(-100%)} 100%{transform:translateX(400%)} }
+
+/* Visualizer */
+.viz { height:36px; display:flex; align-items:center; gap:2px; margin-bottom:16px; }
+.bar { flex:1; background:var(--border); border-radius:3px; height:4px; }
+.bar.on { background:var(--accent); animation:pulse var(--dur,.8s) ease-in-out infinite alternate; }
+@keyframes pulse { from{height:var(--min,4px)} to{height:var(--max,26px)} }
+
+/* ═══ CONTROLS — большие для авто ═══ */
+.controls { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.ctrl {
+  background:var(--pill); border:none; cursor:pointer; color:var(--muted);
+  width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  transition:all .15s; flex-shrink:0;
+}
+.ctrl:active { background:var(--border); color:var(--text); transform:scale(.95); }
+.ctrl svg { width:22px; height:22px; }
+.play-btn {
+  width:68px; height:68px; border-radius:50%;
+  background:var(--accent); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 22px rgba(0,0,0,0.2); transition:transform .15s;
+}
+.play-btn:active { transform:scale(.94); }
+.play-btn svg { width:24px; height:24px; fill:var(--bg); margin-left:3px; }
+.play-btn.playing svg { margin-left:0; }
+
+/* Volume */
+.vol-row { display:flex; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--border); }
+.vol-icon { color:var(--muted); display:flex; flex-shrink:0; }
+.vol-icon svg { width:16px; height:16px; }
+input[type=range] {
+  flex:1; -webkit-appearance:none; height:4px; border-radius:4px;
+  background:var(--border); outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:20px; height:20px;
+  border-radius:50%; background:var(--accent); cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* ═══ STATION LIST ═══ */
+.section-label { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:500; margin-bottom:9px; padding:0 2px; }
+.list { display:flex; flex-direction:column; gap:7px; }
+.row {
+  background:var(--card); border-radius:16px; padding:13px 16px;
+  display:flex; align-items:center; gap:14px; cursor:pointer;
+  box-shadow:0 1px 6px rgba(0,0,0,0.05); user-select:none;
+  min-height:68px; /* крупнее для авто */
+  transition:box-shadow .15s;
+}
+.row:active { box-shadow:var(--shadow); transform:scale(.99); }
+.row.active { outline:2px solid var(--accent); }
+.row-img { width:44px; height:44px; border-radius:11px; background:var(--pill); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.row-img img { width:100%; height:100%; object-fit:cover; }
+.row-info { flex:1; min-width:0; }
+.row-name { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.row-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+.row-dot { width:8px; height:8px; border-radius:50%; background:var(--border); }
+.row.active .row-dot { background:#4caf7d; animation:blink 1.5s infinite; }
+.row-cnt { font-size:11px; color:var(--muted); }
+.empty { text-align:center; color:var(--muted); font-size:14px; padding:32px 0; }
+
+/* ═══ АВТО-РЕЖИМ: горизонтальный layout на широких экранах ═══ */
+@media (min-width:700px) and (orientation:landscape) {
+  .app { max-width:100%; display:grid; grid-template-columns:340px 1fr; gap:16px; align-items:start; }
+  .header, .search-wrap, .genres { grid-column:1/-1; }
+  .now-card { position:sticky; top:16px; }
+  .section-label, .list { grid-column:2; }
+  .play-btn { width:80px; height:80px; }
+  .play-btn svg { width:28px; height:28px; }
+  .ctrl { width:60px; height:60px; }
+  .ctrl svg { width:26px; height:26px; }
+  .now-logo { width:64px; height:64px; }
+  .now-name { font-size:20px; }
+  .row { min-height:76px; }
+  .row-name { font-size:15px; }
+}
+</style>
 
 <script>
 if ('serviceWorker' in navigator) {
@@ -181,7 +207,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 </head>
 <body>
 <div class="app">
@@ -189,15 +214,16 @@ if ('serviceWorker' in navigator) {
   <div class="header">
     <div class="header-title">Radio</div>
     <div class="header-right">
-      <span class="live-dot" id="liveDot"></span>
+      <div class="live-pill" id="livePill">
+        <span class="live-dot"></span>
+        <span id="liveLabel">Стоп</span>
+      </div>
       <span class="clock" id="clock"></span>
     </div>
   </div>
 
   <div class="search-wrap">
-    <span class="search-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    </span>
+    <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
     <input class="search-input" id="searchInput" placeholder="Поиск..." oninput="renderList()">
   </div>
 
@@ -212,17 +238,16 @@ if ('serviceWorker' in navigator) {
       </div>
       <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
     </div>
-    <!-- Полоска загрузки -->
     <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
     <div class="viz" id="viz"></div>
     <div class="controls">
-      <button class="ctrl" onclick="prev()">
+      <button class="ctrl" onclick="prev()" aria-label="Предыдущая">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
       </button>
-      <button class="play-btn" id="playBtn" onclick="togglePlay()">
+      <button class="play-btn" id="playBtn" onclick="togglePlay()" aria-label="Играть">
         <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
-      <button class="ctrl" onclick="next()">
+      <button class="ctrl" onclick="next()" aria-label="Следующая">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
       </button>
     </div>
@@ -239,262 +264,273 @@ if ('serviceWorker' in navigator) {
 <audio id="audio"></audio>
 
 <script>
-// Инициализация Telegram Mini App
+// ═══ TELEGRAM MINI APP ═══
 const tg = window.Telegram?.WebApp;
 if (tg) {
-  tg.ready();
-  tg.expand();
-  tg.enableClosingConfirmation();
-  if (tg.colorScheme === "dark") {
-    document.documentElement.style.setProperty("--bg", "#1c1c1e");
-    document.documentElement.style.setProperty("--card", "#2c2c2e");
-    document.documentElement.style.setProperty("--text", "#ffffff");
-    document.documentElement.style.setProperty("--muted", "#8e8e93");
-    document.documentElement.style.setProperty("--border", "#3a3a3c");
-    document.documentElement.style.setProperty("--pill", "#3a3a3c");
-    document.documentElement.style.setProperty("--accent", "#ffffff");
-  }
+  tg.ready(); tg.expand(); tg.enableClosingConfirmation();
+  if (tg.colorScheme === "dark") applyDark();
+}
+function applyDark() {
+  const r = document.documentElement.style;
+  r.setProperty("--bg","#111113"); r.setProperty("--card","#1e1e20");
+  r.setProperty("--text","#f0f0f0"); r.setProperty("--muted","#6e6e73");
+  r.setProperty("--border","#2e2e30"); r.setProperty("--pill","#2a2a2c");
+  r.setProperty("--accent","#f0f0f0");
 }
 
+// ═══ СТАНЦИИ (все с прямыми рабочими потоками) ═══
 const stations = [
-  { id:1260, name:"SOUNDPARK DEEP",      genre:"Deep House",    tag:"deep",       logo:"https://radiopotok.ru/f/station/256/1260.png", listeners:3317 },
-  { id:85,   name:"Русское Радио",        genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/85.png",   listeners:17757 },
-  { id:1323, name:"Маруся ФМ",            genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1323.png", listeners:15262 },
-  { id:1543, name:"Русская Волна",        genre:"Русская поп",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1543.png", listeners:13308 },
-  { id:1576, name:"Европа Плюс",          genre:"Поп / Хиты",  tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1576.png", listeners:8133 },
-  { id:221,  name:"Новое радио 98.4 FM",  genre:"Поп",          tag:"pop",        logo:"https://radiopotok.ru/f/station/256/221.png",  listeners:3096 },
-  { id:1218, name:"ТНТ MUSIC RADIO",      genre:"Поп",          tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1218.png", listeners:2214 },
-  { id:1992, name:"TOP 100",              genre:"Хиты",         tag:"pop",        logo:"https://radiopotok.ru/f/station/256/1992.png", listeners:1678 },
-  { id:177,  name:"Романтика",            genre:"Лирика",       tag:"pop",        logo:"https://radiopotok.ru/f/station/256/177.png",  listeners:2001 },
-  { id:4,    name:"Радио ЭНЕРДЖИ (NRG)",  genre:"Электронная",  tag:"electronic", logo:"https://radiopotok.ru/f/station/256/4.png",    listeners:1473 },
-  { id:1901, name:"Remix FM",             genre:"Ремиксы",      tag:"electronic", logo:"https://radiopotok.ru/f/station/256/1901.png", listeners:1871 },
-  { id:35,   name:"Радио PREMIUM",        genre:"Клубная",      tag:"electronic", logo:"https://radiopotok.ru/f/station/256/35.png",   listeners:1558 },
-  { id:542,  name:"Атмосфера",            genre:"Lounge / Chill",tag:"chill",     logo:"https://radiopotok.ru/f/station/256/542.png",  listeners:1470 },
-  { id:1480, name:"Для фона",             genre:"Chillout",     tag:"chill",      logo:"https://radiopotok.ru/f/station/256/1480.png", listeners:900 },
-  { id:1434, name:"Для души",             genre:"Лирика",       tag:"chill",      logo:"https://radiopotok.ru/f/station/256/1434.png", listeners:800 },
-  { id:1594, name:"Русский Рок",          genre:"Рок",          tag:"rock",       logo:"https://radiopotok.ru/f/station/256/1594.png", listeners:2345 },
-  { id:1570, name:"Ретро Хит",            genre:"Ретро",        tag:"retro",      logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:3588 },
-  { id:644,  name:"Вести FM",             genre:"Новости",      tag:"news",       logo:"https://radiopotok.ru/f/station/256/644.png",  listeners:7716 },
-  { id:2,    name:"Радио Шансон",         genre:"Шансон",       tag:"shanson",    logo:"https://radiopotok.ru/f/station/256/2.png",    listeners:2464 },
-  { id:1743, name:"Дядя Ваня на даче",    genre:"Шансон",       tag:"shanson",    logo:"https://radiopotok.ru/f/station/256/1743.png", listeners:1702 },
-  { id:603,  name:"Радио Монте-Карло",    genre:"Зарубежная",   tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/603.png",  listeners:5059 },
-  { id:780,  name:"Шоколад",             genre:"Каверы",       tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/780.png",  listeners:4212 },
-  { id:487,  name:"Хорошее Радио",        genre:"Зарубежная",   tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/487.png",  listeners:3818 },
-  { id:83,   name:"Дорожное радио СПб",   genre:"Разное",       tag:"foreign",    logo:"https://radiopotok.ru/f/station/256/83.png",   listeners:4922 },
+  // ★ ГЛАВНАЯ
+  { id:"spdeep",  name:"SOUNDPARK DEEP",        genre:"Deep House",       tag:"deep",
+    url:"https://h.getradio.me/spdeep/hls.m3u8",
+    logo:"https://radiopotok.ru/f/station/256/1260.png", listeners:3317 },
+  // DEEP HOUSE / ELECTRONIC
+  { id:"rr_deep", name:"Record: Deep",           genre:"Deep House",       tag:"deep",
+    url:"https://radiorecord.hostingradio.ru/deep96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1260.png", listeners:0 },
+  { id:"rr_chill_h",name:"Record: Chill House",  genre:"Chill House",      tag:"deep",
+    url:"https://radiorecord.hostingradio.ru/chillhouse96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/542.png", listeners:0 },
+  { id:"rr_organic",name:"Record: Organic",      genre:"Organic House",    tag:"deep",
+    url:"https://radiorecord.hostingradio.ru/organic96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/542.png", listeners:0 },
+  { id:"rr_tech",  name:"Record: Tech House",    genre:"Tech House",       tag:"deep",
+    url:"https://radiorecord.hostingradio.ru/techouse96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/35.png", listeners:0 },
+  // CHILLOUT
+  { id:"rr_chill", name:"Record: Chill-Out",     genre:"Chillout",         tag:"chill",
+    url:"https://radiorecord.hostingradio.ru/chil96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1480.png", listeners:0 },
+  { id:"rr_lofi",  name:"Record: Lo-Fi",         genre:"Lo-Fi",            tag:"chill",
+    url:"https://radiorecord.hostingradio.ru/lofi96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1434.png", listeners:0 },
+  { id:"rr_ambient",name:"Record: Ambient",      genre:"Ambient",          tag:"chill",
+    url:"https://radiorecord.hostingradio.ru/ambient96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/542.png", listeners:0 },
+  // ЭЛЕКТРОННАЯ
+  { id:"rr_edm",   name:"Record: EDM",           genre:"EDM / Club",       tag:"electronic",
+    url:"https://radiorecord.hostingradio.ru/club96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/4.png", listeners:1473 },
+  { id:"rr_rmx",   name:"Record: Remix",         genre:"Ремиксы",          tag:"electronic",
+    url:"https://radiorecord.hostingradio.ru/rmx96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1901.png", listeners:1871 },
+  { id:"rr_techno",name:"Record: Techno",        genre:"Techno",           tag:"electronic",
+    url:"https://radiorecord.hostingradio.ru/techno96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/35.png", listeners:0 },
+  { id:"rr_trance",name:"Record: Trance",        genre:"Trance",           tag:"electronic",
+    url:"https://radiorecord.hostingradio.ru/tm96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/4.png", listeners:0 },
+  // РУССКАЯ ПОП / ХИТЫ
+  { id:"rusradio", name:"Русское Радио",          genre:"Русская поп",      tag:"pop",
+    url:"https://rusradio.hostingradio.ru/rusradio128.mp3",
+    logo:"https://radiopotok.ru/f/station/256/85.png", listeners:17757 },
+  { id:"marusya",  name:"Маруся FM",              genre:"Русская поп",      tag:"pop",
+    url:"http://radio-holding.ru:9000/marusya_default",
+    logo:"https://radiopotok.ru/f/station/256/1323.png", listeners:15262 },
+  { id:"europlus", name:"Европа Плюс",            genre:"Поп / Хиты",       tag:"pop",
+    url:"http://ep128.hostingradio.ru:8030/ep128",
+    logo:"https://radiopotok.ru/f/station/256/1576.png", listeners:8133 },
+  { id:"novoe",    name:"Новое Радио",             genre:"Поп",              tag:"pop",
+    url:"http://icecast.newradio.cdnvideo.ru/newradio3",
+    logo:"https://radiopotok.ru/f/station/256/221.png", listeners:3096 },
+  { id:"avtoradio",name:"Авторадио",              genre:"Поп / Хиты",       tag:"pop",
+    url:"https://pub0301.101.ru:8443/stream/air/mp3/256/100",
+    logo:"https://radiopotok.ru/f/station/256/38.png", listeners:5000 },
+  { id:"rr_rusmix",name:"Record: Russian Mix",   genre:"Русская электро",  tag:"pop",
+    url:"https://radiorecord.hostingradio.ru/rus96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1218.png", listeners:0 },
+  { id:"rr_super90",name:"Record: Супердиско 90х",genre:"90-е",            tag:"pop",
+    url:"https://radiorecord.hostingradio.ru/sd9096.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1992.png", listeners:0 },
+  // РЕТРО
+  { id:"retro",    name:"Ретро FM",               genre:"Ретро",            tag:"retro",
+    url:"http://hls-01-retro.emgsound.ru/12/128/playlist.m3u8",
+    logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:3588 },
+  { id:"rr_80s",   name:"Record: 80-е",           genre:"Ретро 80-е",       tag:"retro",
+    url:"https://radiorecord.hostingradio.ru/198096.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:0 },
+  { id:"synthwave",name:"Synthwave Radio",        genre:"Synthwave / Retro",tag:"retro",
+    url:"https://waveretro.ru:8443/stream",
+    logo:"https://radiopotok.ru/f/station/256/1570.png", listeners:0 },
+  // JAZZ
+  { id:"jazz",     name:"Jazz FM",                genre:"Jazz",             tag:"jazz",
+    url:"http://nashe1.hostingradio.ru/jazz-128.mp3",
+    logo:"https://radiopotok.ru/f/station/256/484.png", listeners:0 },
+  // РОК
+  { id:"rr_rock",  name:"Record: Rock",           genre:"Рок",              tag:"rock",
+    url:"https://radiorecord.hostingradio.ru/rock96.aacp",
+    logo:"https://radiopotok.ru/f/station/256/1594.png", listeners:0 },
+  // ШАНСОН
+  { id:"shanson",  name:"Радио Шансон",            genre:"Шансон",           tag:"shanson",
+    url:"http://chanson.hostingradio.ru:8041/chanson256.mp3",
+    logo:"https://radiopotok.ru/f/station/256/2.png", listeners:2464 },
+  // НОВОСТИ
+  { id:"vesti",    name:"Вести FM",               genre:"Новости",          tag:"news",
+    url:"http://icecast.vgtrk.cdnvideo.ru/vestifm_mp3_128kbps",
+    logo:"https://radiopotok.ru/f/station/256/644.png", listeners:7716 },
+  // ЗАРУБЕЖНАЯ
+  { id:"dorognoe", name:"Дорожное Радио",          genre:"Зарубежная",       tag:"foreign",
+    url:"https://dorognoe.hostingradio.ru:8000/dorognoe",
+    logo:"https://radiopotok.ru/f/station/256/83.png", listeners:4922 },
 ];
 
 const genres = [
   { id:"all",        label:"Все" },
   { id:"deep",       label:"Deep House" },
-  { id:"pop",        label:"Поп" },
+  { id:"pop",        label:"Поп / Хиты" },
   { id:"electronic", label:"Электро" },
   { id:"chill",      label:"Чилаут" },
-  { id:"rock",       label:"Рок" },
   { id:"retro",      label:"Ретро" },
+  { id:"rock",       label:"Рок" },
+  { id:"jazz",       label:"Jazz" },
   { id:"shanson",    label:"Шансон" },
-  { id:"foreign",    label:"Зарубежная" },
   { id:"news",       label:"Новости" },
 ];
 
-let curIdx = 0, playing = false, activeGenre = "all";
-let favs = JSON.parse(localStorage.getItem("rfavs") || "[]");
-const audio = document.getElementById("audio");
-audio.volume = 0.8;
+let curIdx=0, playing=false, activeGenre="all";
+let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
+let hlsInstance=null;
+const audio=document.getElementById("audio");
+audio.volume=0.8;
 
-// ✅ ИСПРАВЛЕНИЕ: глобальный экземпляр hls.js
-let hlsInstance = null;
+// ═══ ЧАСЫ ═══
+function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
+setInterval(tick,1000);tick();
 
-// Часы
-function tick() {
-  const n = new Date();
-  document.getElementById("clock").textContent =
-    String(n.getHours()).padStart(2,"0") + ":" + String(n.getMinutes()).padStart(2,"0");
-}
-setInterval(tick, 1000); tick();
+// ═══ ВИЗУАЛИЗАТОР ═══
+const viz=document.getElementById("viz");const bars=[];
+for(let i=0;i<32;i++){const b=document.createElement("div");b.className="bar";const mn=3+Math.random()*5,mx=10+Math.random()*20,dur=.4+Math.random()*.7;b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.6).toFixed(2)}s`;viz.appendChild(b);bars.push(b);}
+function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
+function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
 
-// Визуализатор
-const viz = document.getElementById("viz");
-const bars = [];
-for (let i = 0; i < 30; i++) {
-  const b = document.createElement("div");
-  b.className = "bar";
-  const mn = 3+Math.random()*5, mx = 10+Math.random()*20, dur = .45+Math.random()*.7;
-  b.style.cssText = `height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;
-  viz.appendChild(b); bars.push(b);
-}
-function vizOn(on) { bars.forEach(b => on ? b.classList.add("on") : b.classList.remove("on")); }
-function setLoading(on) { document.getElementById("loadingBar").classList.toggle("active", on); }
+// ═══ HLS ВОСПРОИЗВЕДЕНИЕ ═══
+function playStream(url) {
+  if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
+  setLoading(true); vizOn(false);
 
-// Stream URL
-function streamUrl(id) {
-  if (id === 1260) return "https://h.getradio.me/spdeep/hls.m3u8";
-  return `https://h.getradio.me/rp${id}/hls.m3u8`;
-}
+  const isHLS = url.includes(".m3u8");
 
-// ✅ ИСПРАВЛЕНИЕ: универсальная функция воспроизведения HLS
-function playHLS(url) {
-  // Уничтожаем предыдущий экземпляр hls
-  if (hlsInstance) {
-    hlsInstance.destroy();
-    hlsInstance = null;
-  }
-
-  setLoading(true);
-  vizOn(false);
-
-  // Safari поддерживает HLS нативно
-  if (audio.canPlayType("application/vnd.apple.mpegurl")) {
-    audio.src = url;
-    audio.play()
-      .then(() => { setLoading(false); setPlaying(true); })
-      .catch(e => { console.warn("Safari play error:", e); setLoading(false); setPlaying(false); });
+  if(isHLS && audio.canPlayType("application/vnd.apple.mpegurl")) {
+    // Safari / WebKit (iOS, некоторые авто-системы на WebKit)
+    audio.src=url;
+    audio.play().then(()=>{setLoading(false);setPlaying(true);}).catch(()=>{setLoading(false);setPlaying(false);});
     return;
   }
-
-  // Chrome/Firefox/другие — используем hls.js
-  if (typeof Hls !== "undefined" && Hls.isSupported()) {
-    hlsInstance = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-      backBufferLength: 30,
-    });
+  if(isHLS && typeof Hls!=="undefined" && Hls.isSupported()) {
+    // Chrome / Firefox / Android WebView
+    hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
     hlsInstance.loadSource(url);
     hlsInstance.attachMedia(audio);
-
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-      audio.play()
-        .then(() => { setLoading(false); setPlaying(true); })
-        .catch(e => { console.warn("HLS play error:", e); setLoading(false); setPlaying(false); });
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{
+      audio.play().then(()=>{setLoading(false);setPlaying(true);}).catch(()=>{setLoading(false);setPlaying(false);});
     });
-
-    hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-      if (data.fatal) {
-        console.error("HLS fatal error:", data.type, data.details);
-        setLoading(false);
-        setPlaying(false);
-        // Пробуем восстановить поток
-        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-          hlsInstance.startLoad();
-        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-          hlsInstance.recoverMediaError();
-        }
+    hlsInstance.on(Hls.Events.ERROR,(_,data)=>{
+      if(data.fatal){
+        setLoading(false);setPlaying(false);
+        if(data.type===Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
+        else if(data.type===Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
       }
     });
-  } else {
-    // Фоллбэк: прямая подстановка (для очень старых браузеров)
-    audio.src = url;
-    audio.play()
-      .then(() => { setLoading(false); setPlaying(true); })
-      .catch(() => { setLoading(false); setPlaying(false); });
+    return;
   }
+  // Прямые MP3/AAC потоки — для старых систем
+  audio.src=url;
+  audio.play().then(()=>{setLoading(false);setPlaying(true);}).catch(()=>{setLoading(false);setPlaying(false);});
 }
 
-// Загрузить станцию
+// ═══ MEDIA SESSION API — управление с руля / кнопок автомагнитолы ═══
+function updateMediaSession(s) {
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: s.name,
+    artist: s.genre,
+    album: "Radio",
+    artwork: [
+      { src: s.logo, sizes: "256x256", type: "image/png" }
+    ]
+  });
+  navigator.mediaSession.setActionHandler("play", ()=>{ if(!playing) togglePlay(); });
+  navigator.mediaSession.setActionHandler("pause", ()=>{ if(playing) togglePlay(); });
+  navigator.mediaSession.setActionHandler("previoustrack", prev);
+  navigator.mediaSession.setActionHandler("nexttrack", next);
+}
+
+// ═══ ЗАГРУЗКА СТАНЦИИ ═══
 function loadStation(idx, autoplay) {
-  curIdx = idx;
-  const s = stations[idx];
-  const nl = document.getElementById("nowLogo");
-  nl.innerHTML = `<img src="${s.logo}" onerror="this.parentElement.textContent='🎵'">`;
-  document.getElementById("nowName").textContent = s.name;
-  document.getElementById("nowGenre").textContent = s.genre;
+  curIdx=idx;
+  const s=stations[idx];
+  const nl=document.getElementById("nowLogo");
+  nl.innerHTML=`<img src="${s.logo}" onerror="this.parentElement.textContent='🎵'">`;
+  document.getElementById("nowName").textContent=s.name;
+  document.getElementById("nowGenre").textContent=s.genre;
   updateFavBtn();
   document.getElementById("nowCard").classList.add("visible");
-
-  if (tg) tg.setHeaderColor(tg.colorScheme === "dark" ? "#2c2c2e" : "#f7f6f3");
-
+  if(tg) tg.setHeaderColor?.(tg.colorScheme==="dark"?"#1e1e20":"#f7f6f3");
   renderList();
-
-  if (autoplay || playing) {
-    playHLS(streamUrl(s.id));
+  if(autoplay||playing){
+    playStream(s.url);
+    updateMediaSession(s);
   } else {
-    // Остановить воспроизведение при смене без автоплея
-    if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-    audio.pause();
-    audio.src = "";
-    setPlaying(false);
+    if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
+    audio.pause(); audio.src=""; setPlaying(false);
   }
 }
 
 function setPlaying(on) {
-  playing = on;
-  vizOn(on);
-  document.getElementById("liveDot").classList.toggle("on", on);
-  const btn = document.getElementById("playBtn");
-  btn.classList.toggle("playing", on);
-  document.getElementById("playIcon").innerHTML = on
-    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
-    : '<polygon points="5 3 19 12 5 21 5 3"/>';
+  playing=on; vizOn(on);
+  const pill=document.getElementById("livePill");
+  pill.classList.toggle("on",on);
+  document.getElementById("liveLabel").textContent=on?"Эфир":"Стоп";
+  const btn=document.getElementById("playBtn");
+  btn.classList.toggle("playing",on);
+  document.getElementById("playIcon").innerHTML=on
+    ?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    :'<polygon points="5 3 19 12 5 21 5 3"/>';
+  if("mediaSession" in navigator)
+    navigator.mediaSession.playbackState=on?"playing":"paused";
 }
 
-function togglePlay() {
-  if (tg) tg.HapticFeedback?.impactOccurred("light");
-  if (!playing) {
-    playHLS(streamUrl(stations[curIdx].id));
+function togglePlay(){
+  if(tg)tg.HapticFeedback?.impactOccurred("light");
+  if(!playing){
+    playStream(stations[curIdx].url);
+    updateMediaSession(stations[curIdx]);
   } else {
-    if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-    audio.pause();
-    setPlaying(false);
-    setLoading(false);
+    if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
+    audio.pause(); setPlaying(false); setLoading(false);
   }
 }
+function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length,playing);}
+function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length,playing);}
+function setVol(v){audio.volume=v/100;}
 
-function prev() {
-  if (tg) tg.HapticFeedback?.impactOccurred("light");
-  loadStation((curIdx - 1 + stations.length) % stations.length, playing);
+function toggleFav(){
+  if(tg)tg.HapticFeedback?.notificationOccurred("success");
+  const id=stations[curIdx].id;const i=favs.indexOf(id);
+  if(i===-1)favs.push(id);else favs.splice(i,1);
+  localStorage.setItem("rfavs",JSON.stringify(favs));updateFavBtn();
 }
-function next() {
-  if (tg) tg.HapticFeedback?.impactOccurred("light");
-  loadStation((curIdx + 1) % stations.length, playing);
-}
-function setVol(v) { audio.volume = v / 100; }
-
-function toggleFav() {
-  if (tg) tg.HapticFeedback?.notificationOccurred("success");
-  const id = stations[curIdx].id;
-  const i = favs.indexOf(id);
-  if (i === -1) favs.push(id); else favs.splice(i, 1);
-  localStorage.setItem("rfavs", JSON.stringify(favs));
-  updateFavBtn();
-}
-function updateFavBtn() {
-  const on = favs.includes(stations[curIdx].id);
-  const b = document.getElementById("favBtn");
-  b.textContent = on ? "♥" : "♡";
-  b.classList.toggle("on", on);
+function updateFavBtn(){
+  const on=favs.includes(stations[curIdx].id);
+  const b=document.getElementById("favBtn");b.textContent=on?"♥":"♡";b.classList.toggle("on",on);
 }
 
-function renderGenres() {
-  const el = document.getElementById("genrePills");
-  el.innerHTML = "";
-  genres.forEach(g => {
-    const b = document.createElement("button");
-    b.className = "genre-pill" + (g.id === activeGenre ? " active" : "");
-    b.textContent = g.label;
-    b.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); };
-    el.appendChild(b);
-  });
+function renderGenres(){
+  const el=document.getElementById("genrePills");el.innerHTML="";
+  genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});
 }
 
-function renderList() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const el = document.getElementById("stationList");
-  el.innerHTML = "";
-  const filtered = stations.filter(s =>
-    (activeGenre === "all" || s.tag === activeGenre) &&
-    (!q || s.name.toLowerCase().includes(q) || s.genre.toLowerCase().includes(q))
-  );
-  document.getElementById("listLabel").textContent =
-    activeGenre === "all" ? `Все станции (${filtered.length})` : `${filtered.length} станций`;
-
-  if (!filtered.length) {
-    el.innerHTML = '<div class="empty">Ничего не найдено</div>';
-    return;
-  }
-  filtered.forEach(s => {
-    const idx = stations.indexOf(s);
-    const row = document.createElement("div");
-    row.className = "row" + (idx === curIdx ? " active" : "");
-    row.innerHTML = `
+function renderList(){
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  const el=document.getElementById("stationList");el.innerHTML="";
+  const filtered=stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));
+  document.getElementById("listLabel").textContent=activeGenre==="all"?`Все станции (${filtered.length})`:`${filtered.length} станций`;
+  if(!filtered.length){el.innerHTML='<div class="empty">Ничего не найдено</div>';return;}
+  filtered.forEach(s=>{
+    const idx=stations.indexOf(s);
+    const row=document.createElement("div");
+    row.className="row"+(idx===curIdx?" active":"");
+    row.innerHTML=`
       <div class="row-img"><img src="${s.logo}" onerror="this.parentElement.textContent='🎵'"></div>
       <div class="row-info">
         <div class="row-name">${s.name}</div>
@@ -502,19 +538,14 @@ function renderList() {
       </div>
       <div class="row-right">
         <div class="row-dot"></div>
-        <div class="row-cnt">${s.listeners.toLocaleString("ru")}</div>
+        ${s.listeners>0?`<div class="row-cnt">${s.listeners.toLocaleString("ru")}</div>`:""}
       </div>`;
-    row.onclick = () => {
-      if (tg) tg.HapticFeedback?.impactOccurred("light");
-      loadStation(idx, true);
-    };
+    row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};
     el.appendChild(row);
   });
 }
 
-renderGenres();
-renderList();
-loadStation(0, false);
+renderGenres(); renderList(); loadStation(0,false);
 </script>
 </body>
 </html>
