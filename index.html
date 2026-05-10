@@ -8,33 +8,100 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
+/* ╔══════════════════════════════════════════════════╗
+   ║  FLUID DESIGN — всё через clamp(min, vw, max)   ║
+   ║  Размеры зависят от ширины экрана.               ║
+   ║  На большом экране = крупнее и удобнее           ║
+   ╚══════════════════════════════════════════════════╝ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #f7f6f3;
-  --card: #ffffff;
-  --text: #1a1a1a;
-  --muted: #9a9a9a;
-  --accent: #1a1a1a;
-  --border: #e8e6e1;
-  --pill: #f0ede8;
-  --pill-text: #7a7a7a;
-  --shadow: 0 2px 20px rgba(0,0,0,0.07);
-  --shadow-deep: 0 6px 30px rgba(0,0,0,0.13);
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Palette */
+  --bg:           #f7f6f3;
+  --card:         #ffffff;
+  --text:         #1a1a1a;
+  --muted:        #9a9a9a;
+  --accent:       #1a1a1a;
+  --border:       #e8e6e1;
+  --pill:         #f0ede8;
+  --pill-text:    #7a7a7a;
+  --green:        #4caf7d;
+  --red:          #e05555;
+  --orange:       #f0a030;
+  --shadow:       0 2px 18px rgba(0,0,0,.07);
+  --shadow-deep:  0 6px 28px rgba(0,0,0,.14);
+
+  /* Fluid sizes — scale with viewport width */
+  --f-title:    clamp(18px, 4.5vw,  28px);
+  --f-clock:    clamp(11px, 2.2vw,  16px);
+  --f-pill:     clamp(10px, 2vw,    14px);
+  --f-tab:      clamp(12px, 2.4vw,  16px);
+  --f-label:    clamp(10px, 1.8vw,  13px);
+  --f-now-name: clamp(15px, 3.8vw,  28px);
+  --f-now-gen:  clamp(10px, 1.9vw,  13px);
+  --f-row-name: clamp(13px, 2.8vw,  19px);
+  --f-row-sub:  clamp(10px, 1.9vw,  13px);
+  --f-comment:  clamp(12px, 2.4vw,  15px);
+  --f-cmeta:    clamp(10px, 1.9vw,  12px);
+
+  /* Component sizes */
+  --icon-btn:   clamp(32px, 7vw,    52px);
+  --now-logo:   clamp(52px, 12vw,   96px);
+  --fav-size:   clamp(22px, 5vw,    36px);
+  --play-size:  clamp(60px, 15vw,  120px);
+  --play-icon:  clamp(20px, 5.5vw,  44px);
+  --ctrl-size:  clamp(52px, 12vw,   96px);  /* square ctrl buttons */
+  --ctrl-icon:  clamp(20px, 4.5vw,  34px);
+  --vol-thumb:  clamp(18px, 4vw,    30px);
+  --vol-track:  clamp(3px,  .6vw,    6px);
+  --row-img:    clamp(42px, 10vw,   80px);
+  --row-min-h:  clamp(58px, 13.5vw, 90px);
+  --avatar-sz:  clamp(30px, 7vw,    48px);
+  --gap:        clamp(6px,  1.5vw,  12px);
+  --space-sm:   clamp(8px,  2vw,    18px);
+  --space-md:   clamp(12px, 3vw,    24px);
+  --r-card:     clamp(16px, 3.5vw,  26px);
+  --r-row:      clamp(12px, 2.8vw,  20px);
+  --r-icon:     clamp(9px,  2vw,    14px);
+
+  --safe-t: env(safe-area-inset-top,    0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left,   0px);
+  --safe-r: env(safe-area-inset-right,  0px);
+
+  /* Comments bar height (collapsed) */
+  --comments-bar: clamp(46px, 10.5vw, 66px);
 }
+
 :root.dark {
-  --bg: #141416;
-  --card: #1e1e22;
-  --text: #f0f0f0;
-  --muted: #6e6e78;
-  --accent: #e8e8e8;
-  --border: #2a2a30;
-  --pill: #26262c;
-  --pill-text: #8e8e98;
-  --shadow: 0 2px 20px rgba(0,0,0,0.3);
-  --shadow-deep: 0 6px 30px rgba(0,0,0,0.45);
+  --bg:          #141416;
+  --card:        #1e1e22;
+  --text:        #f0f0f0;
+  --muted:       #6e6e78;
+  --accent:      #e8e8e8;
+  --border:      #2a2a30;
+  --pill:        #26262c;
+  --pill-text:   #8e8e98;
+  --shadow:      0 2px 18px rgba(0,0,0,.35);
+  --shadow-deep: 0 6px 28px rgba(0,0,0,.55);
+}
+
+/* Car mode — inflate key sizes further */
+body.car {
+  --play-size:  clamp(90px, 22vw, 170px);
+  --play-icon:  clamp(32px, 8vw,  62px);
+  --ctrl-size:  clamp(80px, 18vw, 140px);
+  --ctrl-icon:  clamp(28px, 6vw,  48px);
+  --now-logo:   clamp(80px, 18vw, 140px);
+  --f-now-name: clamp(20px, 5vw,  36px);
+  --row-min-h:  clamp(72px, 16vw, 110px);
+  --f-row-name: clamp(15px, 3.2vw, 22px);
+  --f-row-sub:  clamp(12px, 2.4vw, 16px);
+  --row-img:    clamp(52px, 12vw,  90px);
+  --f-pill:     clamp(12px, 2.4vw, 17px);
+  --f-tab:      clamp(13px, 2.6vw, 18px);
+  --vol-thumb:  clamp(24px, 5vw,   38px);
+  --vol-track:  clamp(5px,  .9vw,  9px);
 }
 
 html, body {
@@ -47,317 +114,433 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  transition: background .25s, color .25s;
+  transition: background .3s, color .3s;
 }
 
-/* ════════════════════════════════
-   NORMAL MODE
-════════════════════════════════ */
-.normal-ui {
-  display: block;
-  padding: calc(var(--safe-top) + 12px) 14px calc(var(--safe-bottom) + 20px);
+/* ── PAGE WRAPPER ── */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding:
+    calc(var(--safe-t) + clamp(10px,2.5vw,18px))
+    calc(var(--safe-r) + clamp(12px,3vw,24px))
+    0
+    calc(var(--safe-l) + clamp(12px,3vw,24px));
 }
-.app { width: 100%; max-width: 500px; margin: 0 auto; }
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: clamp(10px,2.5vw,20px);
+}
+.app { width: 100%; max-width: 680px; margin: 0 auto; }
 
-/* Header */
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 2px; }
-.header-title { font-family: 'DM Serif Display', serif; font-size: 21px; letter-spacing: -.2px; }
-.header-right { display: flex; align-items: center; gap: 6px; }
-.clock { font-size: 12px; color: var(--muted); font-weight: 300; min-width: 36px; text-align: right; }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background .3s; flex-shrink: 0; }
-.live-dot.on { background: #4caf7d; animation: blink 1.5s infinite; }
+/* ── HEADER ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: var(--f-title);
+  letter-spacing: -.3px; line-height: 1;
+}
+.header-right { display: flex; align-items: center; gap: var(--gap); }
+.clock { font-size: var(--f-clock); color: var(--muted); font-weight: 300; }
+.live-dot {
+  width:  clamp(7px,1.6vw,11px);
+  height: clamp(7px,1.6vw,11px);
+  border-radius: 50%; background: var(--muted); transition: background .3s;
+}
+.live-dot.on { background: var(--green); animation: blink 1.5s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
 .icon-btn {
-  width: 32px; height: 32px; border-radius: 10px;
+  width:  var(--icon-btn);
+  height: var(--icon-btn);
+  border-radius: var(--r-icon);
   background: var(--pill); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--muted); transition: all .2s; flex-shrink: 0;
 }
 .icon-btn:active, .icon-btn.on { background: var(--accent); color: var(--bg); }
-.icon-btn svg { width: 15px; height: 15px; }
+.icon-btn svg { width: 44%; height: 44%; }
 
-/* Tabs */
-.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+/* ── TABS — always visible row ── */
+.tabs { display: flex; gap: var(--gap); margin-bottom: var(--space-sm); }
 .tab-btn {
-  padding: 7px 14px; border-radius: 100px; font-family: 'DM Sans', sans-serif;
-  font-size: 12px; font-weight: 500; cursor: pointer; border: none;
-  background: var(--pill); color: var(--pill-text); transition: all .2s;
-  display: flex; align-items: center; gap: 5px;
+  flex: 1;                              /* stretch to fill */
+  padding: clamp(8px,2vw,14px) 0;
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--f-tab); font-weight: 500;
+  cursor: pointer; border: none;
+  background: var(--pill); color: var(--pill-text);
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .tab-btn.active { background: var(--accent); color: var(--bg); }
+.tab-btn svg { width: clamp(12px,2.2vw,16px); height: clamp(12px,2.2vw,16px); }
 
-/* Search */
-.search-wrap { position: relative; margin-bottom: 12px; }
+/* ── SEARCH ── */
+.search-wrap { position: relative; margin-bottom: var(--space-sm); }
 .search-input {
-  width: 100%; padding: 10px 14px 10px 38px;
-  background: var(--card); border: none; border-radius: 13px;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05); outline: none; -webkit-appearance: none;
-  transition: background .25s, color .25s;
+  width: 100%;
+  padding: clamp(9px,2.1vw,15px) clamp(14px,3vw,22px) clamp(9px,2.1vw,15px) clamp(36px,8vw,56px);
+  background: var(--card); border: none;
+  border-radius: clamp(10px,2.5vw,18px);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--f-tab); color: var(--text);
+  box-shadow: 0 1px 6px rgba(0,0,0,.05); outline: none;
+  -webkit-appearance: none;
+  transition: background .3s, color .3s, box-shadow .2s;
 }
+.search-input:focus { box-shadow: 0 0 0 2px var(--accent); }
 .search-input::placeholder { color: var(--muted); }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; display: flex; }
+.search-icon {
+  position: absolute; left: clamp(12px,2.8vw,20px);
+  top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; display: flex;
+}
+.search-icon svg { width: clamp(15px,3.2vw,22px); height: clamp(15px,3.2vw,22px); }
 
-/* Genres */
-.genres { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; scrollbar-width: none; }
+/* ── GENRE PILLS ── */
+.genres {
+  display: flex; gap: var(--gap);
+  overflow-x: auto; margin-bottom: var(--space-md);
+  padding-bottom: 4px; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
 .genres::-webkit-scrollbar { display: none; }
 .genre-pill {
-  padding: 6px 13px; border-radius: 100px; background: var(--pill); color: var(--pill-text);
-  font-size: 11px; font-weight: 500; cursor: pointer; transition: all .2s; border: none;
+  padding: clamp(6px,1.4vw,11px) clamp(12px,2.5vw,22px);
+  border-radius: 100px;
+  background: var(--pill); color: var(--pill-text);
+  font-size: var(--f-pill); font-weight: 500;
+  cursor: pointer; transition: all .2s; border: none;
   white-space: nowrap; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0;
 }
 .genre-pill.active { background: var(--accent); color: var(--bg); }
 
-/* Resume badge */
+/* ── RESUME BADGE ── */
 .resume-badge {
-  display: none; align-items: center; gap: 7px;
+  display: none; align-items: center; gap: 8px;
   background: var(--card); border: 1.5px solid var(--border);
-  border-radius: 11px; padding: 8px 12px; margin-bottom: 12px;
-  font-size: 12px; color: var(--muted);
+  border-radius: clamp(8px,2vw,14px);
+  padding: clamp(7px,1.8vw,12px) clamp(12px,2.8vw,20px);
+  margin-bottom: var(--space-sm);
+  font-size: var(--f-now-gen); color: var(--muted);
 }
 .resume-badge.show { display: flex; }
-.resume-dot { width: 6px; height: 6px; border-radius: 50%; background: #f0a030; animation: blink 1s infinite; flex-shrink: 0; }
+.resume-dot { width:8px; height:8px; border-radius:50%; background:var(--orange); animation:blink 1s infinite; flex-shrink:0; }
 
-/* Now card */
+/* ── NOW PLAYING CARD ── */
 .now-card {
-  background: var(--card); border-radius: 22px; padding: 18px 18px 16px;
-  box-shadow: var(--shadow); margin-bottom: 14px; display: none;
-  transition: background .25s;
+  background: var(--card);
+  border-radius: var(--r-card);
+  padding: var(--space-md);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--space-md);
+  display: none; transition: background .3s;
 }
 .now-card.visible { display: block; }
-.now-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.now-logo {
-  width: 50px; height: 50px; border-radius: 13px; background: var(--pill);
-  overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px;
-}
-.now-logo img { width: 100%; height: 100%; object-fit: cover; }
-.now-info { flex: 1; min-width: 0; }
-.now-name { font-family: 'DM Serif Display', serif; font-size: 16px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.now-genre { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); flex-shrink: 0; padding: 4px; transition: transform .15s; }
-.fav-btn:active { transform: scale(1.2); }
-.fav-btn.on { color: #e05555; }
 
-.loading-bar { height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 12px; overflow: hidden; display: none; }
-.loading-bar.active { display: block; }
-.loading-bar-inner { height: 100%; width: 35%; background: var(--accent); border-radius: 2px; animation: loadAnim 1.1s ease-in-out infinite; }
+.now-top {
+  display: flex; align-items: center;
+  gap: var(--gap); margin-bottom: var(--space-md);
+}
+.now-logo {
+  width: var(--now-logo); height: var(--now-logo);
+  border-radius: clamp(10px,2.5vw,20px);
+  background: var(--pill); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(22px,5.5vw,44px);
+  transition: width .3s, height .3s;
+}
+.now-logo img { width:100%; height:100%; object-fit:cover; }
+.now-info { flex:1; min-width:0; }
+.now-name {
+  font-family:'DM Serif Display',serif;
+  font-size: var(--f-now-name);
+  margin-bottom: clamp(2px,.5vw,6px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.1; transition: font-size .3s;
+}
+.now-genre { font-size:var(--f-now-gen); color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+.fav-btn {
+  background:none; border:none; cursor:pointer;
+  font-size:var(--fav-size); color:var(--muted);
+  flex-shrink:0; padding:4px; transition:transform .15s; line-height:1;
+}
+.fav-btn:active { transform:scale(1.25); }
+.fav-btn.on { color:var(--red); }
+
+/* Loading bar */
+.loading-bar {
+  height:clamp(2px,.5vw,4px); background:var(--border);
+  border-radius:99px; margin-bottom:var(--space-sm);
+  overflow:hidden; display:none;
+}
+.loading-bar.active { display:block; }
+.loading-bar-inner {
+  height:100%; width:35%; background:var(--accent);
+  border-radius:99px; animation:loadAnim 1.1s ease-in-out infinite;
+}
 @keyframes loadAnim { 0%{transform:translateX(-150%)} 100%{transform:translateX(450%)} }
 
-.viz { height: 32px; display: flex; align-items: center; gap: 2px; margin-bottom: 16px; }
-.bar { flex: 1; background: var(--border); border-radius: 3px; height: 4px; }
-.bar.on { background: var(--accent); animation: pulse var(--dur,.8s) ease-in-out infinite alternate; }
+/* Visualizer */
+.viz {
+  height: clamp(28px,7vw,56px);
+  display:flex; align-items:center;
+  gap:clamp(1px,.4vw,3px); margin-bottom:var(--space-md);
+}
+.bar { flex:1; background:var(--border); border-radius:99px; height:4px; }
+.bar.on { background:var(--accent); animation:pulse var(--dur,.8s) ease-in-out infinite alternate; }
 @keyframes pulse { from{height:var(--min,4px)} to{height:var(--max,24px)} }
 
-.controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+/* ── CONTROLS ── fluid square buttons ── */
+.controls {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:var(--gap); margin-bottom:var(--space-md);
+}
+/* Prev / Next — square, scale with screen */
 .ctrl {
-  background: none; border: none; cursor: pointer; color: var(--muted);
-  padding: 10px; border-radius: 50%; transition: all .15s; display: flex;
+  width:  var(--ctrl-size);
+  height: var(--ctrl-size);
+  border-radius: clamp(14px,3vw,24px);
+  background: var(--pill); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--muted); transition:all .15s;
+  flex-shrink:0;
 }
-.ctrl:active { background: var(--pill); color: var(--text); }
-.ctrl svg { width: 20px; height: 20px; }
+.ctrl:active { background:var(--border); color:var(--text); transform:scale(.95); }
+.ctrl svg { width:var(--ctrl-icon); height:var(--ctrl-icon); }
+
+/* Play button — circle */
 .play-btn {
-  width: 58px; height: 58px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-deep); transition: transform .15s, background .25s;
+  width:  var(--play-size);
+  height: var(--play-size);
+  border-radius:50%;
+  background:var(--accent); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow-deep);
+  transition:transform .15s, background .3s, width .3s, height .3s;
+  flex-shrink:0;
 }
-.play-btn:active { transform: scale(.93); }
-.play-btn svg { width: 20px; height: 20px; fill: var(--bg); margin-left: 2px; transition: fill .25s; }
-.play-btn.playing svg { margin-left: 0; }
+.play-btn:active { transform:scale(.93); }
+.play-btn svg {
+  width:var(--play-icon); height:var(--play-icon);
+  fill:var(--bg); margin-left:8%;
+  transition:fill .3s;
+}
+.play-btn.playing svg { margin-left:0; }
 
-.vol-row { display: flex; align-items: center; gap: 10px; padding-top: 13px; border-top: 1px solid var(--border); }
-.vol-icon { color: var(--muted); display: flex; }
-.vol-icon svg { width: 15px; height: 15px; }
-input[type=range] { flex: 1; -webkit-appearance: none; height: 3px; border-radius: 3px; background: var(--border); outline: none; cursor: pointer; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+/* Volume */
+.vol-row {
+  display:flex; align-items:center;
+  gap:clamp(8px,2vw,16px);
+  padding-top:var(--space-sm);
+  border-top:1px solid var(--border);
+}
+.vol-icon { color:var(--muted); display:flex; }
+.vol-icon svg { width:clamp(14px,3.2vw,22px); height:clamp(14px,3.2vw,22px); }
+input[type=range] {
+  flex:1; -webkit-appearance:none;
+  height:var(--vol-track);
+  border-radius:99px; background:var(--border);
+  outline:none; cursor:pointer; transition:height .3s;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:var(--vol-thumb); height:var(--vol-thumb);
+  border-radius:50%; background:var(--accent); cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
+  transition:width .3s, height .3s;
+}
 
-.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 500; margin-bottom: 8px; padding: 0 2px; }
-.list { display: flex; flex-direction: column; gap: 6px; }
+/* ── STATION LIST ── */
+.section-label {
+  font-size:var(--f-label); text-transform:uppercase;
+  letter-spacing:.5px; color:var(--muted); font-weight:500;
+  margin-bottom:clamp(6px,1.5vw,12px); padding:0 2px;
+}
+.list { display:flex; flex-direction:column; gap:clamp(5px,1.2vw,10px); }
+
 .row {
-  background: var(--card); border-radius: 15px; padding: 11px 14px;
-  display: flex; align-items: center; gap: 12px; cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.04); transition: box-shadow .2s, background .25s;
-  user-select: none;
+  background:var(--card);
+  border-radius:var(--r-row);
+  padding:clamp(10px,2.4vw,18px) clamp(12px,2.8vw,22px);
+  display:flex; align-items:center;
+  gap:clamp(10px,2.4vw,18px); cursor:pointer;
+  box-shadow:0 1px 5px rgba(0,0,0,.04);
+  transition:box-shadow .2s, background .3s;
+  user-select:none;
+  min-height:var(--row-min-h);
 }
-.row:active { box-shadow: var(--shadow); }
-.row.active { outline: 2px solid var(--accent); }
+.row:active { box-shadow:var(--shadow); }
+.row.active { outline:clamp(1.5px,.3vw,2.5px) solid var(--accent); }
+
 .row-img {
-  width: 40px; height: 40px; border-radius: 11px; background: var(--pill);
-  overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px;
+  width:var(--row-img); height:var(--row-img);
+  border-radius:clamp(8px,2vw,16px);
+  background:var(--pill); overflow:hidden; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:clamp(17px,4vw,30px);
+  transition:width .3s, height .3s;
 }
-.row-img img { width: 100%; height: 100%; object-fit: cover; }
-.row-info { flex: 1; min-width: 0; }
-.row-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.row-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
-.row.active .row-dot { background: #4caf7d; animation: blink 1.5s infinite; }
-.row-cnt { font-size: 10px; color: var(--muted); }
-.empty { text-align: center; color: var(--muted); font-size: 13px; padding: 36px 0; line-height: 1.6; }
-.empty-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.row-img img { width:100%; height:100%; object-fit:cover; }
+.row-info { flex:1; min-width:0; }
+.row-name { font-size:var(--f-row-name); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-sub  { font-size:var(--f-row-sub); color:var(--muted); margin-top:clamp(2px,.5vw,5px); }
+.row-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.row-dot {
+  width:clamp(6px,1.4vw,10px); height:clamp(6px,1.4vw,10px);
+  border-radius:50%; background:var(--border);
+}
+.row.active .row-dot { background:var(--green); animation:blink 1.5s infinite; }
+.row-cnt { font-size:clamp(9px,1.9vw,12px); color:var(--muted); }
+.empty {
+  text-align:center; color:var(--muted); font-size:var(--f-row-sub);
+  padding:clamp(24px,6vw,48px) 0; line-height:1.6;
+}
+.empty-icon { font-size:clamp(28px,7vw,46px); display:block; margin-bottom:8px; }
 
-/* ════════════════════════════════
-   CAR MODE — полноэкранный
-════════════════════════════════ */
-.car-ui {
-  display: none;
-  position: fixed; inset: 0;
-  background: var(--bg);
-  flex-direction: column;
-  z-index: 100;
-  padding: calc(var(--safe-top) + 10px) 16px calc(var(--safe-bottom) + 12px);
-  transition: background .25s;
-}
-body.car .normal-ui { display: none; }
-body.car .car-ui    { display: flex; }
+/* Spacer so list doesn't hide under comments bar */
+.bottom-spacer { height:var(--comments-bar); }
 
-/* Car: top bar */
-.car-topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
+/* ═══════════════════════════════════════════════════
+   COMMENTS PANEL — fixed drawer at bottom
+═══════════════════════════════════════════════════ */
+.comments-strip {
+  position:fixed; bottom:0; left:0; right:0; z-index:300;
+  height:var(--comments-bar);
+  transition:height .38s cubic-bezier(.4,0,.2,1);
+  background:var(--card);
+  border-top:1px solid var(--border);
+  box-shadow:0 -4px 24px rgba(0,0,0,.09);
+  display:flex; flex-direction:column;
+  transition:height .38s cubic-bezier(.4,0,.2,1), background .3s;
 }
-.car-clock {
-  font-size: 32px; font-weight: 300; letter-spacing: -1px; color: var(--text);
-  font-family: 'DM Serif Display', serif;
-}
-.car-topright { display: flex; gap: 8px; align-items: center; }
-.car-live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
-.car-live-dot.on { background: #4caf7d; animation: blink 1.5s infinite; }
+.comments-strip.open { height:clamp(290px,58vh,500px); }
 
-/* Car icon btn (larger) */
-.car-icon-btn {
-  width: 44px; height: 44px; border-radius: 14px;
-  background: var(--pill); border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted); transition: all .2s;
+/* Handle */
+.comments-handle {
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,3.5vw,24px);
+  height:var(--comments-bar);
+  cursor:pointer; user-select:none;
 }
-.car-icon-btn:active, .car-icon-btn.on { background: var(--accent); color: var(--bg); }
-.car-icon-btn svg { width: 20px; height: 20px; }
+.handle-left { display:flex; align-items:center; gap:clamp(8px,2vw,14px); }
+.comments-label { font-size:var(--f-tab); font-weight:500; }
+.comments-count {
+  font-size:var(--f-label); color:var(--muted);
+  background:var(--pill); padding:2px 9px; border-radius:99px;
+}
+.c-live { width:8px; height:8px; border-radius:50%; background:var(--green); display:none; animation:blink 1.5s infinite; }
+.c-live.show { display:inline-block; }
+.c-chevron { color:var(--muted); transition:transform .35s; display:flex; }
+.c-chevron svg { width:clamp(16px,3.5vw,22px); height:clamp(16px,3.5vw,22px); }
+.comments-strip.open .c-chevron { transform:rotate(180deg); }
 
-/* Car: station display */
-.car-station {
-  background: var(--card); border-radius: 24px;
-  padding: 20px 22px; box-shadow: var(--shadow);
-  display: flex; align-items: center; gap: 18px;
-  margin-bottom: 14px; flex-shrink: 0;
+/* Body */
+.comments-body {
+  flex:1; overflow:hidden;
+  display:flex; flex-direction:column;
+  padding:0 clamp(10px,2.5vw,20px) clamp(8px,2vw,14px);
 }
-.car-logo {
-  width: 90px; height: 90px; border-radius: 18px;
-  background: var(--pill); overflow: hidden; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 38px;
-}
-.car-logo img { width: 100%; height: 100%; object-fit: cover; }
-.car-station-info { flex: 1; min-width: 0; }
-.car-name {
-  font-family: 'DM Serif Display', serif; font-size: 28px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 6px; line-height: 1.1;
-}
-.car-genre { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
-.car-fav {
-  background: none; border: none; cursor: pointer;
-  font-size: 32px; color: var(--muted); flex-shrink: 0; padding: 6px;
-  transition: transform .15s;
-}
-.car-fav:active { transform: scale(1.2); }
-.car-fav.on { color: #e05555; }
 
-/* Car: visualizer */
-.car-viz {
-  height: 50px; display: flex; align-items: center; gap: 3px;
-  margin-bottom: 14px; flex-shrink: 0;
+/* ── Input row ── */
+.comments-input-row {
+  display:flex; gap:clamp(6px,1.5vw,12px); align-items:center;
+  padding-bottom:clamp(6px,1.5vw,10px);
+  border-bottom:1px solid var(--border);
+  margin-bottom:clamp(6px,1.5vw,10px);
+  flex-shrink:0;
 }
-.car-viz .bar { border-radius: 4px; }
+.comment-input {
+  flex:1; background:var(--pill); border:none;
+  border-radius:99px;
+  padding:clamp(7px,1.7vw,12px) clamp(12px,2.8vw,20px);
+  font-family:'DM Sans',sans-serif; font-size:var(--f-comment);
+  color:var(--text); outline:none;
+  -webkit-appearance:none;
+}
+.comment-input::placeholder { color:var(--muted); }
+.send-btn {
+  width:clamp(34px,8vw,52px); height:clamp(34px,8vw,52px);
+  border-radius:50%; background:var(--accent); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:transform .15s;
+}
+.send-btn:active { transform:scale(.92); }
+.send-btn svg { width:45%; height:45%; fill:var(--bg); }
 
-/* Car: controls */
-.car-controls {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px; flex-shrink: 0; gap: 12px;
+/* List */
+.comments-list {
+  flex:1; overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column;
+  gap:clamp(8px,2vw,14px);
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+  padding-right:2px;
 }
-.car-ctrl {
-  background: var(--card); border: none; cursor: pointer; color: var(--muted);
-  border-radius: 22px; display: flex; align-items: center; justify-content: center;
-  transition: all .15s; box-shadow: var(--shadow); flex: 1; height: 80px;
-}
-.car-ctrl:active { background: var(--pill); transform: scale(.96); }
-.car-ctrl svg { width: 36px; height: 36px; }
+.comments-list::-webkit-scrollbar { width:3px; }
+.comments-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
 
-.car-play-btn {
-  flex: 1.6; height: 80px; border-radius: 22px;
-  background: var(--accent); border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.22); transition: transform .15s, background .25s;
+/* Comment item */
+.comment {
+  display:flex; gap:clamp(8px,2vw,14px); align-items:flex-start;
+  animation:fadeUp .28s ease;
 }
-.car-play-btn:active { transform: scale(.96); }
-.car-play-btn svg { width: 36px; height: 36px; fill: var(--bg); margin-left: 3px; transition: fill .25s; }
-.car-play-btn.playing svg { margin-left: 0; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
 
-/* Car: volume row */
-.car-vol-row {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 16px; flex-shrink: 0;
+.c-avatar {
+  width:var(--avatar-sz); height:var(--avatar-sz);
+  border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:clamp(12px,2.8vw,18px); font-weight:700; color:#fff;
 }
-.car-vol-icon { color: var(--muted); display: flex; }
-.car-vol-icon svg { width: 22px; height: 22px; }
-.car-vol-row input[type=range] { flex: 1; -webkit-appearance: none; height: 6px; border-radius: 6px; background: var(--border); outline: none; cursor: pointer; }
-.car-vol-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.c-content { flex:1; min-width:0; }
+.c-meta { display:flex; align-items:baseline; gap:6px; margin-bottom:clamp(2px,.5vw,4px); }
+.c-name { font-size:var(--f-cmeta); font-weight:700; }
+.c-time { font-size:clamp(9px,1.8vw,11px); color:var(--muted); }
+.c-own  { font-size:clamp(9px,1.8vw,11px); color:var(--accent); font-weight:600; background:var(--pill); padding:1px 6px; border-radius:99px; }
+.c-text { font-size:var(--f-comment); line-height:1.45; word-break:break-word; }
 
-/* Car: genre pills */
-.car-genres {
-  display: flex; gap: 8px; overflow-x: auto;
-  margin-bottom: 12px; padding-bottom: 4px; scrollbar-width: none; flex-shrink: 0;
+/* New-message toast */
+.new-toast {
+  position:fixed;
+  bottom:calc(var(--comments-bar) + 10px);
+  left:50%; transform:translateX(-50%) translateY(0);
+  background:var(--accent); color:var(--bg);
+  padding:7px 18px; border-radius:99px;
+  font-size:clamp(11px,2.2vw,13px); font-weight:500;
+  cursor:pointer; white-space:nowrap;
+  box-shadow:var(--shadow-deep);
+  display:none; z-index:301;
+  animation:popIn .25s cubic-bezier(.4,0,.2,1);
 }
-.car-genres::-webkit-scrollbar { display: none; }
-.car-genre-pill {
-  padding: 10px 20px; border-radius: 100px; background: var(--pill); color: var(--pill-text);
-  font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; border: none;
-  white-space: nowrap; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0;
-}
-.car-genre-pill.active { background: var(--accent); color: var(--bg); }
-
-/* Car: station list */
-.car-list-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.car-list { display: flex; flex-direction: column; gap: 8px; }
-.car-row {
-  background: var(--card); border-radius: 18px; padding: 16px 18px;
-  display: flex; align-items: center; gap: 16px; cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.04); transition: box-shadow .2s;
-  user-select: none; min-height: 74px;
-}
-.car-row:active { box-shadow: var(--shadow); }
-.car-row.active { outline: 2.5px solid var(--accent); }
-.car-row-img {
-  width: 56px; height: 56px; border-radius: 14px; background: var(--pill);
-  overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px;
-}
-.car-row-img img { width: 100%; height: 100%; object-fit: cover; }
-.car-row-info { flex: 1; min-width: 0; }
-.car-row-name { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.car-row-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
-.car-row-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-.car-row.active .car-row-dot { background: #4caf7d; animation: blink 1.5s infinite; }
-
-/* Car loading */
-.car-loading { height: 3px; background: var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; display: none; flex-shrink: 0; }
-.car-loading.active { display: block; }
-.car-loading-inner { height: 100%; width: 35%; background: var(--accent); border-radius: 3px; animation: loadAnim 1.1s ease-in-out infinite; }
+.new-toast.show { display:block; }
+@keyframes popIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════
-     NORMAL MODE UI
-══════════════════════════════════ -->
-<div class="normal-ui">
-<div class="app">
+<div class="page">
+ <div class="scroll-area">
+ <div class="app">
 
+  <!-- HEADER -->
   <div class="header">
     <div class="header-title">Radio Go</div>
     <div class="header-right">
-      <button class="icon-btn" id="darkBtn" onclick="toggleDark()" title="Тёмная тема">
+      <button class="icon-btn" id="darkBtn" onclick="toggleDark()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Авторежим">
+      <button class="icon-btn" id="carBtn" onclick="toggleCar()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
       </button>
       <span class="live-dot" id="liveDot"></span>
@@ -365,36 +548,39 @@ body.car .car-ui    { display: flex; }
     </div>
   </div>
 
+  <!-- RESUME BADGE -->
   <div class="resume-badge" id="resumeBadge">
     <span class="resume-dot"></span>
     <span id="resumeText">Восстанавливаю радио…</span>
   </div>
 
+  <!-- TABS — always visible, stretch full width -->
   <div class="tabs">
     <button class="tab-btn active" id="tabAll" onclick="setTab('all')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
       Все станции
     </button>
     <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
       Избранное
     </button>
   </div>
 
+  <!-- SEARCH (hidden in fav tab) -->
   <div class="search-wrap" id="searchWrap">
-    <span class="search-icon">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    </span>
+    <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
     <input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()">
   </div>
 
+  <!-- GENRE PILLS -->
   <div class="genres" id="genrePills"></div>
 
+  <!-- NOW PLAYING -->
   <div class="now-card" id="nowCard">
     <div class="now-top">
       <div class="now-logo" id="nowLogo">🎵</div>
       <div class="now-info">
-        <div class="now-name" id="nowName">—</div>
+        <div class="now-name"  id="nowName">—</div>
         <div class="now-genre" id="nowGenre">—</div>
       </div>
       <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
@@ -413,430 +599,506 @@ body.car .car-ui    { display: flex; }
       </button>
     </div>
     <div class="vol-row">
-      <span class="vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+      <span class="vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg></span>
       <input type="range" id="volSlider" min="0" max="100" value="80" oninput="setVol(this.value)">
+      <span class="vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
     </div>
   </div>
 
+  <!-- STATION LIST -->
   <div class="section-label" id="listLabel">Все станции</div>
   <div class="list" id="stationList"></div>
-</div>
-</div>
 
-<!-- ══════════════════════════════════
-     CAR MODE UI — полноэкранный
-══════════════════════════════════ -->
-<div class="car-ui" id="carUi">
+  <div class="bottom-spacer"></div>
+ </div><!-- /app -->
+ </div><!-- /scroll-area -->
+</div><!-- /page -->
 
-  <!-- Topbar -->
-  <div class="car-topbar">
-    <div class="car-clock" id="carClock">00:00</div>
-    <div class="car-topright">
-      <span class="car-live-dot" id="carLiveDot"></span>
-      <button class="car-icon-btn" id="carDarkBtn" onclick="toggleDark()" title="Тёмная тема">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-      <button class="car-icon-btn on" onclick="toggleCar()" title="Выйти из авторежима">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
+<!-- ══════════ COMMENTS PANEL ══════════ -->
+<div class="comments-strip" id="commentsStrip">
+  <div class="comments-handle" onclick="toggleComments()">
+    <div class="handle-left">
+      <span class="c-live" id="cLive"></span>
+      <span class="comments-label">💬 Комментарии</span>
+      <span class="comments-count" id="cCount">0</span>
+    </div>
+    <span class="c-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></span>
+  </div>
+  <div class="comments-body">
+    <!-- Input -->
+    <div class="comments-input-row">
+      <input class="comment-input" id="commentInput" placeholder="Написать комментарий…" maxlength="300">
+      <button class="send-btn" onclick="sendComment()">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
       </button>
     </div>
-  </div>
-
-  <!-- Station display -->
-  <div class="car-station">
-    <div class="car-logo" id="carLogo">🎵</div>
-    <div class="car-station-info">
-      <div class="car-name" id="carName">—</div>
-      <div class="car-genre" id="carGenre">—</div>
-    </div>
-    <button class="car-fav" id="carFavBtn" onclick="toggleFav()">♡</button>
-  </div>
-
-  <!-- Loading -->
-  <div class="car-loading" id="carLoading"><div class="car-loading-inner"></div></div>
-
-  <!-- Visualizer (shared bars) -->
-  <div class="car-viz" id="carViz"></div>
-
-  <!-- Controls -->
-  <div class="car-controls">
-    <button class="car-ctrl" onclick="prev()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-    </button>
-    <button class="car-play-btn" id="carPlayBtn" onclick="togglePlay()">
-      <svg id="carPlayIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-    </button>
-    <button class="car-ctrl" onclick="next()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-    </button>
-  </div>
-
-  <!-- Volume -->
-  <div class="car-vol-row">
-    <span class="car-vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg></span>
-    <input type="range" id="carVolSlider" min="0" max="100" value="80" oninput="setVol(this.value)">
-    <span class="car-vol-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
-  </div>
-
-  <!-- Genre pills -->
-  <div class="car-genres" id="carGenrePills"></div>
-
-  <!-- Station list -->
-  <div class="car-list-wrap">
-    <div class="car-list" id="carList"></div>
+    <!-- List -->
+    <div class="comments-list" id="commentsList"></div>
   </div>
 </div>
+
+<div class="new-toast" id="newToast" onclick="openComments()">▲ Новый комментарий</div>
 
 <audio id="audio"></audio>
 
 <script>
-// ── TELEGRAM ──────────────────────────────────────────────────────────────
+// ── TELEGRAM ───────────────────────────────────────────────────────────────
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
-// ── STATIONS ──────────────────────────────────────────────────────────────
+// ── STATIONS ───────────────────────────────────────────────────────────────
 const stations = [
   { name:"SOUNDPARK DEEP",       genre:"Deep House",        tag:"deep",    logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8",                   listeners:3317  },
-  { name:"Record Deep",          genre:"Deep House",        tag:"deep",    logo:null,                                           stream:"https://radiorecord.hostingradio.ru/deep96.aacp",          listeners:2100  },
-  { name:"SomaFM Groove Salad",  genre:"Ambient / Deep",    tag:"deep",    logo:null,                                           stream:"https://ice1.somafm.com/groovesalad-128-mp3",              listeners:8500  },
-  { name:"SomaFM Deep Space",    genre:"Space / Deep",      tag:"deep",    logo:null,                                           stream:"https://ice1.somafm.com/deepspaceone-128-mp3",             listeners:4200  },
+  { name:"Record Deep",          genre:"Deep House",        tag:"deep",    logo:null, stream:"https://radiorecord.hostingradio.ru/deep96.aacp",   listeners:2100  },
+  { name:"SomaFM Groove Salad",  genre:"Ambient / Deep",    tag:"deep",    logo:null, stream:"https://ice1.somafm.com/groovesalad-128-mp3",        listeners:8500  },
+  { name:"SomaFM Deep Space",    genre:"Space / Deep",      tag:"deep",    logo:null, stream:"https://ice1.somafm.com/deepspaceone-128-mp3",       listeners:4200  },
   { name:"Русское Радио",        genre:"Русская поп",       tag:"pop",     logo:"https://radiopotok.ru/f/station/256/85.png",   stream:"https://h.getradio.me/rp85/hls.m3u8",                     listeners:17757 },
   { name:"Маруся ФМ",            genre:"Русская поп",       tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8",                   listeners:15262 },
   { name:"Русская Волна",        genre:"Русская поп",       tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1543.png", stream:"https://h.getradio.me/rp1543/hls.m3u8",                   listeners:13308 },
   { name:"Европа Плюс",          genre:"Поп / Хиты",        tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8",                   listeners:8133  },
-  { name:"Хит FM",               genre:"Поп / Хиты",        tag:"pop",     logo:null,                                           stream:"https://hitfm.hostingradio.ru/hitfm96.aacp",               listeners:5800  },
-  { name:"Love Radio",           genre:"Поп",               tag:"pop",     logo:null,                                           stream:"https://love.hostingradio.ru/love96.aacp",                 listeners:4100  },
-  { name:"Авторадио",            genre:"Поп / Разное",      tag:"pop",     logo:null,                                           stream:"https://avto.hostingradio.ru/avto96.aacp",                 listeners:9200  },
+  { name:"Хит FM",               genre:"Поп / Хиты",        tag:"pop",     logo:null, stream:"https://hitfm.hostingradio.ru/hitfm96.aacp",        listeners:5800  },
+  { name:"Love Radio",           genre:"Поп",               tag:"pop",     logo:null, stream:"https://love.hostingradio.ru/love96.aacp",           listeners:4100  },
+  { name:"Авторадио",            genre:"Поп / Разное",      tag:"pop",     logo:null, stream:"https://avto.hostingradio.ru/avto96.aacp",           listeners:9200  },
+  { name:"Юмор FM",              genre:"Юмор / Поп",        tag:"pop",     logo:null, stream:"https://humor.hostingradio.ru/humor96.aacp",         listeners:3700  },
   { name:"Новое радио",          genre:"Поп",               tag:"pop",     logo:"https://radiopotok.ru/f/station/256/221.png",  stream:"https://h.getradio.me/rp221/hls.m3u8",                    listeners:3096  },
   { name:"ТНТ MUSIC RADIO",      genre:"Поп",               tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1218.png", stream:"https://h.getradio.me/rp1218/hls.m3u8",                   listeners:2214  },
-  { name:"Романтика",            genre:"Лирика",            tag:"pop",     logo:"https://radiopotok.ru/f/station/256/177.png",  stream:"https://h.getradio.me/rp177/hls.m3u8",                    listeners:2001  },
-  { name:"Radio Record",         genre:"EDM / Электро",     tag:"edm",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/rr96.aacp",            listeners:6500  },
-  { name:"DFM",                  genre:"Электронная",       tag:"edm",     logo:null,                                           stream:"https://dfm.hostingradio.ru/dfm96.aacp",                   listeners:5100  },
+  { name:"Radio Record",         genre:"EDM / Электро",     tag:"edm",     logo:null, stream:"https://radiorecord.hostingradio.ru/rr96.aacp",      listeners:6500  },
+  { name:"DFM",                  genre:"Электронная",       tag:"edm",     logo:null, stream:"https://dfm.hostingradio.ru/dfm96.aacp",             listeners:5100  },
   { name:"Радио ЭНЕРДЖИ",        genre:"Электронная",       tag:"edm",     logo:"https://radiopotok.ru/f/station/256/4.png",    stream:"https://h.getradio.me/rp4/hls.m3u8",                      listeners:1473  },
-  { name:"Record House",         genre:"House",             tag:"edm",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/house96.aacp",         listeners:1900  },
-  { name:"Record EDM",           genre:"EDM",               tag:"edm",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/edm96.aacp",           listeners:2300  },
+  { name:"Record House",         genre:"House",             tag:"edm",     logo:null, stream:"https://radiorecord.hostingradio.ru/house96.aacp",   listeners:1900  },
+  { name:"Record EDM",           genre:"EDM",               tag:"edm",     logo:null, stream:"https://radiorecord.hostingradio.ru/edm96.aacp",     listeners:2300  },
   { name:"Remix FM",             genre:"Ремиксы",           tag:"edm",     logo:"https://radiopotok.ru/f/station/256/1901.png", stream:"https://h.getradio.me/rp1901/hls.m3u8",                   listeners:1871  },
-  { name:"SomaFM The Trip",      genre:"Electronic / Trip", tag:"edm",     logo:null,                                           stream:"https://ice1.somafm.com/thetrip-128-mp3",                  listeners:3100  },
-  { name:"Record Trap",          genre:"Trap",              tag:"rap",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/trap96.aacp",          listeners:1700  },
-  { name:"Record Hip-Hop",       genre:"Hip-Hop",           tag:"rap",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/hiphop96.aacp",        listeners:2100  },
-  { name:"Record DnB",           genre:"Drum & Bass",       tag:"dnb",     logo:null,                                           stream:"https://radiorecord.hostingradio.ru/dnb96.aacp",           listeners:1400  },
-  { name:"Record Trance",        genre:"Trance",            tag:"trance",  logo:null,                                           stream:"https://radiorecord.hostingradio.ru/trance96.aacp",        listeners:1600  },
-  { name:"Record Techno",        genre:"Techno",            tag:"techno",  logo:null,                                           stream:"https://radiorecord.hostingradio.ru/techno96.aacp",        listeners:1200  },
+  { name:"SomaFM The Trip",      genre:"Electronic",        tag:"edm",     logo:null, stream:"https://ice1.somafm.com/thetrip-128-mp3",            listeners:3100  },
+  { name:"Record Trap",          genre:"Trap",              tag:"rap",     logo:null, stream:"https://radiorecord.hostingradio.ru/trap96.aacp",     listeners:1700  },
+  { name:"Record Hip-Hop",       genre:"Hip-Hop",           tag:"rap",     logo:null, stream:"https://radiorecord.hostingradio.ru/hiphop96.aacp",  listeners:2100  },
+  { name:"Record DnB",           genre:"Drum & Bass",       tag:"dnb",     logo:null, stream:"https://radiorecord.hostingradio.ru/dnb96.aacp",     listeners:1400  },
+  { name:"Record Trance",        genre:"Trance",            tag:"trance",  logo:null, stream:"https://radiorecord.hostingradio.ru/trance96.aacp",  listeners:1600  },
+  { name:"Record Techno",        genre:"Techno",            tag:"techno",  logo:null, stream:"https://radiorecord.hostingradio.ru/techno96.aacp",  listeners:1200  },
   { name:"Атмосфера",            genre:"Lounge / Chill",    tag:"chill",   logo:"https://radiopotok.ru/f/station/256/542.png",  stream:"https://h.getradio.me/rp542/hls.m3u8",                    listeners:1470  },
-  { name:"Record Chill",         genre:"Chillout",          tag:"chill",   logo:null,                                           stream:"https://radiorecord.hostingradio.ru/chill96.aacp",         listeners:1100  },
-  { name:"SomaFM Drone Zone",    genre:"Ambient / Dark",    tag:"chill",   logo:null,                                           stream:"https://ice1.somafm.com/dronezone-128-mp3",                listeners:5200  },
-  { name:"SomaFM Secret Agent",  genre:"Spy / Lounge",      tag:"chill",   logo:null,                                           stream:"https://ice1.somafm.com/secretagent-128-mp3",              listeners:6800  },
-  { name:"SomaFM Lush",          genre:"Adult Alternative", tag:"chill",   logo:null,                                           stream:"https://ice1.somafm.com/lush-128-mp3",                     listeners:4100  },
+  { name:"Record Chill",         genre:"Chillout",          tag:"chill",   logo:null, stream:"https://radiorecord.hostingradio.ru/chill96.aacp",   listeners:1100  },
+  { name:"SomaFM Drone Zone",    genre:"Ambient / Dark",    tag:"chill",   logo:null, stream:"https://ice1.somafm.com/dronezone-128-mp3",          listeners:5200  },
+  { name:"SomaFM Secret Agent",  genre:"Spy / Lounge",      tag:"chill",   logo:null, stream:"https://ice1.somafm.com/secretagent-128-mp3",        listeners:6800  },
   { name:"Для фона",             genre:"Chillout",          tag:"chill",   logo:"https://radiopotok.ru/f/station/256/1480.png", stream:"https://h.getradio.me/rp1480/hls.m3u8",                   listeners:900   },
   { name:"Русский Рок",          genre:"Рок",               tag:"rock",    logo:"https://radiopotok.ru/f/station/256/1594.png", stream:"https://h.getradio.me/rp1594/hls.m3u8",                   listeners:2345  },
-  { name:"Наше Радио",           genre:"Русский рок",       tag:"rock",    logo:null,                                           stream:"https://nashe.hostingradio.ru/nashe96.aacp",               listeners:7300  },
-  { name:"Rock FM",              genre:"Рок",               tag:"rock",    logo:null,                                           stream:"https://rockfm.hostingradio.ru/rockfm96.aacp",             listeners:4800  },
-  { name:"Maximum",              genre:"Рок / Альт",        tag:"rock",    logo:null,                                           stream:"https://maximum.hostingradio.ru/maximum96.aacp",           listeners:3900  },
-  { name:"SomaFM Metal Detector",genre:"Metal",             tag:"rock",    logo:null,                                           stream:"https://ice1.somafm.com/metal-128-mp3",                    listeners:3400  },
+  { name:"Наше Радио",           genre:"Русский рок",       tag:"rock",    logo:null, stream:"https://nashe.hostingradio.ru/nashe96.aacp",         listeners:7300  },
+  { name:"Rock FM",              genre:"Рок",               tag:"rock",    logo:null, stream:"https://rockfm.hostingradio.ru/rockfm96.aacp",       listeners:4800  },
+  { name:"Maximum",              genre:"Рок / Альт",        tag:"rock",    logo:null, stream:"https://maximum.hostingradio.ru/maximum96.aacp",     listeners:3900  },
   { name:"Ретро Хит",            genre:"Ретро",             tag:"retro",   logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8",                   listeners:3588  },
-  { name:"Ретро FM",             genre:"Ретро хиты",        tag:"retro",   logo:null,                                           stream:"https://retro.hostingradio.ru/retro96.aacp",               listeners:12000 },
-  { name:"SomaFM Underground 80s",genre:"80-е",             tag:"retro",   logo:null,                                           stream:"https://ice1.somafm.com/u80s-128-mp3",                     listeners:5900  },
+  { name:"Ретро FM",             genre:"Ретро хиты",        tag:"retro",   logo:null, stream:"https://retro.hostingradio.ru/retro96.aacp",         listeners:12000 },
+  { name:"SomaFM Underground 80s",genre:"80-е",             tag:"retro",   logo:null, stream:"https://ice1.somafm.com/u80s-128-mp3",               listeners:5900  },
   { name:"Радио Шансон",         genre:"Шансон",            tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png",    stream:"https://h.getradio.me/rp2/hls.m3u8",                      listeners:2464  },
-  { name:"Шансон FM",            genre:"Шансон",            tag:"shanson", logo:null,                                           stream:"https://shanson.hostingradio.ru/shanson96.aacp",           listeners:3100  },
+  { name:"Шансон FM",            genre:"Шансон",            tag:"shanson", logo:null, stream:"https://shanson.hostingradio.ru/shanson96.aacp",     listeners:3100  },
   { name:"Вести FM",             genre:"Новости",           tag:"news",    logo:"https://radiopotok.ru/f/station/256/644.png",  stream:"https://h.getradio.me/rp644/hls.m3u8",                    listeners:7716  },
-  { name:"Маяк",                 genre:"Новости / Радио",   tag:"news",    logo:null,                                           stream:"https://mayk.hostingradio.ru/mayk96.aacp",                 listeners:5400  },
-  { name:"Radio Jazz",           genre:"Jazz",              tag:"jazz",    logo:null,                                           stream:"https://jazz.hostingradio.ru/jazz96.aacp",                 listeners:2900  },
-  { name:"SomaFM Ill Street",    genre:"Jazz / Blues",      tag:"jazz",    logo:null,                                           stream:"https://ice1.somafm.com/illstreet-128-mp3",                listeners:3700  },
-  { name:"Radio Klassika",       genre:"Классическая",      tag:"classic", logo:null,                                           stream:"https://classic.hostingradio.ru/classic96.aacp",           listeners:3200  },
+  { name:"Маяк",                 genre:"Новости / Радио",   tag:"news",    logo:null, stream:"https://mayk.hostingradio.ru/mayk96.aacp",           listeners:5400  },
+  { name:"Radio Jazz",           genre:"Jazz",              tag:"jazz",    logo:null, stream:"https://jazz.hostingradio.ru/jazz96.aacp",            listeners:2900  },
+  { name:"SomaFM Ill Street",    genre:"Jazz / Blues",      tag:"jazz",    logo:null, stream:"https://ice1.somafm.com/illstreet-128-mp3",          listeners:3700  },
+  { name:"Radio Klassika",       genre:"Классическая",      tag:"classic", logo:null, stream:"https://classic.hostingradio.ru/classic96.aacp",     listeners:3200  },
   { name:"Радио Монте-Карло",    genre:"Зарубежная",        tag:"foreign", logo:"https://radiopotok.ru/f/station/256/603.png",  stream:"https://h.getradio.me/rp603/hls.m3u8",                    listeners:5059  },
   { name:"Хорошее Радио",        genre:"Зарубежная",        tag:"foreign", logo:"https://radiopotok.ru/f/station/256/487.png",  stream:"https://h.getradio.me/rp487/hls.m3u8",                    listeners:3818  },
-  { name:"Монте-Карло",          genre:"Зарубежная",        tag:"foreign", logo:null,                                           stream:"https://montecarlo.hostingradio.ru/montecarlo96.aacp",    listeners:6100  },
-  { name:"Дорожное Радио",       genre:"Разное",            tag:"foreign", logo:null,                                           stream:"https://dorog.hostingradio.ru/dorog96.aacp",               listeners:5700  },
+  { name:"Монте-Карло",          genre:"Зарубежная",        tag:"foreign", logo:null, stream:"https://montecarlo.hostingradio.ru/montecarlo96.aacp",listeners:6100 },
+  { name:"Дорожное Радио",       genre:"Разное",            tag:"foreign", logo:null, stream:"https://dorog.hostingradio.ru/dorog96.aacp",         listeners:5700  },
 ];
 
 const genres = [
-  { id:"all",     label:"Все"        },
-  { id:"deep",    label:"Deep House" },
-  { id:"pop",     label:"Поп"        },
-  { id:"edm",     label:"EDM"        },
-  { id:"rap",     label:"Рэп"        },
-  { id:"dnb",     label:"DnB"        },
-  { id:"trance",  label:"Транс"      },
-  { id:"techno",  label:"Техно"      },
-  { id:"chill",   label:"Чилаут"     },
-  { id:"rock",    label:"Рок"        },
-  { id:"retro",   label:"Ретро"      },
-  { id:"shanson", label:"Шансон"     },
-  { id:"news",    label:"Новости"    },
-  { id:"jazz",    label:"Jazz"       },
-  { id:"classic", label:"Классика"   },
-  { id:"foreign", label:"Зарубежная" },
+  {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
+  {id:"edm",label:"EDM"},{id:"rap",label:"Рэп"},{id:"dnb",label:"DnB"},
+  {id:"trance",label:"Транс"},{id:"techno",label:"Техно"},{id:"chill",label:"Чилаут"},
+  {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
+  {id:"news",label:"Новости"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"},
+  {id:"foreign",label:"Зарубежная"},
 ];
 
 // ── STATE ──────────────────────────────────────────────────────────────────
-let curIdx = 0, playing = false, activeGenre = "all", activeTab = "all";
-let darkMode = localStorage.getItem("rDark") === "1";
-let carMode  = localStorage.getItem("rCar")  === "1";
-let favs     = JSON.parse(localStorage.getItem("rfavs") || "[]");
-let userPaused = false, wasInterrupted = false, resumeTimer = null;
+let curIdx=0, playing=false, activeGenre="all", activeTab="all";
+let darkMode = localStorage.getItem("rDark")==="1";
+let carMode  = localStorage.getItem("rCar")==="1";
+let favs     = JSON.parse(localStorage.getItem("rfavs")||"[]");
+
+// ── INTERRUPTION / RESUME STATE ────────────────────────────────────────────
+let userPaused     = false;   // пользователь нажал паузу сам
+let wasInterrupted = false;   // прервало внешнее приложение (голосовое, видео)
+let resumeTimer    = null;
+let lastAudioTime  = 0;       // запоминаем момент паузы
+const RESUME_DELAY = 1200;    // ждём 1.2с прежде чем пытаться восстановить
 
 const audio = document.getElementById("audio");
 audio.volume = 0.8;
 let hlsInstance = null;
 
-// Apply saved themes
-if (darkMode) document.documentElement.classList.add("dark");
-if (tg?.colorScheme === "dark") { darkMode = true; document.documentElement.classList.add("dark"); }
+// Apply themes
+if (darkMode || tg?.colorScheme==="dark") { darkMode=true; document.documentElement.classList.add("dark"); }
 if (carMode) document.body.classList.add("car");
+document.getElementById("darkBtn").classList.toggle("on", darkMode);
+document.getElementById("carBtn").classList.toggle("on",  carMode);
 
 function toggleDark() {
   darkMode = !darkMode;
   document.documentElement.classList.toggle("dark", darkMode);
   document.getElementById("darkBtn").classList.toggle("on", darkMode);
-  document.getElementById("carDarkBtn").classList.toggle("on", darkMode);
-  localStorage.setItem("rDark", darkMode ? "1" : "0");
+  localStorage.setItem("rDark", darkMode?"1":"0");
 }
 function toggleCar() {
   carMode = !carMode;
   document.body.classList.toggle("car", carMode);
   document.getElementById("carBtn").classList.toggle("on", carMode);
-  localStorage.setItem("rCar", carMode ? "1" : "0");
-  renderCarList();
+  localStorage.setItem("rCar", carMode?"1":"0");
 }
-
-document.getElementById("darkBtn").classList.toggle("on", darkMode);
-document.getElementById("carDarkBtn").classList.toggle("on", darkMode);
-document.getElementById("carBtn").classList.toggle("on", carMode);
 
 // ── CLOCK ──────────────────────────────────────────────────────────────────
 function tick() {
-  const n = new Date();
-  const t = String(n.getHours()).padStart(2,"0") + ":" + String(n.getMinutes()).padStart(2,"0");
-  document.getElementById("clock").textContent    = t;
-  document.getElementById("carClock").textContent = t;
+  const n=new Date();
+  document.getElementById("clock").textContent=
+    String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
 }
-setInterval(tick, 1000); tick();
+setInterval(tick,1000); tick();
 
-// ── VISUALIZERS ────────────────────────────────────────────────────────────
-function makeViz(container, count) {
-  const arr = [];
-  for (let i = 0; i < count; i++) {
-    const b = document.createElement("div");
-    b.className = "bar";
-    const mn = 3+Math.random()*4, mx = 10+Math.random()*20, dur = .4+Math.random()*.75;
-    b.style.cssText = `height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;
-    container.appendChild(b); arr.push(b);
-  }
-  return arr;
+// ── VISUALIZER ─────────────────────────────────────────────────────────────
+const bars=[];
+const vizEl=document.getElementById("viz");
+for(let i=0;i<30;i++){
+  const b=document.createElement("div"); b.className="bar";
+  const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;
+  b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;
+  vizEl.appendChild(b); bars.push(b);
 }
-const normalBars = makeViz(document.getElementById("viz"), 28);
-const carBars    = makeViz(document.getElementById("carViz"), 36);
+function vizOn(on){ bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on")); }
+function setLoading(on){ document.getElementById("loadingBar").classList.toggle("active",on); }
 
-function vizOn(on) {
-  [...normalBars, ...carBars].forEach(b => on ? b.classList.add("on") : b.classList.remove("on"));
-}
-function setLoading(on) {
-  document.getElementById("loadingBar").classList.toggle("active", on);
-  document.getElementById("carLoading").classList.toggle("active", on);
-}
+// ── RESUME BADGE ───────────────────────────────────────────────────────────
+function showBadge(t){ document.getElementById("resumeText").textContent=t; document.getElementById("resumeBadge").classList.add("show"); }
+function hideBadge(){ document.getElementById("resumeBadge").classList.remove("show"); }
 
-// ── RESUME ─────────────────────────────────────────────────────────────────
-function showBadge(t) { document.getElementById("resumeText").textContent = t; document.getElementById("resumeBadge").classList.add("show"); }
-function hideBadge()  { document.getElementById("resumeBadge").classList.remove("show"); }
-
+// ══════════════════════════════════════════════════════
+//  AUTO-RESUME — детектируем внешнее прерывание
+//  Ключ: audio.pause вызывается не из кода (userPaused),
+//  значит это внешнее событие (видео, голосовое, звонок).
+//  Ждём пока страница снова станет видимой или придёт
+//  событие activated от Telegram, затем возобновляем.
+// ══════════════════════════════════════════════════════
 audio.addEventListener("pause", () => {
-  if (userPaused || !playing) return;
-  wasInterrupted = true; showBadge("Радио прервано — восстановлю…");
+  if (userPaused || !playing) return;       // пауза от руки — не восстанавливаем
+  wasInterrupted = true;
+  lastAudioTime  = Date.now();
+  showBadge("Радио прервано — восстановлю после…");
+
+  // Быстрый таймер: иногда видео отпускает аудио сразу
   clearTimeout(resumeTimer);
-  resumeTimer = setTimeout(() => { if (wasInterrupted && !userPaused) attemptResume(); }, 1800);
+  resumeTimer = setTimeout(() => {
+    if (wasInterrupted && !userPaused && !document.hidden) attemptResume();
+  }, RESUME_DELAY);
 });
+
+audio.addEventListener("ended", () => {
+  // Прямые потоки не заканчиваются, но на всякий случай
+  if (!userPaused && playing) { wasInterrupted=true; attemptResume(); }
+});
+
+// Страница снова видима (вернулись в Mini App)
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && wasInterrupted && !userPaused) { clearTimeout(resumeTimer); resumeTimer = setTimeout(attemptResume, 700); }
+  if (!document.hidden && wasInterrupted && !userPaused) {
+    clearTimeout(resumeTimer);
+    // Маленькая задержка — дать OS отпустить аудиофокус
+    resumeTimer = setTimeout(attemptResume, 600);
+  }
 });
-if (tg) tg.onEvent("activated", () => { if (wasInterrupted && !userPaused) { clearTimeout(resumeTimer); resumeTimer = setTimeout(attemptResume, 700); } });
-function attemptResume() { wasInterrupted = false; showBadge("Восстанавливаю…"); playStream(stations[curIdx].stream); }
+
+// Telegram: приложение получило фокус
+if (tg) {
+  tg.onEvent("activated", () => {
+    if (wasInterrupted && !userPaused) {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(attemptResume, 600);
+    }
+  });
+}
+
+// Дополнительно: периодически проверяем состояние
+// (на случай если события не пришли)
+setInterval(() => {
+  if (wasInterrupted && !userPaused && !document.hidden) {
+    const elapsed = Date.now() - lastAudioTime;
+    if (elapsed > 3000) attemptResume();
+  }
+}, 3000);
+
+function attemptResume() {
+  wasInterrupted = false;
+  showBadge("Восстанавливаю радио…");
+  playStream(stations[curIdx].stream);
+}
 
 // ── MEDIA SESSION ──────────────────────────────────────────────────────────
 function updateMediaSession(s) {
   if (!("mediaSession" in navigator)) return;
-  navigator.mediaSession.metadata = new MediaMetadata({ title: s.name, artist: s.genre, album: "Radio Go" });
+  navigator.mediaSession.metadata = new MediaMetadata({ title:s.name, artist:s.genre, album:"Radio Go" });
   navigator.mediaSession.setActionHandler("previoustrack", prev);
   navigator.mediaSession.setActionHandler("nexttrack",     next);
-  navigator.mediaSession.setActionHandler("play",  () => { userPaused = false; playStream(stations[curIdx].stream); });
-  navigator.mediaSession.setActionHandler("pause", () => { userPaused = true; audio.pause(); setPlaying(false); });
+  navigator.mediaSession.setActionHandler("play",  () => { userPaused=false; playStream(stations[curIdx].stream); });
+  navigator.mediaSession.setActionHandler("pause", () => { userPaused=true; audio.pause(); setPlaying(false); });
 }
 
 // ── PLAYBACK ───────────────────────────────────────────────────────────────
 function playStream(url) {
   if (!url) return;
-  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance=null; }
   setLoading(true); vizOn(false);
 
   if (url.includes(".m3u8")) {
     if (audio.canPlayType("application/vnd.apple.mpegurl")) {
-      audio.src = url;
-      audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); }).catch(() => setLoading(false));
+      audio.src=url;
+      audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
       return;
     }
-    if (typeof Hls !== "undefined" && Hls.isSupported()) {
-      hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 30 });
+    if (typeof Hls!=="undefined" && Hls.isSupported()) {
+      hlsInstance = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:30 });
       hlsInstance.loadSource(url); hlsInstance.attachMedia(audio);
       hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-        audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); }).catch(() => setLoading(false));
+        audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
       });
-      hlsInstance.on(Hls.Events.ERROR, (_, d) => {
+      hlsInstance.on(Hls.Events.ERROR, (_,d) => {
         if (d.fatal) {
-          if (d.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
-          else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
+          if (d.type===Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
+          else if (d.type===Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
           else { setLoading(false); setPlaying(false); }
         }
       });
       return;
     }
   }
-  audio.src = url;
-  audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); }).catch(() => setLoading(false));
+  // Direct stream (.aacp / .mp3)
+  audio.src=url;
+  audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
 }
 
-function genreEmoji(tag) {
-  return {deep:"🎧",pop:"🎤",edm:"🎛",rap:"🎤",dnb:"🥁",trance:"🌀",techno:"⚙️",chill:"🌊",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag] || "🎵";
-}
-
-function updateNowUI(s) {
-  // Normal
-  const nl = document.getElementById("nowLogo");
-  nl.innerHTML = s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${genreEmoji(s.tag)}'">` : genreEmoji(s.tag);
-  document.getElementById("nowName").textContent  = s.name;
-  document.getElementById("nowGenre").textContent = s.genre;
-  document.getElementById("nowCard").classList.add("visible");
-  // Car
-  const cl = document.getElementById("carLogo");
-  cl.innerHTML = s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${genreEmoji(s.tag)}'">` : genreEmoji(s.tag);
-  document.getElementById("carName").textContent  = s.name;
-  document.getElementById("carGenre").textContent = s.genre;
-  updateFavBtn();
-  updateMediaSession(s);
+function ge(tag){
+  return{deep:"🎧",pop:"🎤",edm:"🎛",rap:"🎤",dnb:"🥁",trance:"🌀",techno:"⚙️",chill:"🌊",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";
 }
 
 function loadStation(idx, autoplay) {
-  curIdx = idx;
-  const s = stations[idx];
-  updateNowUI(s);
-  renderList(); renderCarList();
-  if (autoplay || playing) { userPaused = false; playStream(s.stream); }
-  else { if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } audio.pause(); audio.src = ""; setPlaying(false); }
+  curIdx=idx;
+  const s=stations[idx];
+  const nl=document.getElementById("nowLogo");
+  nl.innerHTML = s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
+  document.getElementById("nowName").textContent  = s.name;
+  document.getElementById("nowGenre").textContent = s.genre;
+  document.getElementById("nowCard").classList.add("visible");
+  updateFavBtn(); updateMediaSession(s); renderList();
+  if (autoplay||playing) { userPaused=false; playStream(s.stream); }
+  else { if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); audio.src=""; setPlaying(false); }
 }
 
 function setPlaying(on) {
-  playing = on; vizOn(on);
-  document.getElementById("liveDot").classList.toggle("on", on);
-  document.getElementById("carLiveDot").classList.toggle("on", on);
-  document.getElementById("playBtn").classList.toggle("playing", on);
-  document.getElementById("carPlayBtn").classList.toggle("playing", on);
-  const ico = on ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>' : '<polygon points="5 3 19 12 5 21 5 3"/>';
-  document.getElementById("playIcon").innerHTML    = ico;
-  document.getElementById("carPlayIcon").innerHTML = ico;
-  if ("mediaSession" in navigator) navigator.mediaSession.playbackState = on ? "playing" : "paused";
+  playing=on; vizOn(on);
+  document.getElementById("liveDot").classList.toggle("on",on);
+  document.getElementById("playBtn").classList.toggle("playing",on);
+  document.getElementById("playIcon").innerHTML = on
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5 3 19 12 5 21 5 3"/>';
+  if("mediaSession" in navigator) navigator.mediaSession.playbackState=on?"playing":"paused";
 }
 
 function togglePlay() {
-  if (tg) tg.HapticFeedback?.impactOccurred("light");
-  if (!playing) { userPaused = false; wasInterrupted = false; hideBadge(); playStream(stations[curIdx].stream); }
-  else { userPaused = true; wasInterrupted = false; clearTimeout(resumeTimer); if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } audio.pause(); setPlaying(false); hideBadge(); }
+  if(tg) tg.HapticFeedback?.impactOccurred("light");
+  if (!playing) { userPaused=false; wasInterrupted=false; hideBadge(); playStream(stations[curIdx].stream); }
+  else { userPaused=true; wasInterrupted=false; clearTimeout(resumeTimer); if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); setPlaying(false); hideBadge(); }
 }
-function prev() { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx - 1 + stations.length) % stations.length, playing); }
-function next() { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx + 1) % stations.length, playing); }
-function setVol(v) { audio.volume = v / 100; document.getElementById("volSlider").value = v; document.getElementById("carVolSlider").value = v; }
+function prev(){ if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx-1+stations.length)%stations.length,playing); }
+function next(){ if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx+1)%stations.length,playing); }
+function setVol(v){ audio.volume=v/100; }
 
 // ── FAVORITES ──────────────────────────────────────────────────────────────
 function toggleFav() {
-  if (tg) tg.HapticFeedback?.notificationOccurred("success");
-  const name = stations[curIdx].name;
-  const i = favs.indexOf(name);
-  if (i === -1) favs.push(name); else favs.splice(i, 1);
-  localStorage.setItem("rfavs", JSON.stringify(favs));
-  updateFavBtn();
-  if (activeTab === "fav") renderList();
+  if(tg) tg.HapticFeedback?.notificationOccurred("success");
+  const name=stations[curIdx].name;
+  const i=favs.indexOf(name);
+  if(i===-1) favs.push(name); else favs.splice(i,1);
+  localStorage.setItem("rfavs",JSON.stringify(favs));
+  updateFavBtn(); if(activeTab==="fav") renderList();
 }
 function updateFavBtn() {
-  const on = favs.includes(stations[curIdx].name);
-  ["favBtn","carFavBtn"].forEach(id => {
-    const b = document.getElementById(id);
-    b.textContent = on ? "♥" : "♡";
-    b.classList.toggle("on", on);
-  });
+  const on=favs.includes(stations[curIdx].name);
+  const b=document.getElementById("favBtn");
+  b.textContent=on?"♥":"♡"; b.classList.toggle("on",on);
 }
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 function setTab(tab) {
-  activeTab = tab;
-  document.getElementById("tabAll").classList.toggle("active", tab === "all");
-  document.getElementById("tabFav").classList.toggle("active", tab === "fav");
-  const show = tab === "all";
-  document.getElementById("searchWrap").style.display  = show ? "" : "none";
-  document.getElementById("genrePills").style.display  = show ? "" : "none";
-  if (show) renderGenres();
+  activeTab=tab;
+  document.getElementById("tabAll").classList.toggle("active",tab==="all");
+  document.getElementById("tabFav").classList.toggle("active",tab==="fav");
+  document.getElementById("searchWrap").style.display  = tab==="all"?"":"none";
+  document.getElementById("genrePills").style.display  = tab==="all"?"":"none";
+  if(tab==="all") renderGenres();
   renderList();
 }
 
-// ── NORMAL GENRES ──────────────────────────────────────────────────────────
+// ── GENRES / LIST ──────────────────────────────────────────────────────────
 function renderGenres() {
-  const el = document.getElementById("genrePills"); el.innerHTML = "";
-  genres.forEach(g => {
-    const b = document.createElement("button");
-    b.className = "genre-pill" + (g.id === activeGenre ? " active" : "");
-    b.textContent = g.label;
-    b.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); renderCarList(); };
+  const el=document.getElementById("genrePills"); el.innerHTML="";
+  genres.forEach(g=>{
+    const b=document.createElement("button");
+    b.className="genre-pill"+(g.id===activeGenre?" active":"");
+    b.textContent=g.label;
+    b.onclick=()=>{ activeGenre=g.id; renderGenres(); renderList(); };
     el.appendChild(b);
   });
 }
 
-// ── CAR GENRES ─────────────────────────────────────────────────────────────
-function renderCarGenres() {
-  const el = document.getElementById("carGenrePills"); el.innerHTML = "";
-  genres.forEach(g => {
-    const b = document.createElement("button");
-    b.className = "car-genre-pill" + (g.id === activeGenre ? " active" : "");
-    b.textContent = g.label;
-    b.onclick = () => { activeGenre = g.id; renderGenres(); renderCarGenres(); renderList(); renderCarList(); };
-    el.appendChild(b);
-  });
-}
-
-// ── NORMAL LIST ────────────────────────────────────────────────────────────
 function renderList() {
-  const q = (document.getElementById("searchInput").value || "").toLowerCase();
-  const el = document.getElementById("stationList"); el.innerHTML = "";
-  const filtered = activeTab === "fav"
-    ? stations.filter(s => favs.includes(s.name))
-    : stations.filter(s => (activeGenre === "all" || s.tag === activeGenre) && (!q || s.name.toLowerCase().includes(q) || s.genre.toLowerCase().includes(q)));
-  document.getElementById("listLabel").textContent = activeTab === "fav" ? `Избранное (${filtered.length})` : activeGenre === "all" ? `Все станции (${filtered.length})` : `${filtered.length} станций`;
-  if (!filtered.length) { el.innerHTML = activeTab === "fav" ? '<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>' : '<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>'; return; }
-  filtered.forEach(s => {
-    const idx = stations.indexOf(s);
-    const row = document.createElement("div");
-    row.className = "row" + (idx === curIdx ? " active" : "");
-    row.innerHTML = `<div class="row-img">${s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${genreEmoji(s.tag)}'">` : genreEmoji(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;
-    row.onclick = () => { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(idx, true); };
+  const q=(document.getElementById("searchInput").value||"").toLowerCase();
+  const el=document.getElementById("stationList"); el.innerHTML="";
+  const filtered = activeTab==="fav"
+    ? stations.filter(s=>favs.includes(s.name))
+    : stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));
+
+  document.getElementById("listLabel").textContent =
+    activeTab==="fav"    ? `Избранное (${filtered.length})` :
+    activeGenre==="all"  ? `Все станции (${filtered.length})` : `${filtered.length} станций`;
+
+  if (!filtered.length) {
+    el.innerHTML = activeTab==="fav"
+      ? '<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>'
+      : '<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';
+    return;
+  }
+  filtered.forEach(s=>{
+    const idx=stations.indexOf(s);
+    const row=document.createElement("div");
+    row.className="row"+(idx===curIdx?" active":"");
+    row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;
+    row.onclick=()=>{ if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(idx,true); };
     el.appendChild(row);
   });
 }
 
-// ── CAR LIST ───────────────────────────────────────────────────────────────
-function renderCarList() {
-  const el = document.getElementById("carList"); el.innerHTML = "";
-  const filtered = stations.filter(s => activeGenre === "all" || s.tag === activeGenre);
-  filtered.forEach(s => {
-    const idx = stations.indexOf(s);
-    const row = document.createElement("div");
-    row.className = "car-row" + (idx === curIdx ? " active" : "");
-    row.innerHTML = `<div class="car-row-img">${s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${genreEmoji(s.tag)}'">` : genreEmoji(s.tag)}</div><div class="car-row-info"><div class="car-row-name">${s.name}</div><div class="car-row-sub">${s.genre}</div></div><div class="car-row-dot"></div>`;
-    row.onclick = () => { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(idx, true); };
-    el.appendChild(row);
-  });
+// ══════════════════════════════════════════════════════
+//  COMMENTS SYSTEM
+//  Хранит комментарии в памяти (localStorage для сессии).
+//  Пользователь может писать сам.
+//  Можно подключить Telegram Comments Widget через iframe
+//  когда канал верифицирован.
+// ══════════════════════════════════════════════════════
+let commentsOpen = false;
+let comments     = JSON.parse(localStorage.getItem("rComments")||"[]");
+let unread       = 0;
+let toastTimer   = null;
+const MY_NAME    = tg?.initDataUnsafe?.user
+  ? (tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim()
+  : "Вы";
+
+function toggleComments() {
+  commentsOpen = !commentsOpen;
+  document.getElementById("commentsStrip").classList.toggle("open", commentsOpen);
+  if (commentsOpen) {
+    unread=0; updateCCount();
+    document.getElementById("cLive").classList.remove("show");
+    hideToast();
+    setTimeout(()=>{ document.getElementById("commentsList").scrollTop=99999; }, 60);
+  }
+}
+function openComments() { if(!commentsOpen) toggleComments(); }
+
+function updateCCount() {
+  document.getElementById("cCount").textContent = commentsOpen ? comments.length : (unread>0?"+"+unread:comments.length);
+}
+
+function showToast() {
+  document.getElementById("newToast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>document.getElementById("newToast").classList.remove("show"), 4500);
+}
+function hideToast() { document.getElementById("newToast").classList.remove("show"); }
+
+function avatarColor(name) {
+  const pal=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];
+  let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))&0xffff;
+  return pal[h%pal.length];
+}
+function initials(name){ return name.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?"; }
+function fmtTime(ts){ const d=new Date(ts); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+
+function renderComment(c) {
+  const el=document.getElementById("commentsList");
+  const div=document.createElement("div");
+  div.className="comment";
+  const color=avatarColor(c.name);
+  const isMe = c.name===MY_NAME;
+  div.innerHTML=`
+    <div class="c-avatar" style="background:${color}">${initials(c.name)}</div>
+    <div class="c-content">
+      <div class="c-meta">
+        <span class="c-name">${c.name}</span>
+        ${isMe?'<span class="c-own">вы</span>':''}
+        <span class="c-time">${fmtTime(c.ts)}</span>
+      </div>
+      <div class="c-text">${c.text}</div>
+    </div>`;
+  el.appendChild(div);
+}
+
+function renderAllComments() {
+  const el=document.getElementById("commentsList"); el.innerHTML="";
+  comments.forEach(c=>renderComment(c));
+  el.scrollTop=99999;
+}
+
+function addNewComment(c, fromSelf=false) {
+  comments.push(c);
+  if(comments.length>80) comments=comments.slice(-80);
+  localStorage.setItem("rComments", JSON.stringify(comments));
+  if(commentsOpen) {
+    renderComment(c);
+    document.getElementById("commentsList").scrollTop=99999;
+  } else if(!fromSelf) {
+    unread++;
+    document.getElementById("cLive").classList.add("show");
+    showToast();
+  }
+  updateCCount();
+}
+
+function sendComment() {
+  const inp=document.getElementById("commentInput");
+  const text=inp.value.trim();
+  if(!text) return;
+  inp.value="";
+  if(tg) tg.HapticFeedback?.impactOccurred("light");
+  const c={ name:MY_NAME, text, ts:Date.now() };
+  addNewComment(c, true);
+  if(!commentsOpen) openComments();
+}
+
+// Enter key sends
+document.getElementById("commentInput").addEventListener("keydown", e => {
+  if(e.key==="Enter" && !e.shiftKey) { e.preventDefault(); sendComment(); }
+});
+
+// Demo comments after a delay (shows the feature in action)
+function scheduleDemoComments() {
+  const demos = [
+    { name:"Алексей",  text:"Отличное радио! Слушаю каждый день 🎧" },
+    { name:"Мария",    text:"Soundpark Deep — лучший выбор для работы 💙" },
+    { name:"Дмитрий",  text:"Можно добавить больше jazz станций?" },
+    { name:"Катерина", text:"В машине слушаю постоянно, очень удобно! Кнопки большие 👍" },
+    { name:"Иван",     text:"Ретро FM — классика! 📻" },
+  ];
+  // Show first 3 immediately
+  demos.slice(0,3).forEach((d,i)=>setTimeout(()=>addNewComment({...d,ts:Date.now()-3000+i*60000}),300+i*400));
+  // Simulate live messages
+  let di=3;
+  const iv=setInterval(()=>{
+    if(di>=demos.length){ clearInterval(iv); return; }
+    addNewComment({...demos[di],ts:Date.now()});
+    di++;
+  }, 12000);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────
 renderGenres();
-renderCarGenres();
 renderList();
-renderCarList();
-loadStation(0, false);
+loadStation(0,false);
+renderAllComments();
+scheduleDemoComments();
 </script>
 </body>
 </html>
