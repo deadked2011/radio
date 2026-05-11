@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Radio Go</title>
+    <title>Radio Go PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -101,7 +101,7 @@
         .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--space-md)}
         .ctrl{width:var(--ctrl-size);height:var(--ctrl-size);border-radius:clamp(14px,3vw,24px);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s;flex-shrink:0}
         .ctrl:active{background:var(--border);color:var(--text);transform:scale(.95)}
-        .ctrl svg{width:var(--ctrl-icon);height:var(--ctrl-icon)}
+        .ctrl svg{width:var(--ctrl-icon)}
         .play-btn{width:var(--play-size);height:var(--play-size);border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-deep);transition:transform .15s,background .3s,width .3s,height .3s;flex-shrink:0}
         .play-btn:active{transform:scale(.93)}
         .play-btn svg{width:var(--play-icon);height:var(--play-icon);fill:var(--bg);margin-left:8%;transition:fill .3s}
@@ -168,7 +168,7 @@
 <body>
 <div class="page"><div class="scroll-area"><div class="app">
 <div class="header">
-    <div class="header-title">Radio Go</div>
+    <div class="header-title">Radio Go PRO</div>
     <div class="header-right">
         <button class="icon-btn" id="darkBtn" onclick="toggleDark()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
         <button class="icon-btn" id="carBtn" onclick="toggleCar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></button>
@@ -181,7 +181,7 @@
     <button class="tab-btn active" id="tabAll" onclick="setTab('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции</button>
     <button class="tab-btn" id="tabFav" onclick="setTab('fav')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное</button>
 </div>
-<div class="search-wrap" id="searchWrap"><span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()"></div>
+<div class="search-wrap" id="searchWrap"><span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="debounceSearch()"></div>
 <div class="genres" id="genrePills"></div>
 <div class="now-card" id="nowCard">
     <div class="now-top">
@@ -217,118 +217,331 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
-    // ── СТАНЦИИ (SOUNDPARK DEEP + radiopotok + pcradio.app) ─────────────────
+    // ── СТАНЦИИ PRO БАЗА ────────────────────────────────────────────────────
     const stations = [
-        // SOUNDPARK DEEP
-        { name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png",
-          streams:[{url:"https://h.getradio.me/spdeep/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
-        stations
+        { 
+          name: "SOUNDPARK DEEP", genre: "Deep House", tag: "deep", listeners: 14250,
+          logo: "https://radiopotok.ru/f/station/256/1260.png",
+          streams: [
+              { url: "https://h.getradio.me/spdeep/hls.m3u8", bitrate: "128", label: "HLS Auto" },
+              { url: "https://h.getradio.me/spdeep/128", bitrate: "128", label: "128 kbps" }
+          ] 
+        },
+        { 
+          name: "Рекорд Dance", genre: "EDM / Club", tag: "edm", listeners: 28900,
+          logo: "https://radiopotok.ru/f/station/256/16.png",
+          streams: [
+              { url: "https://radiorecord.hostingradio.ru/rr_main96.aacp", bitrate: "96", label: "96 aac" },
+              { url: "https://radiorecord.hostingradio.ru/rr_main320.mp3", bitrate: "320", label: "320 kbps" }
+          ] 
+        },
+        { 
+          name: "Европа Плюс", genre: "Поп / Топ 40", tag: "pop", listeners: 45100,
+          logo: "https://radiopotok.ru/f/station/256/2.png",
+          streams: [{ url: "https://ep128.hostingradio.ru:8030/ep128", bitrate: "128", label: "128 kbps" }] 
+        },
+        { 
+          name: "Ретро FM", genre: "Ретро / 80e-90e", tag: "retro", listeners: 31200,
+          logo: "https://radiopotok.ru/f/station/256/4.png",
+          streams: [{ url: "https://retroserver.streamr.ru:8043/retro256.mp3", bitrate: "256", label: "256 kbps" }] 
+        },
+        { 
+          name: "Наше Радио", genre: "Рок", tag: "rock", listeners: 19800,
+          logo: "https://radiopotok.ru/f/station/256/11.png",
+          streams: [{ url: "https://nashe1.hostingradio.ru/nashe-128.mp3", bitrate: "128", label: "128 kbps" }] 
+        },
+        { 
+          name: "Рекорд Chill-Out", genre: "Чилаут / Lounge", tag: "chill", listeners: 8400,
+          logo: "https://radiopotok.ru/f/station/256/172.png",
+          streams: [{ url: "https://radiorecord.hostingradio.ru/chill96.aacp", bitrate: "96", label: "96 aac" }] 
+        },
+        { 
+          name: "Радио JAZZ", genre: "Джаз", tag: "jazz", listeners: 6300,
+          logo: "https://radiopotok.ru/f/station/256/67.png",
+          streams: [{ url: "https://jazz.streamr.ru/jazz-64.aac", bitrate: "64", label: "64 aac" }] 
+        },
+        { 
+          name: "Радио Classic", genre: "Классика", tag: "classic", listeners: 5100,
+          logo: "https://radiopotok.ru/f/station/256/141.png",
+          streams: [{ url: "https://classic.streamr.ru/classic-64.aac", bitrate: "64", label: "64 aac" }] 
+        }
+    ];
 
-    const genres=[{id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},{id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},{id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"},{id:"world",label:"World"}];
+    const genres = [
+        { id: "all", label: "Все" },
+        { id: "deep", label: "Deep House" },
+        { id: "pop", label: "Поп" },
+        { id: "rock", label: "Рок" },
+        { id: "retro", label: "Ретро" },
+        { id: "edm", label: "Электро" },
+        { id: "chill", label: "Чилаут" },
+        { id: "jazz", label: "Jazz" },
+        { id: "classic", label: "Классика" }
+    ];
 
-    let curIdx=0, playing=false, activeGenre="all", activeTab="all";
-    let darkMode=localStorage.getItem("rDark")==="1";
-    let carMode=localStorage.getItem("rCar")==="1";
-    let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
-    let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
-    let curQualityIdx=0;
-    const audio=document.getElementById("audio");
-    audio.volume=0.8;
-    let hlsInstance=null;
+    let curIdx = 0, playing = false, activeGenre = "all", activeTab = "all";
+    let darkMode = localStorage.getItem("rDark") === "1";
+    let carMode = localStorage.getItem("rCar") === "1";
+    let favs = JSON.parse(localStorage.getItem("rfavs") || "[]");
+    let userPaused = false, wasInterrupted = false, resumeTimer = null, lastAudioTime = 0;
+    let curQualityIdx = 0;
+    
+    let currentVolumeTarget = 0.8;
+    const audio = document.getElementById("audio");
+    audio.volume = currentVolumeTarget;
+    let hlsInstance = null;
 
-    if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.documentElement.classList.add("dark");}
-    if(carMode)document.body.classList.add("car");
-    document.getElementById("darkBtn").classList.toggle("on",darkMode);
-    document.getElementById("carBtn").classList.toggle("on",carMode);
-    function toggleDark(){darkMode=!darkMode;document.documentElement.classList.toggle("dark",darkMode);document.getElementById("darkBtn").classList.toggle("on",darkMode);localStorage.setItem("rDark",darkMode?"1":"0");}
-    function toggleCar(){carMode=!carMode;document.body.classList.toggle("car",carMode);document.getElementById("carBtn").classList.toggle("on",carMode);localStorage.setItem("rCar",carMode?"1":"0");}
-    function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
-    setInterval(tick,1000);tick();
+    if (darkMode || tg?.colorScheme === "dark") { darkMode = true; document.documentElement.classList.add("dark"); }
+    if (carMode) document.body.classList.add("car");
+    document.getElementById("darkBtn").classList.toggle("on", darkMode);
+    document.getElementById("carBtn").classList.toggle("on", carMode);
+    
+    function toggleDark() { darkMode = !darkMode; document.documentElement.classList.toggle("dark", darkMode); document.getElementById("darkBtn").classList.toggle("on", darkMode); localStorage.setItem("rDark", darkMode ? "1" : "0"); }
+    function toggleCar() { carMode = !carMode; document.body.classList.toggle("car", carMode); document.getElementById("carBtn").classList.toggle("on", carMode); localStorage.setItem("rCar", carMode ? "1" : "0"); }
+    
+    function tick() { const n = new Date(); document.getElementById("clock").textContent = String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0"); }
+    setInterval(tick, 1000); tick();
 
-    const bars=[];const vizEl=document.getElementById("viz");
-    for(let i=0;i<30;i++){const b=document.createElement("div");b.className="bar";const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;vizEl.appendChild(b);bars.push(b);}
-    function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
-    function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
-    function showBadge(t){document.getElementById("resumeText").textContent=t;document.getElementById("resumeBadge").classList.add("show");}
-    function hideBadge(){document.getElementById("resumeBadge").classList.remove("show");}
+    // ── ВИЗУАЛИЗАТОР ────────────────────────────────────────────────────────
+    const bars = []; const vizEl = document.getElementById("viz");
+    for (let i = 0; i < 30; i++) { 
+        const b = document.createElement("div"); b.className = "bar"; 
+        const mn = 3 + Math.random() * 4, mx = 10 + Math.random() * 20, dur = .4 + Math.random() * .75; 
+        b.style.cssText = `height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random() * .5).toFixed(2)}s`; 
+        vizEl.appendChild(b); bars.push(b); 
+    }
+    function vizOn(on) { bars.forEach(b => on ? b.classList.add("on") : b.classList.remove("on")); }
+    function setLoading(on) { document.getElementById("loadingBar").classList.toggle("active", on); }
+    function showBadge(t) { document.getElementById("resumeText").textContent = t; document.getElementById("resumeBadge").classList.add("show"); }
+    function hideBadge() { document.getElementById("resumeBadge").classList.remove("show"); }
 
-    audio.addEventListener("pause",()=>{if(userPaused||!playing)return;wasInterrupted=true;lastAudioTime=Date.now();showBadge("Радио прервано — восстановлю после…");clearTimeout(resumeTimer);resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1200);});
-    audio.addEventListener("ended",()=>{if(!userPaused&&playing){wasInterrupted=true;attemptResume();}});
-    document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
-    if(tg)tg.onEvent("activated",()=>{if(wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
-    setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>3000)attemptResume();},3000);
+    // ── ПЛАВНЫЙ FADE ГРОМКОСТИ ──────────────────────────────────────────────
+    function fadeAudio(targetVol, duration = 300) {
+        return new Promise(resolve => {
+            const startVol = audio.volume;
+            const steps = 15;
+            const stepTime = duration / steps;
+            const diff = targetVol - startVol;
+            let step = 0;
+            
+            const fadeInterval = setInterval(() => {
+                step++;
+                let v = startVol + (diff * (step / steps));
+                if (v < 0) v = 0; if (v > 1) v = 1;
+                audio.volume = v;
+                if (step >= steps) {
+                    clearInterval(fadeInterval);
+                    audio.volume = targetVol;
+                    resolve();
+                }
+            }, stepTime);
+        });
+    }
 
-    async function attemptResume(){wasInterrupted=false;showBadge("Возвращаю радио…");audio.volume=0;playCurrentStream();const target=Number(document.getElementById("volSlider").value)/100;let v=0;const fade=setInterval(()=>{v+=0.04;if(v>=target){v=target;clearInterval(fade);hideBadge();}audio.volume=v;},60);}
+    audio.addEventListener("pause", () => { 
+        if (userPaused || !playing) return; 
+        wasInterrupted = true; lastAudioTime = Date.now(); 
+        showBadge("Радио прервано — восстановлю после…"); 
+        clearTimeout(resumeTimer); 
+        resumeTimer = setTimeout(() => { if (wasInterrupted && !userPaused && !document.hidden) attemptResume(); }, 1200); 
+    });
+    audio.addEventListener("ended", () => { if (!userPaused && playing) { wasInterrupted = true; attemptResume(); } });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && wasInterrupted && !userPaused) { clearTimeout(resumeTimer); resumeTimer = setTimeout(attemptResume, 600); } });
+    if (tg) tg.onEvent("activated", () => { if (wasInterrupted && !userPaused) { clearTimeout(resumeTimer); resumeTimer = setTimeout(attemptResume, 600); } });
+    setInterval(() => { if (wasInterrupted && !userPaused && !document.hidden && Date.now() - lastAudioTime > 3000) attemptResume(); }, 3000);
 
-    function getCurrentStreamUrl(){const s=stations[curIdx];if(!s.streams||!s.streams.length)return null;const idx=curQualityIdx<s.streams.length?curQualityIdx:0;return s.streams[idx].url;}
-    function playCurrentStream(){const url=getCurrentStreamUrl();if(url)playStream(url);}
-    function playStream(url){if(!url)return;if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}setLoading(true);vizOn(false);if(url.includes(".m3u8")){if(audio.canPlayType("application/vnd.apple.mpegurl")){audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;}if(typeof Hls!=="undefined"&&Hls.isSupported()){hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});return;}}audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));}
+    async function attemptResume() { 
+        wasInterrupted = false; 
+        showBadge("Возвращаю радио…"); 
+        audio.volume = 0; 
+        playCurrentStream(); 
+        await fadeAudio(currentVolumeTarget, 800);
+        hideBadge();
+    }
 
-    function ge(tag){const e={deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",jazz:"🎷",classic:"🎻",world:"🌍"};return e[tag]||"🎵";}
+    function getCurrentStreamUrl() { const s = stations[curIdx]; if (!s.streams || !s.streams.length) return null; const idx = curQualityIdx < s.streams.length ? curQualityIdx : 0; return s.streams[idx].url; }
+    
+    function playCurrentStream() { const url = getCurrentStreamUrl(); if (url) playStream(url); }
+    
+    function playStream(url) { 
+        if (!url) return; 
+        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } 
+        setLoading(true); vizOn(false); 
+        
+        if (url.includes(".m3u8")) { 
+            if (audio.canPlayType("application/vnd.apple.mpegurl")) { 
+                audio.src = url; 
+                audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); fadeAudio(currentVolumeTarget, 400); }).catch(() => setLoading(false)); 
+                return; 
+            } 
+            if (typeof Hls !== "undefined" && Hls.isSupported()) { 
+                hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 30 }); 
+                hlsInstance.loadSource(url); 
+                hlsInstance.attachMedia(audio); 
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { 
+                    audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); fadeAudio(currentVolumeTarget, 400); }).catch(() => setLoading(false)); 
+                }); 
+                hlsInstance.on(Hls.Events.ERROR, (_, d) => { 
+                    if (d.fatal) { 
+                        if (d.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad(); 
+                        else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError(); 
+                        else { setLoading(false); setPlaying(false); } 
+                    } 
+                }); 
+                return; 
+            } 
+        } 
+        audio.src = url; 
+        audio.play().then(() => { setLoading(false); setPlaying(true); hideBadge(); fadeAudio(currentVolumeTarget, 400); }).catch(() => setLoading(false)); 
+    }
 
-    function loadStation(idx,autoplay){
-        curIdx=idx;const s=stations[idx];
-        document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
-        document.getElementById("nowName").textContent=s.name;
-        document.getElementById("nowGenre").textContent=s.genre;
+    function ge(tag) { const e = { deep: "🎧", pop: "🎤", rock: "🎸", retro: "📻", edm: "🎛", chill: "🌊", jazz: "🎷", classic: "🎻" }; return e[tag] || "🎵"; }
+
+    function loadStation(idx, autoplay) {
+        curIdx = idx; const s = stations[idx];
+        document.getElementById("nowLogo").innerHTML = s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">` : ge(s.tag);
+        document.getElementById("nowName").textContent = s.name;
+        document.getElementById("nowGenre").textContent = s.genre;
         document.getElementById("nowCard").classList.add("visible");
-        updateFavBtn();updateMediaSession(s);renderList();
-        curQualityIdx=0;
+        updateFavBtn(); renderList();
+        curQualityIdx = 0;
         renderQualityButtons();
-        if(autoplay){userPaused=false;playCurrentStream();}
-        else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
+        if (autoplay) { userPaused = false; playCurrentStream(); }
+        else { if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } audio.pause(); audio.src = ""; setPlaying(false); }
     }
 
-    function renderQualityButtons(){
-        const s=stations[curIdx];const row=document.getElementById("qualityRow");row.innerHTML="";
-        if(!s.streams||s.streams.length<2)return;
-        s.streams.forEach((st,i)=>{const b=document.createElement("button");b.className="quality-btn"+(i===curQualityIdx?" active":"");b.textContent=st.label;b.onclick=()=>{if(curQualityIdx===i)return;curQualityIdx=i;renderQualityButtons();if(playing||!userPaused){setLoading(true);playCurrentStream();}};row.appendChild(b);});
+    function renderQualityButtons() {
+        const s = stations[curIdx]; const row = document.getElementById("qualityRow"); row.innerHTML = "";
+        if (!s.streams || s.streams.length < 2) return;
+        s.streams.forEach((st, i) => { 
+            const b = document.createElement("button"); 
+            b.className = "quality-btn" + (i === curQualityIdx ? " active" : ""); 
+            b.textContent = st.label; 
+            b.onclick = () => { 
+                if (curQualityIdx === i) return; 
+                curQualityIdx = i; renderQualityButtons(); 
+                if (playing || !userPaused) { setLoading(true); playCurrentStream(); } 
+            }; 
+            row.appendChild(b); 
+        });
     }
 
-    function setPlaying(on){
-        playing=on;vizOn(on);
-        document.getElementById("liveDot").classList.toggle("on",on);
-        document.getElementById("playBtn").classList.toggle("playing",on);
-        document.getElementById("playIcon").innerHTML=on?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
-        if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
+    function setPlaying(on) {
+        playing = on; vizOn(on);
+        document.getElementById("liveDot").classList.toggle("on", on);
+        document.getElementById("playBtn").classList.toggle("playing", on);
+        document.getElementById("playIcon").innerHTML = on ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>' : '<polygon points="5 3 19 12 5 21 5 3"/>';
+        if ("mediaSession" in navigator) navigator.mediaSession.playbackState = on ? "playing" : "paused";
     }
-    function togglePlay(){if(tg)tg.HapticFeedback?.impactOccurred("light");if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playCurrentStream();}else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);hideBadge();}}
-    // ИСПРАВЛЕНО: всегда запускаем радио при переключении
-    function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length, true);}
-    function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length, true);}
+    
+    async function togglePlay() { 
+        if (tg) tg.HapticFeedback?.impactOccurred("light"); 
+        if (!playing) { 
+            userPaused = false; wasInterrupted = false; hideBadge(); 
+            audio.volume = 0;
+            playCurrentStream(); 
+        } else { 
+            userPaused = true; wasInterrupted = false; clearTimeout(resumeTimer); 
+            await fadeAudio(0, 300);
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } 
+            audio.pause(); setPlaying(false); hideBadge(); 
+        } 
+    }
+    
+    function prev() { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx - 1 + stations.length) % stations.length, true); }
+    function next() { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx + 1) % stations.length, true); }
 
-    const volSlider=document.getElementById("volSlider");const volFill=document.getElementById("volFill");const volVal=document.getElementById("volVal");const volEmoji=document.getElementById("volEmoji");let lastEmoji="🔈";
-    function volColor(v){if(v===0) return "transparent";if(v<=50) return "#d0cdc8";if(v<=80) return "#4caf7d";return "#f0a030";}
-    function updateVolUI(v){v=Number(v);volFill.style.width=v+"%";volFill.style.backgroundColor=volColor(v);volVal.textContent=Math.round(v)+"%";volVal.style.color= v===0?"var(--muted)":v<=50?"var(--muted)":v<=80?"#4caf7d":"#f0a030";const em=v===0?"🔇":v<30?"🔈":v<70?"🔉":"🔊";if(em!==lastEmoji){lastEmoji=em;volEmoji.textContent=em;}}
-    function onVolStart(){volSlider.classList.add("dragging");}
-    function onVolEnd(){volSlider.classList.remove("dragging");}
-    function onVolChange(v){audio.volume=v/100;updateVolUI(v);}
+    // ── ПОЛЗУНОК ГРОМКОСТИ ──────────────────────────────────────────────────
+    const volSlider = document.getElementById("volSlider"); const volFill = document.getElementById("volFill"); const volVal = document.getElementById("volVal"); const volEmoji = document.getElementById("volEmoji"); let lastEmoji = "🔈";
+    function volColor(v) { if (v === 0) return "transparent"; if (v <= 50) return "#d0cdc8"; if (v <= 80) return "#4caf7d"; return "#f0a030"; }
+    function updateVolUI(v) { 
+        v = Number(v); volFill.style.width = v + "%"; volFill.style.backgroundColor = volColor(v); 
+        volVal.textContent = Math.round(v) + "%"; 
+        volVal.style.color = v === 0 ? "var(--muted)" : v <= 50 ? "var(--muted)" : v <= 80 ? "#4caf7d" : "#f0a030"; 
+        const em = v === 0 ? "🔇" : v < 30 ? "🔈" : v < 70 ? "🔉" : "🔊"; 
+        if (em !== lastEmoji) { lastEmoji = em; volEmoji.textContent = em; } 
+    }
+    function onVolStart() { volSlider.classList.add("dragging"); }
+    function onVolEnd() { volSlider.classList.remove("dragging"); }
+    function onVolChange(v) { currentVolumeTarget = v / 100; audio.volume = currentVolumeTarget; updateVolUI(v); }
     updateVolUI(80);
 
-    function toggleFav(){if(tg)tg.HapticFeedback?.notificationOccurred("success");const name=stations[curIdx].name;const i=favs.indexOf(name);if(i===-1)favs.push(name);else favs.splice(i,1);localStorage.setItem("rfavs",JSON.stringify(favs));updateFavBtn();if(activeTab==="fav")renderList();}
-    function updateFavBtn(){const on=favs.includes(stations[curIdx].name);const b=document.getElementById("favBtn");b.textContent=on?"♥":"♡";b.classList.toggle("on",on);}
-    function setTab(t){activeTab=t;document.getElementById("tabAll").classList.toggle("active",t==="all");document.getElementById("tabFav").classList.toggle("active",t==="fav");document.getElementById("searchWrap").style.display=t==="all"?"":"none";document.getElementById("genrePills").style.display=t==="all"?"":"none";if(t==="all")renderGenres();renderList();}
-    function renderGenres(){const el=document.getElementById("genrePills");el.innerHTML="";genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});}
-    function renderList(){const q=(document.getElementById("searchInput").value||"").toLowerCase();const el=document.getElementById("stationList");el.innerHTML="";const f=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${f.length})`:activeGenre==="all"?`Все станции (${f.length})`:`${f.length} станций`;if(!f.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}f.forEach(s=>{const idx=stations.indexOf(s);const row=document.createElement("div");row.className="row"+(idx===curIdx?" active":"");row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};el.appendChild(row);});}
+    function toggleFav() { 
+        if (tg) tg.HapticFeedback?.notificationOccurred("success"); 
+        const name = stations[curIdx].name; const i = favs.indexOf(name); 
+        if (i === -1) favs.push(name); else favs.splice(i, 1); 
+        localStorage.setItem("rfavs", JSON.stringify(favs)); updateFavBtn(); 
+        if (activeTab === "fav") renderList(); 
+    }
+    function updateFavBtn() { const on = favs.includes(stations[curIdx].name); const b = document.getElementById("favBtn"); b.textContent = on ? "♥" : "♡"; b.classList.toggle("on", on); }
+    
+    function setTab(t) { 
+        activeTab = t; 
+        document.getElementById("tabAll").classList.toggle("active", t === "all"); 
+        document.getElementById("tabFav").classList.toggle("active", t === "fav"); 
+        document.getElementById("searchWrap").style.display = t === "all" ? "" : "none"; 
+        document.getElementById("genrePills").style.display = t === "all" ? "" : "none"; 
+        if (t === "all") renderGenres(); renderList(); 
+    }
+    
+    function renderGenres() { 
+        const el = document.getElementById("genrePills"); el.innerHTML = ""; 
+        genres.forEach(g => { 
+            const b = document.createElement("button"); 
+            b.className = "genre-pill" + (g.id === activeGenre ? " active" : ""); 
+            b.textContent = g.label; 
+            b.onclick = () => { activeGenre = g.id; renderGenres(); renderList(); }; 
+            el.appendChild(b); 
+        }); 
+    }
 
-    // Комментарии
-    let commentsVisible=false,commentsExpanded=false;
-    let comments=JSON.parse(localStorage.getItem("rComments")||"[]");
-    const MY_NAME=tg?.initDataUnsafe?.user?(tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim():"Вы";
-    function avatarColor(n){const p=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))&0xffff;return p[h%p.length];}
-    function initials(n){return n.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?";}
-    function fmtTime(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
-    function toggleCommentsPanel(){commentsVisible=!commentsVisible;document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);document.getElementById("nowCard").classList.toggle("connected",commentsVisible);document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);if(commentsVisible)updatePreview();else{commentsExpanded=false;document.getElementById("commentsExpanded").classList.remove("open");}}
-    function toggleCommentsExpanded(){commentsExpanded=!commentsExpanded;document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";if(commentsExpanded)renderAllComments();}
-    function updatePreview(){const el=document.getElementById("previewMessages");const last=comments.slice(-2);if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");}
-    function renderComment(c){const el=document.getElementById("commentsList");const div=document.createElement("div");div.className="comment";const color=avatarColor(c.name);const isMe=c.name===MY_NAME;div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;el.appendChild(div);}
-    function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));}
-    function addNewComment(c){comments.push(c);if(comments.length>80)comments=comments.slice(-80);localStorage.setItem("rComments",JSON.stringify(comments));updatePreview();if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}}
-    async function sendComment(){const inp=document.getElementById("commentInput");const text=inp.value.trim();if(!text)return;inp.value="";if(tg)tg.HapticFeedback?.impactOccurred("light");const msg={name:MY_NAME,text,ts:Date.now()};if(CHAT_API_BASE){try{await fetch(`${CHAT_API_BASE}/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(msg)});}catch(e){}}else{addNewComment(msg);}}
-    document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
-    if(CHAT_API_BASE){let lastSync=Date.now();setInterval(async()=>{try{const res=await fetch(`${CHAT_API_BASE}/get-messages?since=${lastSync}`);const newMsgs=await res.json();if(Array.isArray(newMsgs)){newMsgs.forEach(m=>{if(!comments.some(c=>c.ts===m.ts&&c.name===m.name))addNewComment(m);});}lastSync=Date.now();}catch(e){}},5000);}
+    // ── ПОИСК С DEBOUNCE ────────────────────────────────────────────────────
+    let searchTimeout = null;
+    function debounceSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(renderList, 150);
+    }
 
-    renderGenres();renderList();loadStation(0,false);updatePreview();
+    function renderList() { 
+        const q = (document.getElementById("searchInput").value || "").toLowerCase().trim(); 
+        const el = document.getElementById("stationList"); el.innerHTML = ""; 
+        const f = activeTab === "fav" ? stations.filter(s => favs.includes(s.name)) : stations.filter(s => (activeGenre === "all" || s.tag === activeGenre) && (!q || s.name.toLowerCase().includes(q) || s.genre.toLowerCase().includes(q))); 
+        document.getElementById("listLabel").textContent = activeTab === "fav" ? `Избранное (${f.length})` : activeGenre === "all" ? `Все станции (${f.length})` : `${f.length} станций`; 
+        
+        if (!f.length) { 
+            el.innerHTML = activeTab === "fav" ? '<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>' : '<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>'; 
+            return; 
+        } 
+        f.forEach(s => { 
+            const idx = stations.indexOf(s); const row = document.createElement("div"); 
+            row.className = "row" + (idx === curIdx ? " active" : ""); 
+            row.innerHTML = `<div class="row-img">${s.logo ? `<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">` : ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners || 0).toLocaleString("ru")}</div></div>`; 
+            row.onclick = () => { if (tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(idx, true); }; 
+            el.appendChild(row); 
+        }); 
+    }
+
+    // ── КОММЕНТАРИИ ─────────────────────────────────────────────────────────
+    let commentsVisible = false, commentsExpanded = false;
+    let comments = JSON.parse(localStorage.getItem("rComments") || "[]");
+    const MY_NAME = tg?.initDataUnsafe?.user ? (tg.initDataUnsafe.user.first_name + " " + (tg.initDataUnsafe.user.last_name || "")).trim() : "Вы";
+    
+    function avatarColor(n) { const p = ["#5b7fa6", "#6f9e6b", "#a67c52", "#9b6da6", "#a65b5b", "#5b9a9e", "#7a7a50", "#6b7da6"]; let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) & 0xffff; return p[h % p.length]; }
+    function initials(n) { return n.split(" ").map(w => w[0] || "").join("").toUpperCase().slice(0, 2) || "?"; }
+    function fmtTime(ts) { const d = new Date(ts); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+    
+    function toggleCommentsPanel() { commentsVisible = !commentsVisible; document.getElementById("commentsPanel").classList.toggle("visible", commentsVisible); document.getElementById("nowCard").classList.toggle("connected", commentsVisible); document.getElementById("commentToggleBtn").classList.toggle("comment-on", commentsVisible); if (commentsVisible) updatePreview(); else { commentsExpanded = false; document.getElementById("commentsExpanded").classList.remove("open"); } }
+    function toggleCommentsExpanded() { commentsExpanded = !commentsExpanded; document.getElementById("commentsExpanded").classList.toggle("open", commentsExpanded); document.getElementById("previewHint").textContent = commentsExpanded ? "Нажмите чтобы свернуть ↑" : "Нажмите чтобы открыть чат ↓"; if (commentsExpanded) renderAllComments(); }
+    function updatePreview() { const el = document.getElementById("previewMessages"); const last = comments.slice(-2); if (!last.length) { el.innerHTML = '<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>'; return; } el.innerHTML = last.map(c => `<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join(""); }
+    
+    function renderComment(c) { const el = document.getElementById("commentsList"); const div = document.createElement("div"); div.className = "comment"; const color = avatarColor(c.name); const isMe = c.name === MY_NAME; div.innerHTML = `<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe ? '<span class="c-own">вы</span>' : ''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`; el.appendChild(div); }
+    function renderAllComments() { const el = document.getElementById("commentsList"); el.innerHTML = ""; comments.forEach(c => renderComment(c)); }
+    function addNewComment(c) { comments.push(c); if (comments.length > 80) comments = comments.slice(-80); localStorage.setItem("rComments", JSON.stringify(comments)); updatePreview(); if (commentsExpanded) { renderComment(c); document.getElementById("commentsList").scrollTop = 99999; } }
+    
+    async function sendComment() { const inp = document.getElementById("commentInput"); const text = inp.value.trim(); if (!text) return; inp.value = ""; if (tg) tg.HapticFeedback?.impactOccurred("light"); const msg = { name: MY_NAME, text, ts: Date.now() }; if (CHAT_API_BASE) { try { await fetch(`${CHAT_API_BASE}/send-message`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch (e) { } } else { addNewComment(msg); } }
+    document.getElementById("commentInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendComment(); } });
+
+    renderGenres(); renderList(); loadStation(0, false); updatePreview();
 </script>
 </body>
 </html>
