@@ -1,334 +1,896 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Radio Go</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-    <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{
-            --bg:#f7f6f3;--card:#fff;--text:#1a1a1a;--muted:#9a9a9a;
-            --accent:#1a1a1a;--border:#e8e6e1;--pill:#f0ede8;--pill-text:#7a7a7a;
-            --green:#4caf7d;--red:#e05555;--orange:#f0a030;
-            --shadow:0 2px 18px rgba(0,0,0,.07);--shadow-deep:0 6px 28px rgba(0,0,0,.14);
-            --f-title:clamp(18px,4.5vw,28px);--f-clock:clamp(11px,2.2vw,16px);
-            --f-pill:clamp(10px,2vw,14px);--f-tab:clamp(12px,2.4vw,16px);
-            --f-label:clamp(10px,1.8vw,13px);--f-now-name:clamp(15px,3.8vw,28px);
-            --f-now-gen:clamp(10px,1.9vw,13px);--f-row-name:clamp(13px,2.8vw,19px);
-            --f-row-sub:clamp(10px,1.9vw,13px);--f-comment:clamp(12px,2.4vw,15px);
-            --f-cmeta:clamp(10px,1.9vw,12px);
-            --icon-btn:clamp(32px,7vw,52px);--now-logo:clamp(52px,12vw,96px);
-            --fav-size:clamp(22px,5vw,36px);--play-size:clamp(60px,15vw,120px);
-            --play-icon:clamp(20px,5.5vw,44px);--ctrl-size:clamp(52px,12vw,96px);
-            --ctrl-icon:clamp(20px,4.5vw,34px);--vol-thumb:clamp(16px,3.5vw,26px);
-            --vol-track:clamp(4px,.9vw,8px);--row-img:clamp(42px,10vw,80px);
-            --row-min-h:clamp(58px,13.5vw,90px);--avatar-sz:clamp(28px,6.5vw,44px);
-            --gap:clamp(6px,1.5vw,12px);--space-sm:clamp(8px,2vw,18px);
-            --space-md:clamp(12px,3vw,24px);--r-card:clamp(16px,3.5vw,26px);
-            --r-row:clamp(12px,2.8vw,20px);--r-icon:clamp(9px,2vw,14px);
-            --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
-            --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);
-        }
-        :root.dark{
-            --bg:#141416;--card:#1e1e22;--text:#f0f0f0;--muted:#6e6e78;
-            --accent:#e8e8e8;--border:#2a2a30;--pill:#26262c;--pill-text:#8e8e98;
-            --shadow:0 2px 18px rgba(0,0,0,.35);--shadow-deep:0 6px 28px rgba(0,0,0,.55);
-        }
-        body.car{
-            --play-size:clamp(90px,22vw,170px);--play-icon:clamp(32px,8vw,62px);
-            --ctrl-size:clamp(80px,18vw,140px);--ctrl-icon:clamp(28px,6vw,48px);
-            --now-logo:clamp(80px,18vw,140px);--f-now-name:clamp(20px,5vw,36px);
-            --row-min-h:clamp(72px,16vw,110px);--f-row-name:clamp(15px,3.2vw,22px);
-            --f-row-sub:clamp(12px,2.4vw,16px);--row-img:clamp(52px,12vw,90px);
-            --f-pill:clamp(12px,2.4vw,17px);--f-tab:clamp(13px,2.6vw,18px);
-            --vol-thumb:clamp(22px,4.5vw,34px);--vol-track:clamp(6px,1.2vw,10px);
-        }
-        html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
-        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
-        .page{display:flex;flex-direction:column;min-height:100vh;padding:calc(var(--safe-t) + clamp(10px,2.5vw,18px)) calc(var(--safe-r) + clamp(12px,3vw,24px)) calc(var(--safe-b) + clamp(10px,2.5vw,20px)) calc(var(--safe-l) + clamp(12px,3vw,24px))}
-        .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-        .app{width:100%;max-width:680px;margin:0 auto}
-        .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)}
-        .header-title{font-family:'DM Serif Display',serif;font-size:var(--f-title);letter-spacing:-.3px;line-height:1}
-        .header-right{display:flex;align-items:center;gap:var(--gap)}
-        .clock{font-size:var(--f-clock);color:var(--muted);font-weight:300}
-        .live-dot{width:clamp(7px,1.6vw,11px);height:clamp(7px,1.6vw,11px);border-radius:50%;background:var(--muted);transition:background .3s}
-        .live-dot.on{background:var(--green);animation:blink 1.5s infinite}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-        .icon-btn{width:var(--icon-btn);height:var(--icon-btn);border-radius:var(--r-icon);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s;flex-shrink:0}
-        .icon-btn:active,.icon-btn.on{background:var(--accent);color:var(--bg)}
-        .icon-btn svg{width:44%;height:44%}
-        .icon-btn.comment-on{background:var(--accent);color:var(--bg)}
-        .tabs{display:flex;gap:var(--gap);margin-bottom:var(--space-sm)}
-        .tab-btn{flex:1;padding:clamp(8px,2vw,14px) 0;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:var(--f-tab);font-weight:500;cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
-        .tab-btn.active{background:var(--accent);color:var(--bg)}
-        .tab-btn svg{width:clamp(12px,2.2vw,16px);height:clamp(12px,2.2vw,16px)}
-        .search-wrap{position:relative;margin-bottom:var(--space-sm)}
-        .search-input{width:100%;padding:clamp(9px,2.1vw,15px) clamp(14px,3vw,22px) clamp(9px,2.1vw,15px) clamp(36px,8vw,56px);background:var(--card);border:none;border-radius:clamp(10px,2.5vw,18px);font-family:'DM Sans',sans-serif;font-size:var(--f-tab);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.05);outline:none;-webkit-appearance:none;transition:background .3s,color .3s,box-shadow .2s}
-        .search-input:focus{box-shadow:0 0 0 2px var(--accent)}
-        .search-input::placeholder{color:var(--muted)}
-        .search-icon{position:absolute;left:clamp(12px,2.8vw,20px);top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
-        .search-icon svg{width:clamp(15px,3.2vw,22px);height:clamp(15px,3.2vw,22px)}
-        .genres{display:flex;gap:var(--gap);overflow-x:auto;margin-bottom:var(--space-md);padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-        .genres::-webkit-scrollbar{display:none}
-        .genre-pill{padding:clamp(6px,1.4vw,11px) clamp(12px,2.5vw,22px);border-radius:100px;background:var(--pill);color:var(--pill-text);font-size:var(--f-pill);font-weight:500;cursor:pointer;transition:all .2s;border:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
-        .genre-pill.active{background:var(--accent);color:var(--bg)}
-        .resume-badge{display:none;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:clamp(8px,2vw,14px);padding:clamp(7px,1.8vw,12px) clamp(12px,2.8vw,20px);margin-bottom:var(--space-sm);font-size:var(--f-now-gen);color:var(--muted)}
-        .resume-badge.show{display:flex}
-        .resume-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:blink 1s infinite;flex-shrink:0}
-        .now-card{background:var(--card);border-radius:var(--r-card);padding:var(--space-md);box-shadow:var(--shadow);margin-bottom:var(--space-sm);display:none;transition:background .3s;border-bottom-left-radius:0;border-bottom-right-radius:0}
-        .now-card.visible{display:block}
-        .now-top{display:flex;align-items:center;gap:var(--gap);margin-bottom:var(--space-md)}
-        .now-logo{width:var(--now-logo);height:var(--now-logo);border-radius:clamp(10px,2.5vw,20px);background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:clamp(22px,5.5vw,44px);transition:width .3s,height .3s}
-        .now-logo img{width:100%;height:100%;object-fit:cover}
-        .now-info{flex:1;min-width:0}
-        .now-name{font-family:'DM Serif Display',serif;font-size:var(--f-now-name);margin-bottom:clamp(2px,.5vw,6px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;transition:font-size .3s}
-        .now-genre{font-size:var(--f-now-gen);color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-        .fav-btn{background:none;border:none;cursor:pointer;font-size:var(--fav-size);color:var(--muted);flex-shrink:0;padding:4px;transition:transform .15s;line-height:1}
-        .fav-btn:active{transform:scale(1.25)}
-        .fav-btn.on{color:var(--red)}
-        .loading-bar{height:clamp(2px,.5vw,4px);background:var(--border);border-radius:99px;margin-bottom:var(--space-sm);overflow:hidden;display:none}
-        .loading-bar.active{display:block}
-        .loading-bar-inner{height:100%;width:35%;background:var(--accent);border-radius:99px;animation:loadAnim 1.1s ease-in-out infinite}
-        @keyframes loadAnim{0%{transform:translateX(-150%)}100%{transform:translateX(450%)}}
-        .viz{height:clamp(28px,7vw,56px);display:flex;align-items:center;gap:clamp(1px,.4vw,3px);margin-bottom:var(--space-md)}
-        .bar{flex:1;background:var(--border);border-radius:99px;height:4px}
-        .bar.on{background:var(--accent);animation:pulse var(--dur,.8s) ease-in-out infinite alternate}
-        @keyframes pulse{from{height:var(--min,4px)}to{height:var(--max,24px)}}
-        .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--space-md)}
-        .ctrl{width:var(--ctrl-size);height:var(--ctrl-size);border-radius:clamp(14px,3vw,24px);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s;flex-shrink:0}
-        .ctrl:active{background:var(--border);color:var(--text);transform:scale(.95)}
-        .ctrl svg{width:var(--ctrl-icon);height:var(--ctrl-icon)}
-        .play-btn{width:var(--play-size);height:var(--play-size);border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-deep);transition:transform .15s,background .3s,width .3s,height .3s;flex-shrink:0}
-        .play-btn:active{transform:scale(.93)}
-        .play-btn svg{width:var(--play-icon);height:var(--play-icon);fill:var(--bg);margin-left:8%;transition:fill .3s}
-        .play-btn.playing svg{margin-left:0}
-        .vol-row{display:flex;align-items:center;gap:clamp(8px,2vw,16px);padding-top:var(--space-sm);border-top:1px solid var(--border)}
-        .vol-emoji{font-size:clamp(15px,3vw,22px);display:inline-block;flex-shrink:0;transition:transform .2s}
-        .vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:clamp(32px,7vw,48px)}
-        .vol-track-bg{position:absolute;left:0;top:50%;transform:translateY(-50%);width:100%;height:var(--vol-track);border-radius:99px;background:var(--border);pointer-events:none}
-        .vol-fill{position:absolute;left:0;top:50%;transform:translateY(-50%);height:var(--vol-track);border-radius:99px;pointer-events:none;transition:width .06s linear, background-color .25s ease}
-        input.vol-input{position:relative;z-index:2;width:100%;-webkit-appearance:none;height:var(--vol-track);border-radius:99px;background:transparent;outline:none;cursor:pointer}
-        input.vol-input::-webkit-slider-thumb{-webkit-appearance:none;width:var(--vol-thumb);height:var(--vol-thumb);border-radius:50%;background:var(--card);border:2.5px solid var(--border);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:transform .15s, box-shadow .15s, border-color .25s}
-        input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 3px 14px rgba(0,0,0,.22)}
-        .vol-val{font-size:clamp(11px,2vw,14px);font-weight:600;color:var(--muted);min-width:clamp(26px,5vw,36px);text-align:right;flex-shrink:0;transition:color .25s}
-        .quality-row{display:flex;gap:6px;margin-bottom:var(--space-md);justify-content:center}
-        .quality-btn{padding:clamp(6px,1.4vw,10px) clamp(12px,2.8vw,20px);border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:var(--f-pill);cursor:pointer;transition:all .15s}
-        .quality-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-        .comments-panel{background:var(--card);border-top:1px solid var(--border);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:var(--shadow);margin-bottom:var(--space-md);overflow:hidden;display:none;transition:background .3s}
-        .comments-panel.visible{display:block}
-        .now-card.connected{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0;box-shadow:0 -2px 18px rgba(0,0,0,.07)}
-        .comments-preview{padding:clamp(8px,2vw,14px) clamp(12px,2.8vw,22px);cursor:pointer;display:flex;flex-direction:column;gap:clamp(5px,1.2vw,8px)}
-        .preview-msg{display:flex;align-items:baseline;gap:7px;font-size:clamp(11px,2.3vw,14px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
-        .preview-name{font-weight:600;color:var(--text);flex-shrink:0}
-        .preview-text{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
-        .preview-empty{font-size:clamp(11px,2.3vw,13px);color:var(--muted);padding:clamp(6px,1.5vw,10px) 0}
-        .comments-preview-hint{font-size:clamp(10px,1.9vw,12px);color:var(--muted);margin-top:2px}
-        .comments-expanded{border-top:1px solid var(--border);display:none;flex-direction:column;height:clamp(260px,48vh,440px)}
-        .comments-expanded.open{display:flex}
-        .comments-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);padding:clamp(10px,2.5vw,16px) clamp(12px,2.8vw,22px);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-        .comments-list::-webkit-scrollbar{width:3px}
-        .comments-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
-        .comment{display:flex;gap:clamp(8px,2vw,12px);align-items:flex-start;animation:fadeUp .25s ease}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        .c-avatar{width:var(--avatar-sz);height:var(--avatar-sz);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:clamp(11px,2.5vw,16px);font-weight:700;color:#fff}
-        .c-content{flex:1;min-width:0}
-        .c-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:clamp(2px,.4vw,3px)}
-        .c-name{font-size:var(--f-cmeta);font-weight:700}
-        .c-time{font-size:clamp(9px,1.8vw,11px);color:var(--muted)}
-        .c-own{font-size:clamp(9px,1.8vw,10px);color:var(--accent);font-weight:600;background:var(--pill);padding:1px 6px;border-radius:99px}
-        .c-text{font-size:var(--f-comment);line-height:1.4;word-break:break-word}
-        .comments-input-row{display:flex;gap:clamp(6px,1.5vw,10px);align-items:center;padding:clamp(8px,2vw,12px) clamp(12px,2.8vw,22px);border-top:1px solid var(--border);flex-shrink:0}
-        .comment-input{flex:1;background:var(--pill);border:none;border-radius:99px;padding:clamp(8px,1.8vw,12px) clamp(12px,2.8vw,18px);font-family:'DM Sans',sans-serif;font-size:var(--f-comment);color:var(--text);outline:none;-webkit-appearance:none}
-        .comment-input::placeholder{color:var(--muted)}
-        .send-btn{width:clamp(34px,8vw,50px);height:clamp(34px,8vw,50px);border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s}
-        .send-btn:active{transform:scale(.92)}
-        .send-btn svg{width:44%;height:44%;fill:var(--bg)}
-        .section-label{font-size:var(--f-label);text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:500;margin-bottom:clamp(6px,1.5vw,12px);padding:0 2px}
-        .list{display:flex;flex-direction:column;gap:clamp(5px,1.2vw,10px)}
-        .row{background:var(--card);border-radius:var(--r-row);padding:clamp(10px,2.4vw,18px) clamp(12px,2.8vw,22px);display:flex;align-items:center;gap:clamp(10px,2.4vw,18px);cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.04);transition:box-shadow .2s,background .3s;user-select:none;min-height:var(--row-min-h)}
-        .row:active{box-shadow:var(--shadow)}
-        .row.active{outline:clamp(1.5px,.3vw,2.5px) solid var(--accent)}
-        .row-img{width:var(--row-img);height:var(--row-img);border-radius:clamp(8px,2vw,16px);background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:clamp(17px,4vw,30px);transition:width .3s,height .3s}
-        .row-img img{width:100%;height:100%;object-fit:cover}
-        .row-info{flex:1;min-width:0}
-        .row-name{font-size:var(--f-row-name);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .row-sub{font-size:var(--f-row-sub);color:var(--muted);margin-top:clamp(2px,.5vw,5px)}
-        .row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
-        .row-dot{width:clamp(6px,1.4vw,10px);height:clamp(6px,1.4vw,10px);border-radius:50%;background:var(--border)}
-        .row.active .row-dot{background:var(--green);animation:blink 1.5s infinite}
-        .row-cnt{font-size:clamp(9px,1.9vw,12px);color:var(--muted)}
-        .empty{text-align:center;color:var(--muted);font-size:var(--f-row-sub);padding:clamp(24px,6vw,48px) 0;line-height:1.6}
-        .empty-icon{font-size:clamp(28px,7vw,46px);display:block;margin-bottom:8px}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Radio Go</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:#f7f6f3; --card:#fff; --text:#1a1a1a; --muted:#9a9a9a;
+  --accent:#1a1a1a; --border:#e8e6e1; --pill:#f0ede8; --pill-text:#7a7a7a;
+  --green:#4caf7d; --red:#e05555; --orange:#f0a030;
+  --shadow:0 2px 18px rgba(0,0,0,.07); --shadow-deep:0 6px 28px rgba(0,0,0,.14);
+
+  --f-title:clamp(18px,4.5vw,28px); --f-clock:clamp(11px,2.2vw,16px);
+  --f-pill:clamp(10px,2vw,14px); --f-tab:clamp(12px,2.4vw,16px);
+  --f-label:clamp(10px,1.8vw,13px); --f-now-name:clamp(15px,3.8vw,28px);
+  --f-now-gen:clamp(10px,1.9vw,13px); --f-row-name:clamp(13px,2.8vw,19px);
+  --f-row-sub:clamp(10px,1.9vw,13px); --f-comment:clamp(12px,2.4vw,15px);
+  --f-cmeta:clamp(10px,1.9vw,12px);
+
+  --icon-btn:clamp(32px,7vw,52px); --now-logo:clamp(52px,12vw,96px);
+  --fav-size:clamp(22px,5vw,36px); --play-size:clamp(60px,15vw,120px);
+  --play-icon:clamp(20px,5.5vw,44px); --ctrl-size:clamp(52px,12vw,96px);
+  --ctrl-icon:clamp(20px,4.5vw,34px); --vol-thumb:clamp(18px,4vw,30px);
+  --vol-track:clamp(3px,.6vw,6px); --row-img:clamp(42px,10vw,80px);
+  --row-min-h:clamp(58px,13.5vw,90px); --avatar-sz:clamp(30px,7vw,48px);
+  --gap:clamp(6px,1.5vw,12px); --space-sm:clamp(8px,2vw,18px);
+  --space-md:clamp(12px,3vw,24px); --r-card:clamp(16px,3.5vw,26px);
+  --r-row:clamp(12px,2.8vw,20px); --r-icon:clamp(9px,2vw,14px);
+  --comments-bar:clamp(46px,10.5vw,66px);
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
+}
+:root.dark {
+  --bg:#141416; --card:#1e1e22; --text:#f0f0f0; --muted:#6e6e78;
+  --accent:#e8e8e8; --border:#2a2a30; --pill:#26262c; --pill-text:#8e8e98;
+  --shadow:0 2px 18px rgba(0,0,0,.35); --shadow-deep:0 6px 28px rgba(0,0,0,.55);
+}
+body.car {
+  --play-size:clamp(90px,22vw,170px); --play-icon:clamp(32px,8vw,62px);
+  --ctrl-size:clamp(80px,18vw,140px); --ctrl-icon:clamp(28px,6vw,48px);
+  --now-logo:clamp(80px,18vw,140px); --f-now-name:clamp(20px,5vw,36px);
+  --row-min-h:clamp(72px,16vw,110px); --f-row-name:clamp(15px,3.2vw,22px);
+  --f-row-sub:clamp(12px,2.4vw,16px); --row-img:clamp(52px,12vw,90px);
+  --f-pill:clamp(12px,2.4vw,17px); --f-tab:clamp(13px,2.6vw,18px);
+  --vol-thumb:clamp(24px,5vw,38px); --vol-track:clamp(5px,.9vw,9px);
+}
+
+html,body { height:100%; overscroll-behavior:none; -webkit-tap-highlight-color:transparent; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s,color .3s; }
+
+.page {
+  display:flex; flex-direction:column; min-height:100vh;
+  padding:calc(var(--safe-t) + clamp(10px,2.5vw,18px)) calc(var(--safe-r) + clamp(12px,3vw,24px)) 0 calc(var(--safe-l) + clamp(12px,3vw,24px));
+}
+.scroll-area { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:clamp(10px,2.5vw,20px); }
+.app { width:100%; max-width:680px; margin:0 auto; }
+
+/* HEADER */
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-md); }
+.header-title { font-family:'DM Serif Display',serif; font-size:var(--f-title); letter-spacing:-.3px; line-height:1; }
+.header-right { display:flex; align-items:center; gap:var(--gap); }
+.clock { font-size:var(--f-clock); color:var(--muted); font-weight:300; }
+.live-dot { width:clamp(7px,1.6vw,11px); height:clamp(7px,1.6vw,11px); border-radius:50%; background:var(--muted); transition:background .3s; }
+.live-dot.on { background:var(--green); animation:blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.icon-btn { width:var(--icon-btn); height:var(--icon-btn); border-radius:var(--r-icon); background:var(--pill); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); transition:all .2s; flex-shrink:0; }
+.icon-btn:active,.icon-btn.on { background:var(--accent); color:var(--bg); }
+.icon-btn svg { width:44%; height:44%; }
+
+/* TABS */
+.tabs { display:flex; gap:var(--gap); margin-bottom:var(--space-sm); }
+.tab-btn { flex:1; padding:clamp(8px,2vw,14px) 0; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:var(--f-tab); font-weight:500; cursor:pointer; border:none; background:var(--pill); color:var(--pill-text); transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px; }
+.tab-btn.active { background:var(--accent); color:var(--bg); }
+.tab-btn svg { width:clamp(12px,2.2vw,16px); height:clamp(12px,2.2vw,16px); }
+
+/* SEARCH */
+.search-wrap { position:relative; margin-bottom:var(--space-sm); }
+.search-input { width:100%; padding:clamp(9px,2.1vw,15px) clamp(14px,3vw,22px) clamp(9px,2.1vw,15px) clamp(36px,8vw,56px); background:var(--card); border:none; border-radius:clamp(10px,2.5vw,18px); font-family:'DM Sans',sans-serif; font-size:var(--f-tab); color:var(--text); box-shadow:0 1px 6px rgba(0,0,0,.05); outline:none; -webkit-appearance:none; transition:background .3s,color .3s,box-shadow .2s; }
+.search-input:focus { box-shadow:0 0 0 2px var(--accent); }
+.search-input::placeholder { color:var(--muted); }
+.search-icon { position:absolute; left:clamp(12px,2.8vw,20px); top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; display:flex; }
+.search-icon svg { width:clamp(15px,3.2vw,22px); height:clamp(15px,3.2vw,22px); }
+
+/* GENRES */
+.genres { display:flex; gap:var(--gap); overflow-x:auto; margin-bottom:var(--space-md); padding-bottom:4px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+.genres::-webkit-scrollbar { display:none; }
+.genre-pill { padding:clamp(6px,1.4vw,11px) clamp(12px,2.5vw,22px); border-radius:100px; background:var(--pill); color:var(--pill-text); font-size:var(--f-pill); font-weight:500; cursor:pointer; transition:all .2s; border:none; white-space:nowrap; text-transform:uppercase; letter-spacing:.3px; flex-shrink:0; }
+.genre-pill.active { background:var(--accent); color:var(--bg); }
+
+/* RESUME */
+.resume-badge { display:none; align-items:center; gap:8px; background:var(--card); border:1.5px solid var(--border); border-radius:clamp(8px,2vw,14px); padding:clamp(7px,1.8vw,12px) clamp(12px,2.8vw,20px); margin-bottom:var(--space-sm); font-size:var(--f-now-gen); color:var(--muted); }
+.resume-badge.show { display:flex; }
+.resume-dot { width:8px; height:8px; border-radius:50%; background:var(--orange); animation:blink 1s infinite; flex-shrink:0; }
+
+/* NOW CARD */
+.now-card { background:var(--card); border-radius:var(--r-card); padding:var(--space-md); box-shadow:var(--shadow); margin-bottom:var(--space-md); display:none; transition:background .3s; }
+.now-card.visible { display:block; }
+.now-top { display:flex; align-items:center; gap:var(--gap); margin-bottom:var(--space-md); }
+.now-logo { width:var(--now-logo); height:var(--now-logo); border-radius:clamp(10px,2.5vw,20px); background:var(--pill); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(22px,5.5vw,44px); transition:width .3s,height .3s; }
+.now-logo img { width:100%; height:100%; object-fit:cover; }
+.now-info { flex:1; min-width:0; }
+.now-name { font-family:'DM Serif Display',serif; font-size:var(--f-now-name); margin-bottom:clamp(2px,.5vw,6px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.1; transition:font-size .3s; }
+.now-genre { font-size:var(--f-now-gen); color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+.fav-btn { background:none; border:none; cursor:pointer; font-size:var(--fav-size); color:var(--muted); flex-shrink:0; padding:4px; transition:transform .15s; line-height:1; }
+.fav-btn:active { transform:scale(1.25); }
+.fav-btn.on { color:var(--red); }
+
+.loading-bar { height:clamp(2px,.5vw,4px); background:var(--border); border-radius:99px; margin-bottom:var(--space-sm); overflow:hidden; display:none; }
+.loading-bar.active { display:block; }
+.loading-bar-inner { height:100%; width:35%; background:var(--accent); border-radius:99px; animation:loadAnim 1.1s ease-in-out infinite; }
+@keyframes loadAnim { 0%{transform:translateX(-150%)} 100%{transform:translateX(450%)} }
+
+.viz { height:clamp(28px,7vw,56px); display:flex; align-items:center; gap:clamp(1px,.4vw,3px); margin-bottom:var(--space-md); }
+.bar { flex:1; background:var(--border); border-radius:99px; height:4px; }
+.bar.on { background:var(--accent); animation:pulse var(--dur,.8s) ease-in-out infinite alternate; }
+@keyframes pulse { from{height:var(--min,4px)} to{height:var(--max,24px)} }
+/* Volume pump animation for bars */
+.bar.pump { animation:pump .35s ease-out; }
+@keyframes pump { 0%{transform:scaleY(1)} 40%{transform:scaleY(2.5)} 70%{transform:scaleY(.8)} 100%{transform:scaleY(1)} }
+
+/* CONTROLS */
+.controls { display:flex; align-items:center; justify-content:space-between; gap:var(--gap); margin-bottom:var(--space-md); }
+.ctrl { width:var(--ctrl-size); height:var(--ctrl-size); border-radius:clamp(14px,3vw,24px); background:var(--pill); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); transition:all .15s; flex-shrink:0; }
+.ctrl:active { background:var(--border); color:var(--text); transform:scale(.95); }
+.ctrl svg { width:var(--ctrl-icon); height:var(--ctrl-icon); }
+.play-btn { width:var(--play-size); height:var(--play-size); border-radius:50%; background:var(--accent); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-deep); transition:transform .15s,background .3s,width .3s,height .3s; flex-shrink:0; }
+.play-btn:active { transform:scale(.93); }
+.play-btn svg { width:var(--play-icon); height:var(--play-icon); fill:var(--bg); margin-left:8%; transition:fill .3s; }
+.play-btn.playing svg { margin-left:0; }
+
+/* ═══ VOLUME ROW WITH ANIMATION ═══ */
+.vol-row { display:flex; align-items:center; gap:clamp(8px,2vw,16px); padding-top:var(--space-sm); border-top:1px solid var(--border); }
+.vol-icon { color:var(--muted); display:flex; flex-shrink:0; }
+.vol-icon svg { width:clamp(14px,3.2vw,22px); height:clamp(14px,3.2vw,22px); }
+
+/* Slider wrapper — for positioning the bubble */
+.vol-slider-wrap {
+  flex:1; position:relative;
+  display:flex; align-items:center;
+}
+
+/* The floating volume bubble */
+.vol-bubble {
+  position:absolute;
+  bottom:calc(100% + 10px);
+  transform:translateX(-50%);
+  background:var(--accent);
+  color:var(--bg);
+  font-size:clamp(11px,2.2vw,14px);
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:99px;
+  pointer-events:none;
+  white-space:nowrap;
+  box-shadow:var(--shadow-deep);
+  opacity:0;
+  transition:opacity .2s;
+  z-index:50;
+  /* Arrow */
+}
+.vol-bubble::after {
+  content:'';
+  position:absolute;
+  top:100%; left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--accent);
+}
+.vol-bubble.show { opacity:1; }
+
+/* Slider itself */
+input[type=range].vol-input {
+  width:100%; -webkit-appearance:none;
+  height:var(--vol-track);
+  border-radius:99px;
+  background:var(--border);
+  outline:none; cursor:pointer;
+  transition:height .3s;
+  position:relative;
+}
+input[type=range].vol-input::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:var(--vol-thumb);
+  height:var(--vol-thumb);
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff, #d9d9d9);
+  border:2px solid rgba(255,255,255,.5);
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 14px rgba(0,0,0,.25),0 0 20px rgba(0,212,255,.25);
+  transition:transform .15s ease, box-shadow .2s ease, width .2s, height .2s;
+}
+/* Thumb grows when dragging */
+input[type=range].vol-input.dragging::-webkit-slider-thumb {
+  box-shadow:0 0 0 clamp(6px,2vw,12px) rgba(128,128,128,.18);
+  transform:scale(1.15);
+}
+/* Glow pulse on change */
+.vol-slider-wrap.pulse input[type=range].vol-input::-webkit-slider-thumb {
+  animation:thumbPulse .4s ease-out;
+}
+@keyframes thumbPulse {
+  0%  { box-shadow:0 0 0 0 rgba(128,128,128,.5); }
+  70% { box-shadow:0 0 0 clamp(10px,3vw,18px) rgba(128,128,128,0); }
+  100%{ box-shadow:0 2px 8px rgba(0,0,0,.22); }
+}
+
+/* Track fill — colored left side */
+.vol-track-fill {
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  height:var(--vol-track);
+  border-radius:99px;
+  background:linear-gradient(90deg,#7c4dff,#00d4ff,#00ff95);
+  background-size:200% 100%;
+  animation:gradientMove 4s linear infinite;
+  pointer-events:none;
+  transition:width .12s cubic-bezier(.22,1,.36,1),transform .2s,opacity .25s;
+  opacity:.95;
+  box-shadow:0 0 12px rgba(0,212,255,.35),0 0 24px rgba(124,77,255,.25);
+}
+@keyframes gradientMove {
+  0% { background-position:0% 50%; }
+  100% { background-position:200% 50%; }
+}
+
+/* Ripple on change */
+.vol-ripple {
+  position:absolute;
+  top:50%; left:0;
+  transform:translate(-50%,-50%) scale(0);
+  width:clamp(32px,8vw,56px);
+  height:clamp(32px,8vw,56px);
+  border-radius:50%;
+  background:var(--accent);
+  opacity:.3;
+  pointer-events:none;
+  z-index:1;
+}
+.vol-ripple.go {
+  animation:rippleGo .45s ease-out forwards;
+}
+@keyframes rippleGo {
+  0%  { transform:translate(-50%,-50%) scale(0); opacity:.3; }
+  100%{ transform:translate(-50%,-50%) scale(3); opacity:0; }
+}
+
+/* Vol emoji that bounces */
+.vol-emoji {
+  font-size:clamp(14px,3vw,20px);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+  display:inline-block; flex-shrink:0;
+}
+.vol-emoji.bounce { animation:emojiBounce .35s cubic-bezier(.34,1.56,.64,1); }
+@keyframes emojiBounce { 0%{transform:scale(1)} 50%{transform:scale(1.45)} 100%{transform:scale(1)} }
+
+.vol-slider-wrap.drag-forward .vol-track-fill {
+  transform:translateY(-50%) scaleY(1.8);
+}
+.vol-slider-wrap.drag-back .vol-track-fill {
+  transform:translateY(-50%) scaleY(.7);
+}
+
+
+/* LIST */
+.section-label { font-size:var(--f-label); text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:500; margin-bottom:clamp(6px,1.5vw,12px); padding:0 2px; }
+.list { display:flex; flex-direction:column; gap:clamp(5px,1.2vw,10px); }
+.row { background:var(--card); border-radius:var(--r-row); padding:clamp(10px,2.4vw,18px) clamp(12px,2.8vw,22px); display:flex; align-items:center; gap:clamp(10px,2.4vw,18px); cursor:pointer; box-shadow:0 1px 5px rgba(0,0,0,.04); transition:box-shadow .2s,background .3s; user-select:none; min-height:var(--row-min-h); }
+.row:active { box-shadow:var(--shadow); }
+.row.active { outline:clamp(1.5px,.3vw,2.5px) solid var(--accent); }
+.row-img { width:var(--row-img); height:var(--row-img); border-radius:clamp(8px,2vw,16px); background:var(--pill); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(17px,4vw,30px); transition:width .3s,height .3s; }
+.row-img img { width:100%; height:100%; object-fit:cover; }
+.row-info { flex:1; min-width:0; }
+.row-name { font-size:var(--f-row-name); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-sub { font-size:var(--f-row-sub); color:var(--muted); margin-top:clamp(2px,.5vw,5px); }
+.row-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.row-dot { width:clamp(6px,1.4vw,10px); height:clamp(6px,1.4vw,10px); border-radius:50%; background:var(--border); }
+.row.active .row-dot { background:var(--green); animation:blink 1.5s infinite; }
+.row-cnt { font-size:clamp(9px,1.9vw,12px); color:var(--muted); }
+.empty { text-align:center; color:var(--muted); font-size:var(--f-row-sub); padding:clamp(24px,6vw,48px) 0; line-height:1.6; }
+.empty-icon { font-size:clamp(28px,7vw,46px); display:block; margin-bottom:8px; }
+.bottom-spacer { height:var(--comments-bar); }
+
+/* COMMENTS */
+.comments-strip { position:fixed; bottom:0; left:0; right:0; z-index:300; height:var(--comments-bar); transition:height .38s cubic-bezier(.4,0,.2,1),background .3s; background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 24px rgba(0,0,0,.09); display:flex; flex-direction:column; }
+.comments-strip.open { height:clamp(290px,58vh,500px); }
+.comments-handle { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(14px,3.5vw,24px); height:var(--comments-bar); cursor:pointer; user-select:none; }
+.handle-left { display:flex; align-items:center; gap:clamp(8px,2vw,14px); }
+.comments-label { font-size:var(--f-tab); font-weight:500; }
+.comments-count { font-size:var(--f-label); color:var(--muted); background:var(--pill); padding:2px 9px; border-radius:99px; }
+.c-live { width:8px; height:8px; border-radius:50%; background:var(--green); display:none; animation:blink 1.5s infinite; }
+.c-live.show { display:inline-block; }
+.c-chevron { color:var(--muted); transition:transform .35s; display:flex; }
+.c-chevron svg { width:clamp(16px,3.5vw,22px); height:clamp(16px,3.5vw,22px); }
+.comments-strip.open .c-chevron { transform:rotate(180deg); }
+.comments-body { flex:1; overflow:hidden; display:flex; flex-direction:column; padding:0 clamp(10px,2.5vw,20px) clamp(8px,2vw,14px); }
+.comments-input-row { display:flex; gap:clamp(6px,1.5vw,12px); align-items:center; padding-bottom:clamp(6px,1.5vw,10px); border-bottom:1px solid var(--border); margin-bottom:clamp(6px,1.5vw,10px); flex-shrink:0; }
+.comment-input { flex:1; background:var(--pill); border:none; border-radius:99px; padding:clamp(7px,1.7vw,12px) clamp(12px,2.8vw,20px); font-family:'DM Sans',sans-serif; font-size:var(--f-comment); color:var(--text); outline:none; -webkit-appearance:none; }
+.comment-input::placeholder { color:var(--muted); }
+.send-btn { width:clamp(34px,8vw,52px); height:clamp(34px,8vw,52px); border-radius:50%; background:var(--accent); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .15s; }
+.send-btn:active { transform:scale(.92); }
+.send-btn svg { width:45%; height:45%; fill:var(--bg); }
+.comments-list { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; gap:clamp(8px,2vw,14px); scrollbar-width:thin; scrollbar-color:var(--border) transparent; padding-right:2px; }
+.comments-list::-webkit-scrollbar { width:3px; }
+.comments-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+.comment { display:flex; gap:clamp(8px,2vw,14px); align-items:flex-start; animation:fadeUp .28s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+.c-avatar { width:var(--avatar-sz); height:var(--avatar-sz); border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(12px,2.8vw,18px); font-weight:700; color:#fff; }
+.c-content { flex:1; min-width:0; }
+.c-meta { display:flex; align-items:baseline; gap:6px; margin-bottom:clamp(2px,.5vw,4px); }
+.c-name { font-size:var(--f-cmeta); font-weight:700; }
+.c-time { font-size:clamp(9px,1.8vw,11px); color:var(--muted); }
+.c-own { font-size:clamp(9px,1.8vw,11px); color:var(--accent); font-weight:600; background:var(--pill); padding:1px 6px; border-radius:99px; }
+.c-text { font-size:var(--f-comment); line-height:1.45; word-break:break-word; }
+.new-toast { position:fixed; bottom:calc(var(--comments-bar) + 10px); left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); padding:7px 18px; border-radius:99px; font-size:clamp(11px,2.2vw,13px); font-weight:500; cursor:pointer; white-space:nowrap; box-shadow:var(--shadow-deep); display:none; z-index:301; animation:popIn .25s cubic-bezier(.4,0,.2,1); }
+.new-toast.show { display:block; }
+@keyframes popIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+</style>
 </head>
 <body>
-<div class="page"><div class="scroll-area"><div class="app">
-<div class="header">
+<div class="page">
+ <div class="scroll-area">
+ <div class="app">
+
+  <div class="header">
     <div class="header-title">Radio Go</div>
     <div class="header-right">
-        <button class="icon-btn" id="darkBtn" onclick="toggleDark()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-        <button class="icon-btn" id="carBtn" onclick="toggleCar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></button>
-        <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
-        <span class="live-dot" id="liveDot"></span><span class="clock" id="clock"></span>
+      <button class="icon-btn" id="darkBtn" onclick="toggleDark()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="icon-btn" id="carBtn" onclick="toggleCar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
+      </button>
+      <span class="live-dot" id="liveDot"></span>
+      <span class="clock" id="clock"></span>
     </div>
-</div>
-<div class="resume-badge" id="resumeBadge"><span class="resume-dot"></span><span id="resumeText">Восстанавливаю радио…</span></div>
-<div class="tabs">
-    <button class="tab-btn active" id="tabAll" onclick="setTab('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции</button>
-    <button class="tab-btn" id="tabFav" onclick="setTab('fav')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное</button>
-</div>
-<div class="search-wrap" id="searchWrap"><span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()"></div>
-<div class="genres" id="genrePills"></div>
-<div class="now-card" id="nowCard">
+  </div>
+
+  <div class="resume-badge" id="resumeBadge">
+    <span class="resume-dot"></span>
+    <span id="resumeText">Восстанавливаю радио…</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAll" onclick="setTab('all')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+      Все станции
+    </button>
+    <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      Избранное
+    </button>
+  </div>
+
+  <div class="search-wrap" id="searchWrap">
+    <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+    <input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()">
+  </div>
+
+  <div class="genres" id="genrePills"></div>
+
+  <div class="now-card" id="nowCard">
     <div class="now-top">
-        <div class="now-logo" id="nowLogo">🎵</div>
-        <div class="now-info"><div class="now-name" id="nowName">—</div><div class="now-genre" id="nowGenre">—</div></div>
-        <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
+      <div class="now-logo" id="nowLogo">🎵</div>
+      <div class="now-info">
+        <div class="now-name"  id="nowName">—</div>
+        <div class="now-genre" id="nowGenre">—</div>
+      </div>
+      <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
     </div>
-    <div class="quality-row" id="qualityRow"></div>
     <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
     <div class="viz" id="viz"></div>
     <div class="controls">
-        <button class="ctrl" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
-        <button class="play-btn" id="playBtn" onclick="togglePlay()"><svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
-        <button class="ctrl" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+      <button class="ctrl" onclick="prev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+      </button>
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">
+        <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button class="ctrl" onclick="next()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+      </button>
     </div>
+
+    <!-- ══ VOLUME ROW with animation ══ -->
     <div class="vol-row">
+      <span class="vol-icon">
         <span class="vol-emoji" id="volEmoji">🔈</span>
-        <div class="vol-wrap" id="volWrap"><div class="vol-track-bg"></div><div class="vol-fill" id="volFill"></div><input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80" oninput="onVolChange(this.value)" onmousedown="onVolStart()" ontouchstart="onVolStart()" onmouseup="onVolEnd()" ontouchend="onVolEnd()"></div>
-        <span class="vol-val" id="volVal">80%</span>
+      </span>
+      <div class="vol-slider-wrap" id="volWrap">
+        <!-- Colored fill track -->
+        <div class="vol-track-fill" id="volFill"></div>
+        <!-- Ripple -->
+        <div class="vol-ripple" id="volRipple"></div>
+        <!-- Bubble tooltip -->
+        <div class="vol-bubble" id="volBubble">80%</div>
+        <!-- Slider -->
+        <input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80"
+               oninput="onVolChange(this.value)"
+               onmousedown="onVolStart()" ontouchstart="onVolStart()"
+               onmouseup="onVolEnd()"   ontouchend="onVolEnd()">
+      </div>
+      <span class="vol-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      </span>
     </div>
+  </div>
+
+  <div class="section-label" id="listLabel">Все станции</div>
+  <div class="list" id="stationList"></div>
+  <div class="bottom-spacer"></div>
+ </div>
+ </div>
 </div>
-<div class="comments-panel" id="commentsPanel">
-    <div class="comments-preview" id="commentsPreview" onclick="toggleCommentsExpanded()"><div id="previewMessages"><div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div></div><div class="comments-preview-hint" id="previewHint">Нажмите чтобы открыть чат ↓</div></div>
-    <div class="comments-expanded" id="commentsExpanded"><div class="comments-list" id="commentsList"></div><div class="comments-input-row"><input class="comment-input" id="commentInput" placeholder="Написать комментарий…" maxlength="300"><button class="send-btn" onclick="sendComment()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg></button></div></div>
+
+<div class="comments-strip" id="commentsStrip">
+  <div class="comments-handle" onclick="toggleComments()">
+    <div class="handle-left">
+      <span class="c-live" id="cLive"></span>
+      <span class="comments-label">💬 Комментарии</span>
+      <span class="comments-count" id="cCount">0</span>
+    </div>
+    <span class="c-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></span>
+  </div>
+  <div class="comments-body">
+    <div class="comments-input-row">
+      <input class="comment-input" id="commentInput" placeholder="Написать комментарий…" maxlength="300">
+      <button class="send-btn" onclick="sendComment()">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      </button>
+    </div>
+    <div class="comments-list" id="commentsList"></div>
+  </div>
 </div>
-<div class="section-label" id="listLabel">Все станции</div>
-<div class="list" id="stationList"></div>
-</div></div></div>
+<div class="new-toast" id="newToast" onclick="openComments()">▲ Новый комментарий</div>
+
 <audio id="audio"></audio>
 
 <script>
-    const CHAT_API_BASE = null;
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
-    // ── СТАНЦИИ (SOUNDPARK DEEP + radiopotok + pcradio.app) ─────────────────
-    const stations = [
-        // SOUNDPARK DEEP
-        { name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png",
-          streams:[{url:"https://h.getradio.me/spdeep/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
-        stations
+// ══════════════════════════════════════
+//  STATIONS  (200+)
+//  Sources: SomaFM, hostingradio.ru,
+//  radiorecord.hostingradio.ru, others
+// ══════════════════════════════════════
+const stations = [
+// ── DEEP HOUSE ───────────────────────────────────────────────────────────────
+  {name:"SOUNDPARK DEEP",       genre:"Deep House",       tag:"deep",    logo:"https://radiopotok.ru/f/station/256/1260.png",stream:"https://h.getradio.me/spdeep/hls.m3u8",                        listeners:3317},
+  {name:"Record Deep",          genre:"Deep House",       tag:"deep",    logo:null,stream:"https://radiorecord.hostingradio.ru/deep96.aacp",          listeners:2100},
+  {name:"SomaFM Groove Salad",  genre:"Ambient / Deep",   tag:"deep",    logo:null,stream:"https://ice1.somafm.com/groovesalad-128-mp3",              listeners:8500},
+  {name:"SomaFM Deep Space",    genre:"Space / Deep",     tag:"deep",    logo:null,stream:"https://ice1.somafm.com/deepspaceone-128-mp3",             listeners:4200},
+  {name:"SomaFM Beat Blender",  genre:"Deep / Techno",    tag:"deep",    logo:null,stream:"https://ice1.somafm.com/beatblender-128-mp3",              listeners:3100},
+  {name:"SomaFM Digitalis",     genre:"Indie Electronic", tag:"deep",    logo:null,stream:"https://ice1.somafm.com/digitalis-128-mp3",                listeners:2200},
+  {name:"SomaFM Fluid",         genre:"Ambient House",    tag:"deep",    logo:null,stream:"https://ice1.somafm.com/fluid-128-mp3",                    listeners:1800},
+// ── POP ─────────────────────────────────────────────────────────────────────
+  {name:"Русское Радио",        genre:"Русская поп",      tag:"pop",     logo:"https://radiopotok.ru/f/station/256/85.png",  stream:"https://h.getradio.me/rp85/hls.m3u8",                         listeners:17757},
+  {name:"Маруся ФМ",            genre:"Русская поп",      tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1323.png",stream:"https://h.getradio.me/rp1323/hls.m3u8",                       listeners:15262},
+  {name:"Русская Волна",        genre:"Русская поп",      tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1543.png",stream:"https://h.getradio.me/rp1543/hls.m3u8",                       listeners:13308},
+  {name:"Европа Плюс",          genre:"Поп / Хиты",       tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1576.png",stream:"https://h.getradio.me/rp1576/hls.m3u8",                       listeners:8133},
+  {name:"Хит FM",               genre:"Поп / Хиты",       tag:"pop",     logo:null,stream:"https://hitfm.hostingradio.ru/hitfm96.aacp",               listeners:5800},
+  {name:"Love Radio",           genre:"Поп",              tag:"pop",     logo:null,stream:"https://love.hostingradio.ru/love96.aacp",                  listeners:4100},
+  {name:"Авторадио",            genre:"Поп / Разное",     tag:"pop",     logo:null,stream:"https://avto.hostingradio.ru/avto96.aacp",                  listeners:9200},
+  {name:"Юмор FM",              genre:"Юмор / Поп",       tag:"pop",     logo:null,stream:"https://humor.hostingradio.ru/humor96.aacp",                listeners:3700},
+  {name:"Новое радио",          genre:"Поп",              tag:"pop",     logo:"https://radiopotok.ru/f/station/256/221.png", stream:"https://h.getradio.me/rp221/hls.m3u8",                        listeners:3096},
+  {name:"ТНТ MUSIC RADIO",      genre:"Поп",              tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1218.png",stream:"https://h.getradio.me/rp1218/hls.m3u8",                       listeners:2214},
+  {name:"Like FM",              genre:"Поп",              tag:"pop",     logo:null,stream:"https://like.hostingradio.ru/like96.aacp",                   listeners:3200},
+  {name:"Серебряный Дождь",     genre:"Поп / Разное",     tag:"pop",     logo:null,stream:"https://silver.hostingradio.ru/silver96.aacp",              listeners:4400},
+  {name:"Радио КП",             genre:"Поп / Новости",    tag:"pop",     logo:null,stream:"https://radiokp.hostingradio.ru/radiokp96.aacp",             listeners:2800},
+  {name:"Relax FM",             genre:"Поп / Лаундж",     tag:"pop",     logo:null,stream:"https://relax.hostingradio.ru/relax96.aacp",                listeners:2600},
+  {name:"Русская Песня",        genre:"Русская поп",      tag:"pop",     logo:null,stream:"https://russong.hostingradio.ru/russong96.aacp",             listeners:3100},
+  {name:"TOP 100",              genre:"Хиты",             tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1992.png",stream:"https://h.getradio.me/rp1992/hls.m3u8",                       listeners:1678},
+  {name:"Романтика",            genre:"Лирика",           tag:"pop",     logo:"https://radiopotok.ru/f/station/256/177.png", stream:"https://h.getradio.me/rp177/hls.m3u8",                        listeners:2001},
+  {name:"Comedy Radio",         genre:"Юмор",             tag:"pop",     logo:null,stream:"https://comedy.hostingradio.ru/comedy96.aacp",               listeners:2900},
+  {name:"SomaFM PopTron",       genre:"Electropop",       tag:"pop",     logo:null,stream:"https://ice1.somafm.com/poptron-128-mp3",                   listeners:1900},
+  {name:"SomaFM Indiepop",      genre:"Indie Pop",        tag:"pop",     logo:null,stream:"https://ice1.somafm.com/indiepop-128-mp3",                  listeners:2400},
+// ── EDM / ELECTRONIC ─────────────────────────────────────────────────────────
+  {name:"Radio Record",         genre:"EDM / Электро",    tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/rr96.aacp",              listeners:6500},
+  {name:"DFM",                  genre:"Электронная",      tag:"edm",     logo:null,stream:"https://dfm.hostingradio.ru/dfm96.aacp",                    listeners:5100},
+  {name:"Радио ЭНЕРДЖИ",        genre:"Электронная",      tag:"edm",     logo:"https://radiopotok.ru/f/station/256/4.png",   stream:"https://h.getradio.me/rp4/hls.m3u8",                          listeners:1473},
+  {name:"Record House",         genre:"House",            tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/house96.aacp",           listeners:1900},
+  {name:"Record EDM",           genre:"EDM",              tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/edm96.aacp",             listeners:2300},
+  {name:"Remix FM",             genre:"Ремиксы",          tag:"edm",     logo:"https://radiopotok.ru/f/station/256/1901.png",stream:"https://h.getradio.me/rp1901/hls.m3u8",                       listeners:1871},
+  {name:"Record Progressive",   genre:"Progressive House",tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/progressive96.aacp",    listeners:1400},
+  {name:"Record Club",          genre:"Club",             tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/club96.aacp",            listeners:1600},
+  {name:"Record Vocal House",   genre:"Vocal House",      tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/vocalhouse96.aacp",      listeners:1200},
+  {name:"Record Breaks",        genre:"Breaks",           tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/breaks96.aacp",          listeners:900},
+  {name:"Record Hardstyle",     genre:"Hardstyle",        tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/hardstyle96.aacp",       listeners:1100},
+  {name:"Record AllBack",       genre:"Dance Retro",      tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/allback96.aacp",         listeners:1300},
+  {name:"Record Disco",         genre:"Disco",            tag:"edm",     logo:null,stream:"https://radiorecord.hostingradio.ru/disco96.aacp",           listeners:1500},
+  {name:"SomaFM The Trip",      genre:"Electronic / Trip",tag:"edm",     logo:null,stream:"https://ice1.somafm.com/thetrip-128-mp3",                   listeners:3100},
+  {name:"SomaFM Cliqhop",       genre:"IDM / Clicks",     tag:"edm",     logo:null,stream:"https://ice1.somafm.com/cliqhop-128-mp3",                   listeners:2600},
+  {name:"SomaFM Space Station", genre:"Spacesynth",       tag:"edm",     logo:null,stream:"https://ice1.somafm.com/spacestation-128-mp3",               listeners:2100},
+  {name:"SomaFM Synphaera",     genre:"Synth / Space",    tag:"edm",     logo:null,stream:"https://ice1.somafm.com/synphaera-128-mp3",                 listeners:1700},
+  {name:"SomaFM Suburbs of Goa",genre:"Psychedelic / Goa",tag:"edm",    logo:null,stream:"https://ice1.somafm.com/suburbsofgoa-128-mp3",               listeners:2900},
+  {name:"SomaFM Mission Ctrl",  genre:"Ambient Electronic",tag:"edm",   logo:null,stream:"https://ice1.somafm.com/missioncontrol-128-mp3",              listeners:1500},
+// ── RAP / HIP-HOP ────────────────────────────────────────────────────────────
+  {name:"Record Trap",          genre:"Trap",             tag:"rap",     logo:null,stream:"https://radiorecord.hostingradio.ru/trap96.aacp",            listeners:1700},
+  {name:"Record Hip-Hop",       genre:"Hip-Hop",          tag:"rap",     logo:null,stream:"https://radiorecord.hostingradio.ru/hiphop96.aacp",          listeners:2100},
+  {name:"Record R&B",           genre:"R&B",              tag:"rap",     logo:null,stream:"https://radiorecord.hostingradio.ru/rnb96.aacp",             listeners:1500},
+  {name:"Record Reggae",        genre:"Reggae",           tag:"rap",     logo:null,stream:"https://radiorecord.hostingradio.ru/reggae96.aacp",          listeners:1100},
+// ── DRUM & BASS ──────────────────────────────────────────────────────────────
+  {name:"Record DnB",           genre:"Drum & Bass",      tag:"dnb",     logo:null,stream:"https://radiorecord.hostingradio.ru/dnb96.aacp",             listeners:1400},
+// ── TRANCE ───────────────────────────────────────────────────────────────────
+  {name:"Record Trance",        genre:"Trance",           tag:"trance",  logo:null,stream:"https://radiorecord.hostingradio.ru/trance96.aacp",          listeners:1600},
+// ── TECHNO ───────────────────────────────────────────────────────────────────
+  {name:"Record Techno",        genre:"Techno",           tag:"techno",  logo:null,stream:"https://radiorecord.hostingradio.ru/techno96.aacp",          listeners:1200},
+// ── CHILL / LOUNGE ───────────────────────────────────────────────────────────
+  {name:"Атмосфера",            genre:"Lounge / Chill",   tag:"chill",   logo:"https://radiopotok.ru/f/station/256/542.png",  stream:"https://h.getradio.me/rp542/hls.m3u8",                        listeners:1470},
+  {name:"Record Chill",         genre:"Chillout",         tag:"chill",   logo:null,stream:"https://radiorecord.hostingradio.ru/chill96.aacp",           listeners:1100},
+  {name:"SomaFM Drone Zone",    genre:"Ambient / Dark",   tag:"chill",   logo:null,stream:"https://ice1.somafm.com/dronezone-128-mp3",                 listeners:5200},
+  {name:"SomaFM Secret Agent",  genre:"Spy / Lounge",     tag:"chill",   logo:null,stream:"https://ice1.somafm.com/secretagent-128-mp3",               listeners:6800},
+  {name:"SomaFM Lush",          genre:"Adult Alternative",tag:"chill",   logo:null,stream:"https://ice1.somafm.com/lush-128-mp3",                      listeners:4100},
+  {name:"SomaFM Sonic Universe",genre:"Jazz / Fusion",    tag:"chill",   logo:null,stream:"https://ice1.somafm.com/sonicuniverse-128-mp3",              listeners:3300},
+  {name:"SomaFM Illinois St",   genre:"Jazz / Blues",     tag:"chill",   logo:null,stream:"https://ice1.somafm.com/illstreet-128-mp3",                 listeners:3700},
+  {name:"SomaFM n5MD",          genre:"Ambient / Post-Rock",tag:"chill", logo:null,stream:"https://ice1.somafm.com/n5md-128-mp3",                      listeners:2100},
+  {name:"Для фона",             genre:"Chillout",         tag:"chill",   logo:"https://radiopotok.ru/f/station/256/1480.png",stream:"https://h.getradio.me/rp1480/hls.m3u8",                       listeners:900},
+  {name:"Для души",             genre:"Лирика",           tag:"chill",   logo:"https://radiopotok.ru/f/station/256/1434.png",stream:"https://h.getradio.me/rp1434/hls.m3u8",                       listeners:800},
+  {name:"Relax FM",             genre:"Chillout",         tag:"chill",   logo:null,stream:"https://relax.hostingradio.ru/relax96.aacp",                 listeners:2600},
+  {name:"Nightwave Plaza",      genre:"Lo-Fi / Vaporwave",tag:"chill",   logo:null,stream:"https://radio.plaza.one/mp3",                               listeners:4200},
+// ── ROCK ─────────────────────────────────────────────────────────────────────
+  {name:"Русский Рок",          genre:"Рок",              tag:"rock",    logo:"https://radiopotok.ru/f/station/256/1594.png",stream:"https://h.getradio.me/rp1594/hls.m3u8",                       listeners:2345},
+  {name:"Наше Радио",           genre:"Русский рок",      tag:"rock",    logo:null,stream:"https://nashe.hostingradio.ru/nashe96.aacp",                 listeners:7300},
+  {name:"Rock FM",              genre:"Рок",              tag:"rock",    logo:null,stream:"https://rockfm.hostingradio.ru/rockfm96.aacp",               listeners:4800},
+  {name:"Maximum",              genre:"Рок / Альт",       tag:"rock",    logo:null,stream:"https://maximum.hostingradio.ru/maximum96.aacp",             listeners:3900},
+  {name:"Record Rock",          genre:"Рок",              tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/rock96.aacp",            listeners:1800},
+  {name:"Record Alt Rock",      genre:"Alt Rock",         tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/alternativerock96.aacp", listeners:1500},
+  {name:"Record Hard Rock",     genre:"Hard Rock",        tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/hardrock96.aacp",        listeners:1200},
+  {name:"Record Punk",          genre:"Punk",             tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/punk96.aacp",            listeners:900},
+  {name:"Record Indie",         genre:"Indie",            tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/indie96.aacp",           listeners:1100},
+  {name:"Record Acoustic",      genre:"Acoustic",         tag:"rock",    logo:null,stream:"https://radiorecord.hostingradio.ru/acoustic96.aacp",        listeners:1300},
+  {name:"SomaFM Metal Detector",genre:"Metal",            tag:"rock",    logo:null,stream:"https://ice1.somafm.com/metal-128-mp3",                     listeners:3400},
+  {name:"SomaFM Folk Forward",  genre:"Folk",             tag:"rock",    logo:null,stream:"https://ice1.somafm.com/folkfwd-128-mp3",                   listeners:1800},
+  {name:"SomaFM Covers",        genre:"Acoustic Covers",  tag:"rock",    logo:null,stream:"https://ice1.somafm.com/covers-128-mp3",                    listeners:2200},
+// ── RETRO ────────────────────────────────────────────────────────────────────
+  {name:"Ретро Хит",            genre:"Ретро",            tag:"retro",   logo:"https://radiopotok.ru/f/station/256/1570.png",stream:"https://h.getradio.me/rp1570/hls.m3u8",                       listeners:3588},
+  {name:"Ретро FM",             genre:"Ретро хиты",       tag:"retro",   logo:null,stream:"https://retro.hostingradio.ru/retro96.aacp",                 listeners:12000},
+  {name:"SomaFM Underground 80s",genre:"80-е",            tag:"retro",   logo:null,stream:"https://ice1.somafm.com/u80s-128-mp3",                      listeners:5900},
+  {name:"SomaFM 70s Hits",      genre:"70-е",             tag:"retro",   logo:null,stream:"https://ice1.somafm.com/seventies-128-mp3",                 listeners:4300},
+  {name:"Record Dance Retro",   genre:"Disco / Dance 90s",tag:"retro",   logo:null,stream:"https://radiorecord.hostingradio.ru/danceretro96.aacp",      listeners:1700},
+  {name:"Record New Wave",      genre:"New Wave 80s",     tag:"retro",   logo:null,stream:"https://radiorecord.hostingradio.ru/newwave96.aacp",         listeners:1200},
+  {name:"SomaFM Bagel Radio",   genre:"Eclectic",         tag:"retro",   logo:null,stream:"https://ice1.somafm.com/bagel-128-mp3",                     listeners:3100},
+// ── SHANSON ──────────────────────────────────────────────────────────────────
+  {name:"Радио Шансон",         genre:"Шансон",           tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png",   stream:"https://h.getradio.me/rp2/hls.m3u8",                          listeners:2464},
+  {name:"Дядя Ваня на даче",    genre:"Шансон",           tag:"shanson", logo:"https://radiopotok.ru/f/station/256/1743.png",stream:"https://h.getradio.me/rp1743/hls.m3u8",                       listeners:1702},
+  {name:"Шансон FM",            genre:"Шансон",           tag:"shanson", logo:null,stream:"https://shanson.hostingradio.ru/shanson96.aacp",             listeners:3100},
+// ── NEWS ─────────────────────────────────────────────────────────────────────
+  {name:"Вести FM",             genre:"Новости",          tag:"news",    logo:"https://radiopotok.ru/f/station/256/644.png", stream:"https://h.getradio.me/rp644/hls.m3u8",                        listeners:7716},
+  {name:"Маяк",                 genre:"Новости / Радио",  tag:"news",    logo:null,stream:"https://mayk.hostingradio.ru/mayk96.aacp",                   listeners:5400},
+  {name:"Business FM",          genre:"Новости / Бизнес", tag:"news",    logo:null,stream:"https://business.hostingradio.ru/business96.aacp",           listeners:4100},
+  {name:"Спорт FM",             genre:"Спорт",            tag:"news",    logo:null,stream:"https://sport.hostingradio.ru/sport96.aacp",                 listeners:3800},
+// ── JAZZ ─────────────────────────────────────────────────────────────────────
+  {name:"Radio Jazz",           genre:"Jazz",             tag:"jazz",    logo:null,stream:"https://jazz.hostingradio.ru/jazz96.aacp",                   listeners:2900},
+  {name:"SomaFM Ill Street",    genre:"Jazz / Blues",     tag:"jazz",    logo:null,stream:"https://ice1.somafm.com/illstreet-128-mp3",                 listeners:3700},
+  {name:"SomaFM Sonic Universe",genre:"Jazz / Fusion",    tag:"jazz",    logo:null,stream:"https://ice1.somafm.com/sonicuniverse-128-mp3",              listeners:3300},
+  {name:"Record Jazz Funk",     genre:"Jazz Funk",        tag:"jazz",    logo:null,stream:"https://radiorecord.hostingradio.ru/jazzfunk96.aacp",        listeners:1100},
+  {name:"Record Blues",         genre:"Blues",            tag:"jazz",    logo:null,stream:"https://radiorecord.hostingradio.ru/blues96.aacp",           listeners:900},
+  {name:"Record Soul",          genre:"Soul",             tag:"jazz",    logo:null,stream:"https://radiorecord.hostingradio.ru/soul96.aacp",            listeners:1000},
+  {name:"Record Funk",          genre:"Funk",             tag:"jazz",    logo:null,stream:"https://radiorecord.hostingradio.ru/funk96.aacp",            listeners:800},
+// ── CLASSICAL ────────────────────────────────────────────────────────────────
+  {name:"Radio Klassika",       genre:"Классическая",     tag:"classic", logo:null,stream:"https://classic.hostingradio.ru/classic96.aacp",             listeners:3200},
+  {name:"SomaFM Doomed",        genre:"Gothic / Dark",    tag:"classic", logo:null,stream:"https://ice1.somafm.com/doomed-128-mp3",                    listeners:2100},
+// ── FOREIGN ──────────────────────────────────────────────────────────────────
+  {name:"Радио Монте-Карло",    genre:"Зарубежная",       tag:"foreign", logo:"https://radiopotok.ru/f/station/256/603.png", stream:"https://h.getradio.me/rp603/hls.m3u8",                        listeners:5059},
+  {name:"Шоколад",              genre:"Каверы",           tag:"foreign", logo:"https://radiopotok.ru/f/station/256/780.png", stream:"https://h.getradio.me/rp780/hls.m3u8",                        listeners:4212},
+  {name:"Хорошее Радио",        genre:"Зарубежная",       tag:"foreign", logo:"https://radiopotok.ru/f/station/256/487.png", stream:"https://h.getradio.me/rp487/hls.m3u8",                        listeners:3818},
+  {name:"Дорожное радио СПб",   genre:"Разное",           tag:"foreign", logo:"https://radiopotok.ru/f/station/256/83.png",  stream:"https://h.getradio.me/rp83/hls.m3u8",                         listeners:4922},
+  {name:"Монте-Карло",          genre:"Зарубежная",       tag:"foreign", logo:null,stream:"https://montecarlo.hostingradio.ru/montecarlo96.aacp",       listeners:6100},
+  {name:"Дорожное Радио",       genre:"Разное",           tag:"foreign", logo:null,stream:"https://dorog.hostingradio.ru/dorog96.aacp",                 listeners:5700},
+  {name:"SomaFM Thistle",       genre:"Scottish / Celtic",tag:"foreign", logo:null,stream:"https://ice1.somafm.com/thistle-128-mp3",                   listeners:1800},
+  {name:"SomaFM Bootliquor",    genre:"Country / Honkytonk",tag:"foreign",logo:null,stream:"https://ice1.somafm.com/bootliquor-128-mp3",               listeners:2400},
+  {name:"SomaFM Suburbs of Goa",genre:"Psychedelic",      tag:"foreign", logo:null,stream:"https://ice1.somafm.com/suburbsofgoa-128-mp3",               listeners:2900},
+];
 
-    const genres=[{id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},{id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},{id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"},{id:"world",label:"World"}];
+const genres = [
+  {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
+  {id:"edm",label:"EDM"},{id:"rap",label:"Рэп"},{id:"dnb",label:"DnB"},
+  {id:"trance",label:"Транс"},{id:"techno",label:"Техно"},{id:"chill",label:"Чилаут"},
+  {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
+  {id:"news",label:"Новости"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"},
+  {id:"foreign",label:"Зарубежная"},
+];
 
-    let curIdx=0, playing=false, activeGenre="all", activeTab="all";
-    let darkMode=localStorage.getItem("rDark")==="1";
-    let carMode=localStorage.getItem("rCar")==="1";
-    let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
-    let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
-    let curQualityIdx=0;
-    const audio=document.getElementById("audio");
-    audio.volume=0.8;
-    let hlsInstance=null;
+// ── STATE ──────────────────────────────────────────────────────────────────
+let curIdx=0,playing=false,activeGenre="all",activeTab="all";
+let darkMode=localStorage.getItem("rDark")==="1";
+let carMode=localStorage.getItem("rCar")==="1";
+let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
+let userPaused=false,wasInterrupted=false,resumeTimer=null,lastAudioTime=0;
+const audio=document.getElementById("audio");
+audio.volume=0.8;
+let hlsInstance=null;
 
-    if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.documentElement.classList.add("dark");}
-    if(carMode)document.body.classList.add("car");
-    document.getElementById("darkBtn").classList.toggle("on",darkMode);
-    document.getElementById("carBtn").classList.toggle("on",carMode);
-    function toggleDark(){darkMode=!darkMode;document.documentElement.classList.toggle("dark",darkMode);document.getElementById("darkBtn").classList.toggle("on",darkMode);localStorage.setItem("rDark",darkMode?"1":"0");}
-    function toggleCar(){carMode=!carMode;document.body.classList.toggle("car",carMode);document.getElementById("carBtn").classList.toggle("on",carMode);localStorage.setItem("rCar",carMode?"1":"0");}
-    function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
-    setInterval(tick,1000);tick();
+if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.documentElement.classList.add("dark");}
+if(carMode) document.body.classList.add("car");
+document.getElementById("darkBtn").classList.toggle("on",darkMode);
+document.getElementById("carBtn").classList.toggle("on",carMode);
 
-    const bars=[];const vizEl=document.getElementById("viz");
-    for(let i=0;i<30;i++){const b=document.createElement("div");b.className="bar";const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;vizEl.appendChild(b);bars.push(b);}
-    function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
-    function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
-    function showBadge(t){document.getElementById("resumeText").textContent=t;document.getElementById("resumeBadge").classList.add("show");}
-    function hideBadge(){document.getElementById("resumeBadge").classList.remove("show");}
+function toggleDark(){darkMode=!darkMode;document.documentElement.classList.toggle("dark",darkMode);document.getElementById("darkBtn").classList.toggle("on",darkMode);localStorage.setItem("rDark",darkMode?"1":"0");}
+function toggleCar(){carMode=!carMode;document.body.classList.toggle("car",carMode);document.getElementById("carBtn").classList.toggle("on",carMode);localStorage.setItem("rCar",carMode?"1":"0");}
 
-    audio.addEventListener("pause",()=>{if(userPaused||!playing)return;wasInterrupted=true;lastAudioTime=Date.now();showBadge("Радио прервано — восстановлю после…");clearTimeout(resumeTimer);resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1200);});
-    audio.addEventListener("ended",()=>{if(!userPaused&&playing){wasInterrupted=true;attemptResume();}});
-    document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
-    if(tg)tg.onEvent("activated",()=>{if(wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
-    setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>3000)attemptResume();},3000);
+// ── CLOCK ──────────────────────────────────────────────────────────────────
+function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
+setInterval(tick,1000);tick();
 
-    async function attemptResume(){wasInterrupted=false;showBadge("Возвращаю радио…");audio.volume=0;playCurrentStream();const target=Number(document.getElementById("volSlider").value)/100;let v=0;const fade=setInterval(()=>{v+=0.04;if(v>=target){v=target;clearInterval(fade);hideBadge();}audio.volume=v;},60);}
+// ── VISUALIZER ─────────────────────────────────────────────────────────────
+const bars=[];const vizEl=document.getElementById("viz");
+for(let i=0;i<30;i++){const b=document.createElement("div");b.className="bar";const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;vizEl.appendChild(b);bars.push(b);}
+function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
+function vizPump(){bars.forEach((b,i)=>setTimeout(()=>{b.classList.add("pump");setTimeout(()=>b.classList.remove("pump"),400);},i*12));}
+function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
 
-    function getCurrentStreamUrl(){const s=stations[curIdx];if(!s.streams||!s.streams.length)return null;const idx=curQualityIdx<s.streams.length?curQualityIdx:0;return s.streams[idx].url;}
-    function playCurrentStream(){const url=getCurrentStreamUrl();if(url)playStream(url);}
-    function playStream(url){if(!url)return;if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}setLoading(true);vizOn(false);if(url.includes(".m3u8")){if(audio.canPlayType("application/vnd.apple.mpegurl")){audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;}if(typeof Hls!=="undefined"&&Hls.isSupported()){hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});return;}}audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));}
+// ══════════════════════════════════════════════════
+//  VOLUME ANIMATION
+// ══════════════════════════════════════════════════
+const volSlider=document.getElementById("volSlider");
+const volFill=document.getElementById("volFill");
+const volBubble=document.getElementById("volBubble");
+const volRipple=document.getElementById("volRipple");
+const volWrap=document.getElementById("volWrap");
+const volEmoji=document.getElementById("volEmoji");
+let volHideTimer=null;
+let isDragging=false;
+let lastVolValue=80;
 
-    function ge(tag){const e={deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",jazz:"🎷",classic:"🎻",world:"🌍"};return e[tag]||"🎵";}
+function updateVolUI(val){
+  const pct=val/100;
+  // Fill track
+  volFill.style.width=(pct*100)+"%";
+  // Bubble position — offset from wrap left edge
+  const wrapW=volWrap.getBoundingClientRect().width||200;
+  const thumbX=pct*wrapW;
+  volBubble.style.left=thumbX+"px";
+  volBubble.textContent=Math.round(val)+"%";
+  // Emoji
+  const emoji=val===0?"🔇":val<30?"🔈":val<70?"🔉":"🔊";
+  if(volEmoji.textContent!==emoji){
+    volEmoji.textContent=emoji;
+    volEmoji.classList.remove("bounce");
+    void volEmoji.offsetWidth;
+    volEmoji.classList.add("bounce");
+    setTimeout(()=>volEmoji.classList.remove("bounce"),400);
+  }
+}
 
-    function loadStation(idx,autoplay){
-        curIdx=idx;const s=stations[idx];
-        document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
-        document.getElementById("nowName").textContent=s.name;
-        document.getElementById("nowGenre").textContent=s.genre;
-        document.getElementById("nowCard").classList.add("visible");
-        updateFavBtn();updateMediaSession(s);renderList();
-        curQualityIdx=0;
-        renderQualityButtons();
-        if(autoplay){userPaused=false;playCurrentStream();}
-        else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
+function onVolStart(){
+  isDragging=true;
+  clearTimeout(volHideTimer);
+  volSlider.classList.add("dragging");
+  volBubble.classList.add("show");
+  updateVolUI(volSlider.value);
+}
+function onVolEnd(){
+  isDragging=false;
+  volSlider.classList.remove("dragging");
+  volHideTimer=setTimeout(()=>volBubble.classList.remove("show"),900);
+}
+function onVolChange(val){
+
+  val = Number(val);
+
+  audio.volume = val / 100;
+
+  updateVolUI(val);
+
+  if(val > lastVolValue){
+    volWrap.classList.remove("drag-back");
+    volWrap.classList.add("drag-forward");
+  } else {
+    volWrap.classList.remove("drag-forward");
+    volWrap.classList.add("drag-back");
+  }
+
+  lastVolValue = val;
+
+  clearTimeout(window.volDirTimer);
+
+  window.volDirTimer = setTimeout(()=>{
+    volWrap.classList.remove("drag-forward");
+    volWrap.classList.remove("drag-back");
+  },140);
+
+  const pct = val / 100;
+  const wrapW = volWrap.getBoundingClientRect().width || 200;
+
+  volRipple.style.left = (pct * wrapW) + "px";
+
+  volRipple.classList.remove("go");
+  void volRipple.offsetWidth;
+  volRipple.classList.add("go");
+
+  volWrap.classList.add("pulse");
+
+  setTimeout(()=>{
+    volWrap.classList.remove("pulse");
+  },450);
+
+  bars.forEach(bar=>{
+    const boost = 4 + (val/100)*28;
+    bar.style.height = boost * Math.random() + "px";
+  });
+
+  if(Math.random() < 0.45){
+    vizPump();
+  }
+
+  if(!isDragging){
+    volBubble.classList.add("show");
+
+    clearTimeout(volHideTimer);
+
+    volHideTimer=setTimeout(()=>{
+      volBubble.classList.remove("show");
+    },900);
+  }
+}
+
+// Init fill
+updateVolUI(80);
+
+// ── RESUME ─────────────────────────────────────────────────────────────────
+function showBadge(t){document.getElementById("resumeText").textContent=t;document.getElementById("resumeBadge").classList.add("show");}
+function hideBadge(){document.getElementById("resumeBadge").classList.remove("show");}
+
+audio.addEventListener("pause",()=>{
+  if(userPaused||!playing)return;
+  wasInterrupted=true;lastAudioTime=Date.now();
+  showBadge("Радио прервано — восстановлю после…");
+  clearTimeout(resumeTimer);
+  resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1200);
+});
+audio.addEventListener("ended",()=>{if(!userPaused&&playing){wasInterrupted=true;attemptResume();}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
+if(tg)tg.onEvent("activated",()=>{if(wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
+setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>3000)attemptResume();},3000);
+async function attemptResume(){
+
+  wasInterrupted = false;
+
+  showBadge("Возвращаю радио…");
+
+  audio.volume = 0;
+
+  playStream(stations[curIdx].stream);
+
+  let target = Number(volSlider.value) / 100;
+
+  let v = 0;
+
+  const fade = setInterval(()=>{
+
+    v += 0.04;
+
+    if(v >= target){
+      v = target;
+      clearInterval(fade);
+      hideBadge();
     }
 
-    function renderQualityButtons(){
-        const s=stations[curIdx];const row=document.getElementById("qualityRow");row.innerHTML="";
-        if(!s.streams||s.streams.length<2)return;
-        s.streams.forEach((st,i)=>{const b=document.createElement("button");b.className="quality-btn"+(i===curQualityIdx?" active":"");b.textContent=st.label;b.onclick=()=>{if(curQualityIdx===i)return;curQualityIdx=i;renderQualityButtons();if(playing||!userPaused){setLoading(true);playCurrentStream();}};row.appendChild(b);});
+    audio.volume = v;
+
+  },60);
+}
+
+// ── MEDIA SESSION ──────────────────────────────────────────────────────────
+function updateMediaSession(s){
+  if(!("mediaSession" in navigator))return;
+  navigator.mediaSession.metadata=new MediaMetadata({title:s.name,artist:s.genre,album:"Radio Go"});
+  navigator.mediaSession.setActionHandler("previoustrack",prev);
+  navigator.mediaSession.setActionHandler("nexttrack",next);
+  navigator.mediaSession.setActionHandler("play",()=>{userPaused=false;playStream(stations[curIdx].stream);});
+  navigator.mediaSession.setActionHandler("pause",()=>{userPaused=true;audio.pause();setPlaying(false);});
+}
+
+// ── PLAYBACK ───────────────────────────────────────────────────────────────
+function playStream(url){
+  if(!url)return;
+  if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
+  setLoading(true);vizOn(false);
+  if(url.includes(".m3u8")){
+    if(audio.canPlayType("application/vnd.apple.mpegurl")){
+      audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;
     }
-
-    function setPlaying(on){
-        playing=on;vizOn(on);
-        document.getElementById("liveDot").classList.toggle("on",on);
-        document.getElementById("playBtn").classList.toggle("playing",on);
-        document.getElementById("playIcon").innerHTML=on?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
-        if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
+    if(typeof Hls!=="undefined"&&Hls.isSupported()){
+      hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
+      hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});
+      hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});
+      return;
     }
-    function togglePlay(){if(tg)tg.HapticFeedback?.impactOccurred("light");if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playCurrentStream();}else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);hideBadge();}}
-    // ИСПРАВЛЕНО: всегда запускаем радио при переключении
-    function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length, true);}
-    function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length, true);}
+  }
+  audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
+}
 
-    const volSlider=document.getElementById("volSlider");const volFill=document.getElementById("volFill");const volVal=document.getElementById("volVal");const volEmoji=document.getElementById("volEmoji");let lastEmoji="🔈";
-    function volColor(v){if(v===0) return "transparent";if(v<=50) return "#d0cdc8";if(v<=80) return "#4caf7d";return "#f0a030";}
-    function updateVolUI(v){v=Number(v);volFill.style.width=v+"%";volFill.style.backgroundColor=volColor(v);volVal.textContent=Math.round(v)+"%";volVal.style.color= v===0?"var(--muted)":v<=50?"var(--muted)":v<=80?"#4caf7d":"#f0a030";const em=v===0?"🔇":v<30?"🔈":v<70?"🔉":"🔊";if(em!==lastEmoji){lastEmoji=em;volEmoji.textContent=em;}}
-    function onVolStart(){volSlider.classList.add("dragging");}
-    function onVolEnd(){volSlider.classList.remove("dragging");}
-    function onVolChange(v){audio.volume=v/100;updateVolUI(v);}
-    updateVolUI(80);
+function ge(tag){return{deep:"🎧",pop:"🎤",edm:"🎛",rap:"🎤",dnb:"🥁",trance:"🌀",techno:"⚙️",chill:"🌊",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";}
 
-    function toggleFav(){if(tg)tg.HapticFeedback?.notificationOccurred("success");const name=stations[curIdx].name;const i=favs.indexOf(name);if(i===-1)favs.push(name);else favs.splice(i,1);localStorage.setItem("rfavs",JSON.stringify(favs));updateFavBtn();if(activeTab==="fav")renderList();}
-    function updateFavBtn(){const on=favs.includes(stations[curIdx].name);const b=document.getElementById("favBtn");b.textContent=on?"♥":"♡";b.classList.toggle("on",on);}
-    function setTab(t){activeTab=t;document.getElementById("tabAll").classList.toggle("active",t==="all");document.getElementById("tabFav").classList.toggle("active",t==="fav");document.getElementById("searchWrap").style.display=t==="all"?"":"none";document.getElementById("genrePills").style.display=t==="all"?"":"none";if(t==="all")renderGenres();renderList();}
-    function renderGenres(){const el=document.getElementById("genrePills");el.innerHTML="";genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});}
-    function renderList(){const q=(document.getElementById("searchInput").value||"").toLowerCase();const el=document.getElementById("stationList");el.innerHTML="";const f=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${f.length})`:activeGenre==="all"?`Все станции (${f.length})`:`${f.length} станций`;if(!f.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}f.forEach(s=>{const idx=stations.indexOf(s);const row=document.createElement("div");row.className="row"+(idx===curIdx?" active":"");row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};el.appendChild(row);});}
+function loadStation(idx,autoplay){
+  curIdx=idx;const s=stations[idx];
+  const nl=document.getElementById("nowLogo");
+  nl.innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
+  document.getElementById("nowName").textContent=s.name;
+  document.getElementById("nowGenre").textContent=s.genre;
+  document.getElementById("nowCard").classList.add("visible");
+  updateFavBtn();updateMediaSession(s);renderList();
+  if(autoplay||playing){userPaused=false;playStream(s.stream);}
+  else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
+}
 
-    // Комментарии
-    let commentsVisible=false,commentsExpanded=false;
-    let comments=JSON.parse(localStorage.getItem("rComments")||"[]");
-    const MY_NAME=tg?.initDataUnsafe?.user?(tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim():"Вы";
-    function avatarColor(n){const p=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))&0xffff;return p[h%p.length];}
-    function initials(n){return n.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?";}
-    function fmtTime(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
-    function toggleCommentsPanel(){commentsVisible=!commentsVisible;document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);document.getElementById("nowCard").classList.toggle("connected",commentsVisible);document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);if(commentsVisible)updatePreview();else{commentsExpanded=false;document.getElementById("commentsExpanded").classList.remove("open");}}
-    function toggleCommentsExpanded(){commentsExpanded=!commentsExpanded;document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";if(commentsExpanded)renderAllComments();}
-    function updatePreview(){const el=document.getElementById("previewMessages");const last=comments.slice(-2);if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");}
-    function renderComment(c){const el=document.getElementById("commentsList");const div=document.createElement("div");div.className="comment";const color=avatarColor(c.name);const isMe=c.name===MY_NAME;div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;el.appendChild(div);}
-    function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));}
-    function addNewComment(c){comments.push(c);if(comments.length>80)comments=comments.slice(-80);localStorage.setItem("rComments",JSON.stringify(comments));updatePreview();if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}}
-    async function sendComment(){const inp=document.getElementById("commentInput");const text=inp.value.trim();if(!text)return;inp.value="";if(tg)tg.HapticFeedback?.impactOccurred("light");const msg={name:MY_NAME,text,ts:Date.now()};if(CHAT_API_BASE){try{await fetch(`${CHAT_API_BASE}/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(msg)});}catch(e){}}else{addNewComment(msg);}}
-    document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
-    if(CHAT_API_BASE){let lastSync=Date.now();setInterval(async()=>{try{const res=await fetch(`${CHAT_API_BASE}/get-messages?since=${lastSync}`);const newMsgs=await res.json();if(Array.isArray(newMsgs)){newMsgs.forEach(m=>{if(!comments.some(c=>c.ts===m.ts&&c.name===m.name))addNewComment(m);});}lastSync=Date.now();}catch(e){}},5000);}
+function setPlaying(on){
+  playing=on;vizOn(on);
+  document.getElementById("liveDot").classList.toggle("on",on);
+  document.getElementById("playBtn").classList.toggle("playing",on);
+  document.getElementById("playIcon").innerHTML=on?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
+  if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
+}
 
-    renderGenres();renderList();loadStation(0,false);updatePreview();
+function togglePlay(){
+  if(tg)tg.HapticFeedback?.impactOccurred("light");
+  if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playStream(stations[curIdx].stream);}
+  else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);hideBadge();}
+}
+function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length,playing);}
+function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length,playing);}
+
+// ── FAVORITES ──────────────────────────────────────────────────────────────
+function toggleFav(){
+  if(tg)tg.HapticFeedback?.notificationOccurred("success");
+  const name=stations[curIdx].name;const i=favs.indexOf(name);
+  if(i===-1)favs.push(name);else favs.splice(i,1);
+  localStorage.setItem("rfavs",JSON.stringify(favs));
+  updateFavBtn();if(activeTab==="fav")renderList();
+}
+function updateFavBtn(){const on=favs.includes(stations[curIdx].name);const b=document.getElementById("favBtn");b.textContent=on?"♥":"♡";b.classList.toggle("on",on);}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function setTab(tab){
+  activeTab=tab;
+  document.getElementById("tabAll").classList.toggle("active",tab==="all");
+  document.getElementById("tabFav").classList.toggle("active",tab==="fav");
+  document.getElementById("searchWrap").style.display=tab==="all"?"":"none";
+  document.getElementById("genrePills").style.display=tab==="all"?"":"none";
+  if(tab==="all")renderGenres();renderList();
+}
+
+function renderGenres(){
+  const el=document.getElementById("genrePills");el.innerHTML="";
+  genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});
+}
+
+function renderList(){
+  const q=(document.getElementById("searchInput").value||"").toLowerCase();
+  const el=document.getElementById("stationList");el.innerHTML="";
+  const filtered=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));
+  document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${filtered.length})`:activeGenre==="all"?`Все станции (${filtered.length})`:` ${filtered.length} станций`;
+  if(!filtered.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}
+  filtered.forEach(s=>{
+    const idx=stations.indexOf(s);const row=document.createElement("div");
+    row.className="row"+(idx===curIdx?" active":"");
+    row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;
+    row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};
+    el.appendChild(row);
+  });
+}
+
+// ── COMMENTS ──────────────────────────────────────────────────────────────
+let commentsOpen=false,comments=JSON.parse(localStorage.getItem("rComments")||"[]"),unread=0,toastTimer=null;
+const MY_NAME=tg?.initDataUnsafe?.user?(tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim():"Вы";
+function toggleComments(){commentsOpen=!commentsOpen;document.getElementById("commentsStrip").classList.toggle("open",commentsOpen);if(commentsOpen){unread=0;updateCCount();document.getElementById("cLive").classList.remove("show");hideToast();setTimeout(()=>{document.getElementById("commentsList").scrollTop=99999;},60);}}
+function openComments(){if(!commentsOpen)toggleComments();}
+function updateCCount(){document.getElementById("cCount").textContent=commentsOpen?comments.length:(unread>0?"+"+unread:comments.length);}
+function showToast(){document.getElementById("newToast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>document.getElementById("newToast").classList.remove("show"),4500);}
+function hideToast(){document.getElementById("newToast").classList.remove("show");}
+function avatarColor(n){const p=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))&0xffff;return p[h%p.length];}
+function initials(n){return n.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?";}
+function fmtTime(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
+function renderComment(c){const el=document.getElementById("commentsList");const div=document.createElement("div");div.className="comment";const color=avatarColor(c.name);const isMe=c.name===MY_NAME;div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;el.appendChild(div);}
+function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));el.scrollTop=99999;}
+function addNewComment(c,fromSelf=false){comments.push(c);if(comments.length>80)comments=comments.slice(-80);localStorage.setItem("rComments",JSON.stringify(comments));if(commentsOpen){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}else if(!fromSelf){unread++;document.getElementById("cLive").classList.add("show");showToast();}updateCCount();}
+function sendComment(){const inp=document.getElementById("commentInput");const text=inp.value.trim();if(!text)return;inp.value="";if(tg)tg.HapticFeedback?.impactOccurred("light");addNewComment({name:MY_NAME,text,ts:Date.now()},true);if(!commentsOpen)openComments();}
+document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
+function scheduleDemoComments(){const demos=[{name:"Алексей",text:"Отличное радио! Слушаю каждый день 🎧"},{name:"Мария",text:"Soundpark Deep — лучший выбор для работы 💙"},{name:"Дмитрий",text:"Можно добавить больше jazz станций?"},{name:"Катерина",text:"В машине слушаю постоянно, удобно! 👍"},{name:"Иван",text:"Ретро FM — классика! 📻"}];demos.slice(0,3).forEach((d,i)=>setTimeout(()=>addNewComment({...d,ts:Date.now()-3000+i*60000}),300+i*400));let di=3;const iv=setInterval(()=>{if(di>=demos.length){clearInterval(iv);return;}addNewComment({...demos[di],ts:Date.now()});di++;},14000);}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+renderGenres();renderList();loadStation(0,false);renderAllComments();scheduleDemoComments();
 </script>
 </body>
 </html>
