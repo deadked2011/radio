@@ -52,7 +52,6 @@
         .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
         .app{width:100%;max-width:680px;margin:0 auto}
 
-        /* ── HEADER ── */
         .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)}
         .header-title{font-family:'DM Serif Display',serif;font-size:var(--f-title);letter-spacing:-.3px;line-height:1}
         .header-right{display:flex;align-items:center;gap:var(--gap)}
@@ -65,13 +64,11 @@
         .icon-btn svg{width:44%;height:44%}
         .icon-btn.comment-on{background:var(--accent);color:var(--bg)}
 
-        /* ── TABS ── */
         .tabs{display:flex;gap:var(--gap);margin-bottom:var(--space-sm)}
         .tab-btn{flex:1;padding:clamp(8px,2vw,14px) 0;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:var(--f-tab);font-weight:500;cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
         .tab-btn.active{background:var(--accent);color:var(--bg)}
         .tab-btn svg{width:clamp(12px,2.2vw,16px);height:clamp(12px,2.2vw,16px)}
 
-        /* ── SEARCH ── */
         .search-wrap{position:relative;margin-bottom:var(--space-sm)}
         .search-input{width:100%;padding:clamp(9px,2.1vw,15px) clamp(14px,3vw,22px) clamp(9px,2.1vw,15px) clamp(36px,8vw,56px);background:var(--card);border:none;border-radius:clamp(10px,2.5vw,18px);font-family:'DM Sans',sans-serif;font-size:var(--f-tab);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.05);outline:none;-webkit-appearance:none;transition:background .3s,color .3s,box-shadow .2s}
         .search-input:focus{box-shadow:0 0 0 2px var(--accent)}
@@ -79,21 +76,17 @@
         .search-icon{position:absolute;left:clamp(12px,2.8vw,20px);top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
         .search-icon svg{width:clamp(15px,3.2vw,22px);height:clamp(15px,3.2vw,22px)}
 
-        /* ── GENRES ── */
         .genres{display:flex;gap:var(--gap);overflow-x:auto;margin-bottom:var(--space-md);padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
         .genres::-webkit-scrollbar{display:none}
         .genre-pill{padding:clamp(6px,1.4vw,11px) clamp(12px,2.5vw,22px);border-radius:100px;background:var(--pill);color:var(--pill-text);font-size:var(--f-pill);font-weight:500;cursor:pointer;transition:all .2s;border:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
         .genre-pill.active{background:var(--accent);color:var(--bg)}
 
-        /* ── RESUME BADGE ── */
         .resume-badge{display:none;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:clamp(8px,2vw,14px);padding:clamp(7px,1.8vw,12px) clamp(12px,2.8vw,20px);margin-bottom:var(--space-sm);font-size:var(--f-now-gen);color:var(--muted)}
         .resume-badge.show{display:flex}
         .resume-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:blink 1s infinite;flex-shrink:0}
 
-        /* ── NOW PLAYING CARD ── */
         .now-card{background:var(--card);border-radius:var(--r-card);padding:var(--space-md);box-shadow:var(--shadow);margin-bottom:var(--space-sm);display:none;transition:background .3s;border-bottom-left-radius:0;border-bottom-right-radius:0}
         .now-card.visible{display:block}
-        .now-card.comments-attached{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
         .now-top{display:flex;align-items:center;gap:var(--gap);margin-bottom:var(--space-md)}
         .now-logo{width:var(--now-logo);height:var(--now-logo);border-radius:clamp(10px,2.5vw,20px);background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:clamp(22px,5.5vw,44px);transition:width .3s,height .3s}
         .now-logo img{width:100%;height:100%;object-fit:cover}
@@ -114,7 +107,6 @@
         .bar.on{background:var(--accent);animation:pulse var(--dur,.8s) ease-in-out infinite alternate}
         @keyframes pulse{from{height:var(--min,4px)}to{height:var(--max,24px)}}
 
-        /* ── CONTROLS ── */
         .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--space-md)}
         .ctrl{width:var(--ctrl-size);height:var(--ctrl-size);border-radius:clamp(14px,3vw,24px);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s;flex-shrink:0}
         .ctrl:active{background:var(--border);color:var(--text);transform:scale(.95)}
@@ -124,7 +116,6 @@
         .play-btn svg{width:var(--play-icon);height:var(--play-icon);fill:var(--bg);margin-left:8%;transition:fill .3s}
         .play-btn.playing svg{margin-left:0}
 
-        /*── VOLUME ──*/
         .vol-row{display:flex;align-items:center;gap:clamp(8px,2vw,16px);padding-top:var(--space-sm);border-top:1px solid var(--border)}
         .vol-emoji{font-size:clamp(15px,3vw,22px);display:inline-block;flex-shrink:0;transition:transform .2s}
         .vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:clamp(32px,7vw,48px)}
@@ -135,7 +126,10 @@
         input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 3px 14px rgba(0,0,0,.22)}
         .vol-val{font-size:clamp(11px,2vw,14px);font-weight:600;color:var(--muted);min-width:clamp(26px,5vw,36px);text-align:right;flex-shrink:0;transition:color .25s}
 
-        /*── COMMENTS ──*/
+        .quality-row{display:flex;gap:6px;margin-bottom:var(--space-md);justify-content:center}
+        .quality-btn{padding:clamp(6px,1.4vw,10px) clamp(12px,2.8vw,20px);border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:var(--f-pill);cursor:pointer;transition:all .15s}
+        .quality-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
         .comments-panel{background:var(--card);border-top:1px solid var(--border);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:var(--shadow);margin-bottom:var(--space-md);overflow:hidden;display:none;transition:background .3s}
         .comments-panel.visible{display:block}
         .now-card.connected{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0;box-shadow:0 -2px 18px rgba(0,0,0,.07)}
@@ -166,7 +160,6 @@
         .send-btn:active{transform:scale(.92)}
         .send-btn svg{width:44%;height:44%;fill:var(--bg)}
 
-        /*── STATION LIST ──*/
         .section-label{font-size:var(--f-label);text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:500;margin-bottom:clamp(6px,1.5vw,12px);padding:0 2px}
         .list{display:flex;flex-direction:column;gap:clamp(5px,1.2vw,10px)}
         .row{background:var(--card);border-radius:var(--r-row);padding:clamp(10px,2.4vw,18px) clamp(12px,2.8vw,22px);display:flex;align-items:center;gap:clamp(10px,2.4vw,18px);cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.04);transition:box-shadow .2s,background .3s;user-select:none;min-height:var(--row-min-h)}
@@ -189,53 +182,24 @@
 <div class="page">
     <div class="scroll-area">
         <div class="app">
-
-            <!-- HEADER -->
             <div class="header">
                 <div class="header-title">Radio Go</div>
                 <div class="header-right">
-                    <button class="icon-btn" id="darkBtn" onclick="toggleDark()" title="Тёмная тема">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    </button>
-                    <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Режим авто">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
-                    </button>
-                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsPanel()" title="Комментарии">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </button>
+                    <button class="icon-btn" id="darkBtn" onclick="toggleDark()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+                    <button class="icon-btn" id="carBtn" onclick="toggleCar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></button>
+                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
                     <span class="live-dot" id="liveDot"></span>
                     <span class="clock" id="clock"></span>
                 </div>
             </div>
-
-            <!-- RESUME BADGE -->
-            <div class="resume-badge" id="resumeBadge">
-                <span class="resume-dot"></span>
-                <span id="resumeText">Восстанавливаю радио…</span>
-            </div>
-
-            <!-- TABS -->
+            <div class="resume-badge" id="resumeBadge"><span class="resume-dot"></span><span id="resumeText">Восстанавливаю радио…</span></div>
             <div class="tabs">
-                <button class="tab-btn active" id="tabAll" onclick="setTab('all')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-                    Все станции
-                </button>
-                <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    Избранное
-                </button>
+                <button class="tab-btn active" id="tabAll" onclick="setTab('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции</button>
+                <button class="tab-btn" id="tabFav" onclick="setTab('fav')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное</button>
             </div>
-
-            <!-- SEARCH -->
-            <div class="search-wrap" id="searchWrap">
-                <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-                <input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()">
-            </div>
-
-            <!-- GENRES -->
+            <div class="search-wrap" id="searchWrap"><span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()"></div>
             <div class="genres" id="genrePills"></div>
 
-            <!-- NOW PLAYING -->
             <div class="now-card" id="nowCard">
                 <div class="now-top">
                     <div class="now-logo" id="nowLogo">🎵</div>
@@ -245,229 +209,171 @@
                     </div>
                     <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
                 </div>
+                <div class="quality-row" id="qualityRow"></div>
                 <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
                 <div class="viz" id="viz"></div>
                 <div class="controls">
-                    <button class="ctrl" onclick="prev()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-                    </button>
-                    <button class="play-btn" id="playBtn" onclick="togglePlay()">
-                        <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    </button>
-                    <button class="ctrl" onclick="next()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-                    </button>
+                    <button class="ctrl" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+                    <button class="play-btn" id="playBtn" onclick="togglePlay()"><svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+                    <button class="ctrl" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
                 </div>
-
-                <!-- VOLUME -->
                 <div class="vol-row">
                     <span class="vol-emoji" id="volEmoji">🔈</span>
-                    <div class="vol-wrap" id="volWrap">
-                        <div class="vol-track-bg"></div>
-                        <div class="vol-fill" id="volFill"></div>
-                        <input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80"
-                               oninput="onVolChange(this.value)"
-                               onmousedown="onVolStart()" ontouchstart="onVolStart()"
-                               onmouseup="onVolEnd()"   ontouchend="onVolEnd()">
-                    </div>
+                    <div class="vol-wrap" id="volWrap"><div class="vol-track-bg"></div><div class="vol-fill" id="volFill"></div><input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80" oninput="onVolChange(this.value)" onmousedown="onVolStart()" ontouchstart="onVolStart()" onmouseup="onVolEnd()" ontouchend="onVolEnd()"></div>
                     <span class="vol-val" id="volVal">80%</span>
                 </div>
             </div>
 
-            <!-- COMMENTS PANEL -->
             <div class="comments-panel" id="commentsPanel">
-                <div class="comments-preview" id="commentsPreview" onclick="toggleCommentsExpanded()">
-                    <div id="previewMessages"><div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div></div>
-                    <div class="comments-preview-hint" id="previewHint">Нажмите чтобы открыть чат ↓</div>
-                </div>
-                <div class="comments-expanded" id="commentsExpanded">
-                    <div class="comments-list" id="commentsList"></div>
-                    <div class="comments-input-row">
-                        <input class="comment-input" id="commentInput" placeholder="Написать комментарий…" maxlength="300">
-                        <button class="send-btn" onclick="sendComment()">
-                            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
-                        </button>
-                    </div>
-                </div>
+                <div class="comments-preview" id="commentsPreview" onclick="toggleCommentsExpanded()"><div id="previewMessages"><div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div></div><div class="comments-preview-hint" id="previewHint">Нажмите чтобы открыть чат ↓</div></div>
+                <div class="comments-expanded" id="commentsExpanded"><div class="comments-list" id="commentsList"></div><div class="comments-input-row"><input class="comment-input" id="commentInput" placeholder="Написать комментарий…" maxlength="300"><button class="send-btn" onclick="sendComment()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg></button></div></div>
             </div>
 
-            <!-- STATION LIST -->
             <div class="section-label" id="listLabel">Все станции</div>
             <div class="list" id="stationList"></div>
-
         </div>
     </div>
 </div>
-
 <audio id="audio"></audio>
 
 <script>
-    /* ==============================================
-       КОНФИГУРАЦИЯ ПОДКЛЮЧЕНИЯ К TELEGRAM-ЧАТУ
-       ----------------------------------------------
-       После того как вы развернёте серверную часть,
-       замените null на адрес вашего API, например:
-         const CHAT_API_BASE = "https://myapp.vercel.app/api";
-       Тогда комментарии начнут синхронизироваться
-       с вашим настоящим Telegram-чатом.
-       ============================================== */
     const CHAT_API_BASE = null;
-
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
-    // ─── СТАНЦИИ: SOUNDPARK DEEP + все с radiopotok.ru ────────────────────────
+    // ── СТАНЦИИ (SOUNDPARK DEEP + radiopotok + pcradio.app) ─────────────────
     const stations = [
-        // 👇 Ваша основная станция
-        { name:"SOUNDPARK DEEP",         genre:"Deep House",          tag:"deep",   logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8", listeners:3317 },
+        // SOUNDPARK DEEP
+        { name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png",
+          streams:[{url:"https://h.getradio.me/spdeep/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
 
-        // 👇 Все остальные — только рабочие HLS‑потоки с radiopotok.ru
-        { name:"Русское Радио",          genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/85.png",   stream:"https://h.getradio.me/rp85/hls.m3u8",   listeners:17757 },
-        { name:"Маруся ФМ",              genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8", listeners:15262 },
-        { name:"Европа Плюс",            genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8", listeners:8133 },
-        { name:"Ретро Хит",              genre:"Ретро",            tag:"retro",  logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8", listeners:3588 },
-        { name:"Радио Шансон",           genre:"Шансон",           tag:"shanson",logo:"https://radiopotok.ru/f/station/256/2.png",    stream:"https://h.getradio.me/rp2/hls.m3u8",    listeners:2464 },
-        { name:"Вести FM",               genre:"Новости",          tag:"news",   logo:"https://radiopotok.ru/f/station/256/644.png",  stream:"https://h.getradio.me/rp644/hls.m3u8",  listeners:7716 },
-        { name:"Дорожное радио",         genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/83.png",   stream:"https://h.getradio.me/rp83/hls.m3u8",   listeners:4922 },
-        { name:"Авторадио",              genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/66.png",   stream:"https://h.getradio.me/rp66/hls.m3u8",   listeners:9200 },
-        { name:"Юмор FM",                genre:"Юмор",             tag:"pop",    logo:"https://radiopotok.ru/f/station/256/158.png",  stream:"https://h.getradio.me/rp158/hls.m3u8",  listeners:3700 },
-        { name:"Романтика",              genre:"Лирика",           tag:"pop",    logo:"https://radiopotok.ru/f/station/256/177.png",  stream:"https://h.getradio.me/rp177/hls.m3u8",  listeners:2001 },
-        { name:"Русская Волна",          genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/1543.png", stream:"https://h.getradio.me/rp1543/hls.m3u8", listeners:13308 },
-        { name:"Радио ЭНЕРДЖИ",          genre:"Электро",          tag:"edm",    logo:"https://radiopotok.ru/f/station/256/4.png",    stream:"https://h.getradio.me/rp4/hls.m3u8",    listeners:1473 },
-        { name:"Шоколад",                genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/780.png",  stream:"https://h.getradio.me/rp780/hls.m3u8",  listeners:4212 },
-        { name:"Хорошее Радио",          genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/487.png",  stream:"https://h.getradio.me/rp487/hls.m3u8",  listeners:3818 },
-        { name:"Радио Монте-Карло",      genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/603.png",  stream:"https://h.getradio.me/rp603/hls.m3u8",  listeners:5059 },
-        { name:"Русский Рок",            genre:"Рок",              tag:"rock",   logo:"https://radiopotok.ru/f/station/256/1594.png", stream:"https://h.getradio.me/rp1594/hls.m3u8", listeners:2345 },
-        { name:"Наше Радио",             genre:"Рок",              tag:"rock",   logo:"https://radiopotok.ru/f/station/256/256.png",  stream:"https://h.getradio.me/rp256/hls.m3u8",  listeners:7300 },
-        { name:"Серебряный Дождь",       genre:"Поп",              tag:"pop",    logo:"https://radiopotok.ru/f/station/256/130.png",  stream:"https://h.getradio.me/rp130/hls.m3u8",  listeners:4400 },
-        { name:"Для фона",               genre:"Лаундж",           tag:"chill",  logo:"https://radiopotok.ru/f/station/256/1480.png", stream:"https://h.getradio.me/rp1480/hls.m3u8",  listeners:900 },
-        { name:"Для души",               genre:"Лирика",           tag:"chill",  logo:"https://radiopotok.ru/f/station/256/1434.png", stream:"https://h.getradio.me/rp1434/hls.m3u8",  listeners:800 },
-        { name:"TOP 100",                genre:"Хиты",             tag:"pop",    logo:"https://radiopotok.ru/f/station/256/1992.png", stream:"https://h.getradio.me/rp1992/hls.m3u8",  listeners:1678 },
-        { name:"Ретро FM",               genre:"Ретро",            tag:"retro",  logo:"https://radiopotok.ru/f/station/256/189.png",  stream:"https://h.getradio.me/rp189/hls.m3u8",  listeners:12000 },
-        { name:"Радио КП",               genre:"Поп / Новости",    tag:"pop",    logo:"https://radiopotok.ru/f/station/256/250.png",  stream:"https://h.getradio.me/rp250/hls.m3u8",  listeners:2800 },
-        { name:"Relax FM",               genre:"Лаундж",           tag:"chill",  logo:"https://radiopotok.ru/f/station/256/267.png",  stream:"https://h.getradio.me/rp267/hls.m3u8",  listeners:2600 },
-        { name:"Дядя Ваня на даче",      genre:"Шансон",           tag:"shanson",logo:"https://radiopotok.ru/f/station/256/1743.png", stream:"https://h.getradio.me/rp1743/hls.m3u8",  listeners:1702 }
+        // radiopotok
+        { name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", streams:[{url:"https://h.getradio.me/rp85/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Маруся ФМ", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1323.png", streams:[{url:"https://h.getradio.me/rp1323/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Европа Плюс", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1576.png", streams:[{url:"https://h.getradio.me/rp1576/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Ретро Хит", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/1570.png", streams:[{url:"https://h.getradio.me/rp1570/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Радио Шансон", genre:"Шансон", tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png", streams:[{url:"https://h.getradio.me/rp2/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Вести FM", genre:"Новости", tag:"news", logo:"https://radiopotok.ru/f/station/256/644.png", streams:[{url:"https://h.getradio.me/rp644/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Дорожное радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/83.png", streams:[{url:"https://h.getradio.me/rp83/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Авторадио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/66.png", streams:[{url:"https://h.getradio.me/rp66/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Юмор FM", genre:"Юмор", tag:"pop", logo:"https://radiopotok.ru/f/station/256/158.png", streams:[{url:"https://h.getradio.me/rp158/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Романтика", genre:"Лирика", tag:"pop", logo:"https://radiopotok.ru/f/station/256/177.png", streams:[{url:"https://h.getradio.me/rp177/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Русская Волна", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1543.png", streams:[{url:"https://h.getradio.me/rp1543/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Радио ЭНЕРДЖИ", genre:"Электро", tag:"edm", logo:"https://radiopotok.ru/f/station/256/4.png", streams:[{url:"https://h.getradio.me/rp4/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Шоколад", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/780.png", streams:[{url:"https://h.getradio.me/rp780/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Хорошее Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/487.png", streams:[{url:"https://h.getradio.me/rp487/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Радио Монте-Карло", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/603.png", streams:[{url:"https://h.getradio.me/rp603/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Русский Рок", genre:"Рок", tag:"rock", logo:"https://radiopotok.ru/f/station/256/1594.png", streams:[{url:"https://h.getradio.me/rp1594/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Наше Радио", genre:"Рок", tag:"rock", logo:"https://radiopotok.ru/f/station/256/256.png", streams:[{url:"https://h.getradio.me/rp256/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Серебряный Дождь", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/130.png", streams:[{url:"https://h.getradio.me/rp130/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Для фона", genre:"Лаундж", tag:"chill", logo:"https://radiopotok.ru/f/station/256/1480.png", streams:[{url:"https://h.getradio.me/rp1480/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Для души", genre:"Лирика", tag:"chill", logo:"https://radiopotok.ru/f/station/256/1434.png", streams:[{url:"https://h.getradio.me/rp1434/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"TOP 100", genre:"Хиты", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1992.png", streams:[{url:"https://h.getradio.me/rp1992/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Ретро FM", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/189.png", streams:[{url:"https://h.getradio.me/rp189/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Радио КП", genre:"Поп / Новости", tag:"pop", logo:"https://radiopotok.ru/f/station/256/250.png", streams:[{url:"https://h.getradio.me/rp250/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Relax FM", genre:"Лаундж", tag:"chill", logo:"https://radiopotok.ru/f/station/256/267.png", streams:[{url:"https://h.getradio.me/rp267/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+        { name:"Дядя Ваня на даче", genre:"Шансон", tag:"shanson", logo:"https://radiopotok.ru/f/station/256/1743.png", streams:[{url:"https://h.getradio.me/rp1743/hls.m3u8",bitrate:"128",label:"128 kbps"}] },
+
+        // pcradio.app (мировые)
+        { name:"Radio Paradise", genre:"Eclectic", tag:"chill", logo:"https://img.radioparadise.com/logo.png",
+          streams:[{url:"https://stream.radioparadise.com/aac-64",bitrate:"64",label:"64 kbps AAC"},{url:"https://stream.radioparadise.com/aac-128",bitrate:"128",label:"128 kbps AAC"},{url:"https://stream.radioparadise.com/aac-320",bitrate:"320",label:"320 kbps AAC"}] },
+        { name:"BBC Radio 1", genre:"Pop", tag:"pop", logo:"https://radio-service.co.uk/images/bbcradio1.png",
+          streams:[{url:"https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/uk/sbr_high/ak/bbc_radio_one.m3u8",bitrate:"96",label:"96 kbps HLS"}] },
+        { name:"BBC Radio 2", genre:"Adult Contemporary", tag:"pop", logo:"https://radio-service.co.uk/images/bbcradio2.png",
+          streams:[{url:"https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/uk/sbr_high/ak/bbc_radio_two.m3u8",bitrate:"96",label:"96 kbps HLS"}] },
+        { name:"NPO Radio 1", genre:"News/Talk", tag:"news", logo:"https://graph.facebook.com/nporadio1/picture?type=large",
+          streams:[{url:"https://icecast.omroep.nl/radio1-sb-mp3",bitrate:"192",label:"192 kbps MP3"}] },
+        { name:"NRJ", genre:"Pop", tag:"pop", logo:"https://www.nrj.fr/img/nrj-og-image.jpg",
+          streams:[{url:"https://scdn.nrjaudio.fm/adwz1/fr/30001/mp3_128.mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"Jazz Radio", genre:"Jazz", tag:"jazz", logo:"https://www.jazzradio.fr/media/radio/thumb/100x100_jazzradio.png",
+          streams:[{url:"https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3",bitrate:"192",label:"192 kbps MP3"}] },
+        { name:"Radio Swiss Jazz", genre:"Jazz", tag:"jazz", logo:"https://www.radioswissjazz.ch/static/img/logo.png",
+          streams:[{url:"https://stream.srg-ssr.ch/m/rsj/mp3_128",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"RNE Radio 3", genre:"Classical", tag:"classic", logo:"https://www.rtve.es/imagenes/logo-radio3.png",
+          streams:[{url:"https://rtvelivestream.akamaized.net/rtvesec/rne/rne_r3_main.m3u8",bitrate:"96",label:"96 kbps HLS"}] },
+        { name:"WDR 1LIVE", genre:"Pop", tag:"pop", logo:"https://www1.wdr.de/radio/1live/1live-logo-100~_v-Podcast.jpg",
+          streams:[{url:"https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"Antenne Bayern", genre:"Pop", tag:"pop", logo:"https://www.antenne.de/assets/icons/antenne-bayern-icon.png",
+          streams:[{url:"https://stream.antenne.de/antenne/stream/mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"FIP Radio", genre:"Eclectic", tag:"chill", logo:"https://www.fip.fr/sites/all/themes/custom/bundle/img/logo_fip.svg",
+          streams:[{url:"https://icecast.radiofrance.fr/fip-midfi.mp3",bitrate:"128",label:"128 kbps MP3"},{url:"https://icecast.radiofrance.fr/fip-hifi.aac",bitrate:"192",label:"192 kbps AAC"}] },
+        { name:"SomaFM Groove Salad", genre:"Ambient", tag:"chill", logo:"https://somafm.com/img/groovesalad120.png",
+          streams:[{url:"https://ice1.somafm.com/groovesalad-128-mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"SomaFM Secret Agent", genre:"Spy/Lounge", tag:"chill", logo:"https://somafm.com/img/secretagent120.png",
+          streams:[{url:"https://ice1.somafm.com/secretagent-128-mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"Radio Paradise World/Etc", genre:"World", tag:"world", logo:"https://img.radioparadise.com/logo.png",
+          streams:[{url:"https://stream.radioparadise.com/aac-64",bitrate:"64",label:"64 kbps AAC"},{url:"https://stream.radioparadise.com/world-etc-128",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"181.FM The Eagle", genre:"Classic Rock", tag:"rock", logo:"https://www.181.fm/graphics/181fm_logo.png",
+          streams:[{url:"https://listen.181fm.com/181-eagle_128k.mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"CBC Radio One", genre:"News/Talk", tag:"news", logo:"https://www.cbc.ca/mediacentre/content/images/network-radio/CBC-Radio-One.png",
+          streams:[{url:"https://cbcradiolive.akamaized.net/hls/live/2041019/ES_R1ETR/master.m3u8",bitrate:"96",label:"96 kbps HLS"}] },
+        { name:"KEXP", genre:"Alternative", tag:"rock", logo:"https://kexp.org/static/assets/img/kexp_logo_white.png",
+          streams:[{url:"https://kexp-mp3-128.streamguys1.com/kexp128.mp3",bitrate:"128",label:"128 kbps MP3"}] },
+        { name:"Triple J", genre:"Alternative", tag:"rock", logo:"https://www.abc.net.au/res/radio/img/triplej_logo.png",
+          streams:[{url:"https://abcradiolivehls-lh.akamaihd.net/i/triplej_1@327300/master.m3u8",bitrate:"96",label:"96 kbps HLS"}] },
+        { name:"Radio Relativa", genre:"Indie", tag:"rock", logo:"https://www.radiorelativa.eu/wp-content/uploads/2020/02/logo-radio-relativa.png",
+          streams:[{url:"https://streamer.radio.co/sd0e0d9dc8/listen",bitrate:"128",label:"128 kbps MP3"}] },
     ];
 
-    const genres=[
-        {id:"all",label:"Все"},
-        {id:"deep",label:"Deep House"},
-        {id:"pop",label:"Поп"},
-        {id:"rock",label:"Рок"},
-        {id:"retro",label:"Ретро"},
-        {id:"shanson",label:"Шансон"},
-        {id:"news",label:"Новости"},
-        {id:"edm",label:"Электро"},
-        {id:"chill",label:"Чилаут"}
-    ];
+    const genres=[{id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},{id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},{id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"}];
 
-    // ─── СОСТОЯНИЕ ─────────────────────────────────────────────────────────────
     let curIdx=0, playing=false, activeGenre="all", activeTab="all";
     let darkMode=localStorage.getItem("rDark")==="1";
     let carMode=localStorage.getItem("rCar")==="1";
     let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
     let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
+    let curQualityIdx=0;
     const audio=document.getElementById("audio");
     audio.volume=0.8;
     let hlsInstance=null;
 
-    // Темы
     if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.documentElement.classList.add("dark");}
     if(carMode)document.body.classList.add("car");
     document.getElementById("darkBtn").classList.toggle("on",darkMode);
     document.getElementById("carBtn").classList.toggle("on",carMode);
     function toggleDark(){darkMode=!darkMode;document.documentElement.classList.toggle("dark",darkMode);document.getElementById("darkBtn").classList.toggle("on",darkMode);localStorage.setItem("rDark",darkMode?"1":"0");}
     function toggleCar(){carMode=!carMode;document.body.classList.toggle("car",carMode);document.getElementById("carBtn").classList.toggle("on",carMode);localStorage.setItem("rCar",carMode?"1":"0");}
-
-    // Часы
     function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
     setInterval(tick,1000);tick();
 
-    // Визуализатор
     const bars=[];const vizEl=document.getElementById("viz");
     for(let i=0;i<30;i++){const b=document.createElement("div");b.className="bar";const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;vizEl.appendChild(b);bars.push(b);}
     function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
     function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
-
-    // ─── RESUME BADGE ──────────────────────────────────────────────────────────
     function showBadge(t){document.getElementById("resumeText").textContent=t;document.getElementById("resumeBadge").classList.add("show");}
     function hideBadge(){document.getElementById("resumeBadge").classList.remove("show");}
 
-    // ─── ВОССТАНОВЛЕНИЕ РАДИО ──────────────────────────────────────────────────
-    audio.addEventListener("pause",()=>{
-        if(userPaused||!playing)return;
-        wasInterrupted=true;lastAudioTime=Date.now();
-        showBadge("Радио прервано — восстановлю после…");
-        clearTimeout(resumeTimer);
-        resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1200);
-    });
+    audio.addEventListener("pause",()=>{if(userPaused||!playing)return;wasInterrupted=true;lastAudioTime=Date.now();showBadge("Радио прервано — восстановлю после…");clearTimeout(resumeTimer);resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1200);});
     audio.addEventListener("ended",()=>{if(!userPaused&&playing){wasInterrupted=true;attemptResume();}});
     document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
     if(tg)tg.onEvent("activated",()=>{if(wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
     setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>3000)attemptResume();},3000);
 
-    async function attemptResume(){
-        wasInterrupted=false;
-        showBadge("Возвращаю радио…");
-        audio.volume=0;
-        playStream(stations[curIdx].stream);
-        const target=Number(document.getElementById("volSlider").value)/100;
-        let v=0;
-        const fade=setInterval(()=>{
-            v+=0.04;
-            if(v>=target){v=target;clearInterval(fade);hideBadge();}
-            audio.volume=v;
-        },60);
-    }
+    async function attemptResume(){wasInterrupted=false;showBadge("Возвращаю радио…");audio.volume=0;playCurrentStream();const target=Number(document.getElementById("volSlider").value)/100;let v=0;const fade=setInterval(()=>{v+=0.04;if(v>=target){v=target;clearInterval(fade);hideBadge();}audio.volume=v;},60);}
 
-    // Media session
-    function updateMediaSession(s){
-        if(!("mediaSession" in navigator))return;
-        navigator.mediaSession.metadata=new MediaMetadata({title:s.name,artist:s.genre,album:"Radio Go"});
-        navigator.mediaSession.setActionHandler("previoustrack",prev);
-        navigator.mediaSession.setActionHandler("nexttrack",next);
-        navigator.mediaSession.setActionHandler("play",()=>{userPaused=false;playStream(stations[curIdx].stream);});
-        navigator.mediaSession.setActionHandler("pause",()=>{userPaused=true;audio.pause();setPlaying(false);});
-    }
+    function getCurrentStreamUrl(){const s=stations[curIdx];if(!s.streams||!s.streams.length)return null;const idx=curQualityIdx<s.streams.length?curQualityIdx:0;return s.streams[idx].url;}
+    function playCurrentStream(){const url=getCurrentStreamUrl();if(url)playStream(url);}
+    function playStream(url){if(!url)return;if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}setLoading(true);vizOn(false);if(url.includes(".m3u8")){if(audio.canPlayType("application/vnd.apple.mpegurl")){audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;}if(typeof Hls!=="undefined"&&Hls.isSupported()){hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});return;}}audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));}
 
-    // Потоковое воспроизведение
-    function playStream(url){
-        if(!url)return;
-        if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
-        setLoading(true);vizOn(false);
-        if(url.includes(".m3u8")){
-            if(audio.canPlayType("application/vnd.apple.mpegurl")){
-                audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;
-            }
-            if(typeof Hls!=="undefined"&&Hls.isSupported()){
-                hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
-                hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});
-                hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});
-                return;
-            }
-        }
-        audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
-    }
-
-    function ge(tag){
-        const emojis = {
-            deep:"🎧", pop:"🎤", rock:"🎸", retro:"📻", shanson:"🎶",
-            news:"📰", edm:"🎛", chill:"🌊", jazz:"🎷"
-        };
-        return emojis[tag] || "🎵";
-    }
+    function ge(tag){const e={deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",jazz:"🎷",classic:"🎻",world:"🌍"};return e[tag]||"🎵";}
 
     function loadStation(idx,autoplay){
         curIdx=idx;const s=stations[idx];
-        const nl=document.getElementById("nowLogo");
-        nl.innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
+        document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
         document.getElementById("nowName").textContent=s.name;
         document.getElementById("nowGenre").textContent=s.genre;
         document.getElementById("nowCard").classList.add("visible");
         updateFavBtn();updateMediaSession(s);renderList();
-        if(autoplay||playing){userPaused=false;playStream(s.stream);}
+        curQualityIdx=0;
+        renderQualityButtons();
+        if(autoplay||playing){userPaused=false;playCurrentStream();}
         else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
+    }
+
+    function renderQualityButtons(){
+        const s=stations[curIdx];const row=document.getElementById("qualityRow");row.innerHTML="";
+        if(!s.streams||s.streams.length<2)return;
+        s.streams.forEach((st,i)=>{const b=document.createElement("button");b.className="quality-btn"+(i===curQualityIdx?" active":"");b.textContent=st.label;b.onclick=()=>{if(curQualityIdx===i)return;curQualityIdx=i;renderQualityButtons();if(playing||!userPaused){setLoading(true);playCurrentStream();}};row.appendChild(b);});
     }
 
     function setPlaying(on){
@@ -477,155 +383,41 @@
         document.getElementById("playIcon").innerHTML=on?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
         if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
     }
-    function togglePlay(){
-        if(tg)tg.HapticFeedback?.impactOccurred("light");
-        if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playStream(stations[curIdx].stream);}
-        else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);hideBadge();}
-    }
+    function togglePlay(){if(tg)tg.HapticFeedback?.impactOccurred("light");if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playCurrentStream();}else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);hideBadge();}}
     function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length,playing);}
     function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length,playing);}
 
-    // ─── ГРОМКОСТЬ ─────────────────────────────────────────────────────────────
-    const volSlider=document.getElementById("volSlider");
-    const volFill=document.getElementById("volFill");
-    const volVal=document.getElementById("volVal");
-    const volEmoji=document.getElementById("volEmoji");
-    let lastEmoji="🔈";
-
-    function volColor(v){
-        if(v===0) return "transparent";
-        if(v<=50) return "#d0cdc8";
-        if(v<=80) return "#4caf7d";
-        return "#f0a030";
-    }
-    function updateVolUI(v){
-        v=Number(v);
-        volFill.style.width=v+"%";
-        volFill.style.backgroundColor=volColor(v);
-        volVal.textContent=Math.round(v)+"%";
-        volVal.style.color= v===0?"var(--muted)":v<=50?"var(--muted)":v<=80?"#4caf7d":"#f0a030";
-        const em=v===0?"🔇":v<30?"🔈":v<70?"🔉":"🔊";
-        if(em!==lastEmoji){lastEmoji=em;volEmoji.textContent=em;}
-    }
+    const volSlider=document.getElementById("volSlider");const volFill=document.getElementById("volFill");const volVal=document.getElementById("volVal");const volEmoji=document.getElementById("volEmoji");let lastEmoji="🔈";
+    function volColor(v){if(v===0) return "transparent";if(v<=50) return "#d0cdc8";if(v<=80) return "#4caf7d";return "#f0a030";}
+    function updateVolUI(v){v=Number(v);volFill.style.width=v+"%";volFill.style.backgroundColor=volColor(v);volVal.textContent=Math.round(v)+"%";volVal.style.color= v===0?"var(--muted)":v<=50?"var(--muted)":v<=80?"#4caf7d":"#f0a030";const em=v===0?"🔇":v<30?"🔈":v<70?"🔉":"🔊";if(em!==lastEmoji){lastEmoji=em;volEmoji.textContent=em;}}
     function onVolStart(){volSlider.classList.add("dragging");}
     function onVolEnd(){volSlider.classList.remove("dragging");}
-    function onVolChange(v){
-        audio.volume=v/100;
-        updateVolUI(v);
-    }
+    function onVolChange(v){audio.volume=v/100;updateVolUI(v);}
     updateVolUI(80);
 
-    // Избранное
-    function toggleFav(){
-        if(tg)tg.HapticFeedback?.notificationOccurred("success");
-        const name=stations[curIdx].name;const i=favs.indexOf(name);
-        if(i===-1)favs.push(name);else favs.splice(i,1);
-        localStorage.setItem("rfavs",JSON.stringify(favs));
-        updateFavBtn();if(activeTab==="fav")renderList();
-    }
+    function toggleFav(){if(tg)tg.HapticFeedback?.notificationOccurred("success");const name=stations[curIdx].name;const i=favs.indexOf(name);if(i===-1)favs.push(name);else favs.splice(i,1);localStorage.setItem("rfavs",JSON.stringify(favs));updateFavBtn();if(activeTab==="fav")renderList();}
     function updateFavBtn(){const on=favs.includes(stations[curIdx].name);const b=document.getElementById("favBtn");b.textContent=on?"♥":"♡";b.classList.toggle("on",on);}
-
-    // Вкладки
     function setTab(t){activeTab=t;document.getElementById("tabAll").classList.toggle("active",t==="all");document.getElementById("tabFav").classList.toggle("active",t==="fav");document.getElementById("searchWrap").style.display=t==="all"?"":"none";document.getElementById("genrePills").style.display=t==="all"?"":"none";if(t==="all")renderGenres();renderList();}
     function renderGenres(){const el=document.getElementById("genrePills");el.innerHTML="";genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});}
     function renderList(){const q=(document.getElementById("searchInput").value||"").toLowerCase();const el=document.getElementById("stationList");el.innerHTML="";const f=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${f.length})`:activeGenre==="all"?`Все станции (${f.length})`:`${f.length} станций`;if(!f.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}f.forEach(s=>{const idx=stations.indexOf(s);const row=document.createElement("div");row.className="row"+(idx===curIdx?" active":"");row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};el.appendChild(row);});}
 
-    // ─── КОММЕНТАРИИ ───────────────────────────────────────────────────────────
-    let commentsVisible=false;
-    let commentsExpanded=false;
+    // Комментарии
+    let commentsVisible=false,commentsExpanded=false;
     let comments=JSON.parse(localStorage.getItem("rComments")||"[]");
     const MY_NAME=tg?.initDataUnsafe?.user?(tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim():"Вы";
-
     function avatarColor(n){const p=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))&0xffff;return p[h%p.length];}
     function initials(n){return n.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?";}
     function fmtTime(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
-
-    function toggleCommentsPanel(){
-        commentsVisible=!commentsVisible;
-        document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);
-        document.getElementById("nowCard").classList.toggle("connected",commentsVisible);
-        document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);
-        if(commentsVisible) updatePreview();
-        else {
-            commentsExpanded=false;
-            document.getElementById("commentsExpanded").classList.remove("open");
-            document.getElementById("previewHint").textContent="Нажмите чтобы открыть чат ↓";
-        }
-    }
-
-    function toggleCommentsExpanded(){
-        commentsExpanded=!commentsExpanded;
-        document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);
-        document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";
-        if(commentsExpanded) renderAllComments();
-    }
-
-    function updatePreview(){
-        const el=document.getElementById("previewMessages");
-        const last=comments.slice(-2);
-        if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}
-        el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");
-    }
-
-    function renderComment(c){
-        const el=document.getElementById("commentsList");
-        const div=document.createElement("div");div.className="comment";
-        const color=avatarColor(c.name);const isMe=c.name===MY_NAME;
-        div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;
-        el.appendChild(div);
-    }
+    function toggleCommentsPanel(){commentsVisible=!commentsVisible;document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);document.getElementById("nowCard").classList.toggle("connected",commentsVisible);document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);if(commentsVisible)updatePreview();else{commentsExpanded=false;document.getElementById("commentsExpanded").classList.remove("open");}}
+    function toggleCommentsExpanded(){commentsExpanded=!commentsExpanded;document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";if(commentsExpanded)renderAllComments();}
+    function updatePreview(){const el=document.getElementById("previewMessages");const last=comments.slice(-2);if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");}
+    function renderComment(c){const el=document.getElementById("commentsList");const div=document.createElement("div");div.className="comment";const color=avatarColor(c.name);const isMe=c.name===MY_NAME;div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;el.appendChild(div);}
     function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));}
-
-    function addNewComment(c,fromSelf=false){
-        comments.push(c);
-        if(comments.length>80)comments=comments.slice(-80);
-        localStorage.setItem("rComments",JSON.stringify(comments));
-        updatePreview();
-        if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}
-    }
-
-    async function sendComment(){
-        const inp=document.getElementById("commentInput");
-        const text=inp.value.trim();if(!text)return;
-        inp.value="";
-        if(tg)tg.HapticFeedback?.impactOccurred("light");
-
-        const msg = { name: MY_NAME, text, ts: Date.now() };
-
-        if (CHAT_API_BASE) {
-            try {
-                await fetch(`${CHAT_API_BASE}/send-message`, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify(msg)
-                });
-            } catch(e) {}
-        } else {
-            addNewComment(msg, true);
-        }
-    }
+    function addNewComment(c){comments.push(c);if(comments.length>80)comments=comments.slice(-80);localStorage.setItem("rComments",JSON.stringify(comments));updatePreview();if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}}
+    async function sendComment(){const inp=document.getElementById("commentInput");const text=inp.value.trim();if(!text)return;inp.value="";if(tg)tg.HapticFeedback?.impactOccurred("light");const msg={name:MY_NAME,text,ts:Date.now()};if(CHAT_API_BASE){try{await fetch(`${CHAT_API_BASE}/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(msg)});}catch(e){}}else{addNewComment(msg);}}
     document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
+    if(CHAT_API_BASE){let lastSync=Date.now();setInterval(async()=>{try{const res=await fetch(`${CHAT_API_BASE}/get-messages?since=${lastSync}`);const newMsgs=await res.json();if(Array.isArray(newMsgs)){newMsgs.forEach(m=>{if(!comments.some(c=>c.ts===m.ts&&c.name===m.name))addNewComment(m);});}lastSync=Date.now();}catch(e){}},5000);}
 
-    // Фоновая синхронизация (если сервер подключён)
-    if (CHAT_API_BASE) {
-        let lastSync = Date.now();
-        setInterval(async () => {
-            try {
-                const res = await fetch(`${CHAT_API_BASE}/get-messages?since=${lastSync}`);
-                const newMsgs = await res.json();
-                if (Array.isArray(newMsgs)) {
-                    newMsgs.forEach(m => {
-                        if (!comments.some(c => c.ts === m.ts && c.name === m.name)) {
-                            addNewComment(m);
-                        }
-                    });
-                }
-                lastSync = Date.now();
-            } catch(e) {}
-        }, 5000);
-    }
-
-    // ─── ЗАПУСК ────────────────────────────────────────────────────────────────
     renderGenres();renderList();loadStation(0,false);updatePreview();
 </script>
 </body>
