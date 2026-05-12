@@ -6,8 +6,6 @@
     <title>Radio Go</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-    <!-- Официальный скрипт виджета обсуждений Telegram -->
-    <script async src="https://telegram.org/js/telegram-widget.js?22"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -120,36 +118,18 @@
         input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb { transform:scale(1.18); box-shadow:0 3px 14px rgba(0,0,0,.22); }
         .vol-val { font-size:clamp(11px,2vw,14px); font-weight:600; color:var(--muted); min-width:clamp(26px,5vw,36px); text-align:right; flex-shrink:0; transition:color .25s; }
 
-        /* Виджет обсуждений */
-        .telegram-discussion-widget { margin-top: var(--space-md); display: none; }
-        .telegram-discussion-widget.show { display: block; }
-        .car-recommendations { display:none; margin-top:var(--space-md); padding:0 clamp(8px,2vw,16px); }
-        .car-recommendations.show { display:block; }
-        .car-rec-title { font-size:var(--f-label); color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:clamp(8px,2vw,14px); }
-        .car-rec-grid { display:flex; flex-wrap:wrap; gap:clamp(8px,2vw,14px); }
-        .car-rec-item { background:var(--card); border-radius:clamp(8px,2vw,16px); padding:clamp(8px,2vw,14px) clamp(10px,2.5vw,18px); cursor:pointer; box-shadow:var(--shadow); transition:all .2s; display:flex; align-items:center; gap:clamp(6px,1.5vw,10px); min-width:clamp(120px,30vw,180px); flex:1; }
-        .car-rec-item:active { transform:scale(.97); }
-        .car-rec-img { width:clamp(36px,8vw,54px); height:clamp(36px,8vw,54px); border-radius:clamp(6px,1.5vw,12px); background:var(--pill); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(16px,3.5vw,24px); }
-        .car-rec-img img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
-        .car-rec-name { font-size:var(--f-row-name); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .car-rec-genre { font-size:var(--f-row-sub); color:var(--muted); }
-
-        .section-label { font-size:var(--f-label); text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:500; margin-bottom:clamp(6px,1.5vw,12px); padding:0 2px; }
-        .list { display:flex; flex-direction:column; gap:clamp(5px,1.2vw,10px); }
-        .row { background:var(--card); border-radius:var(--r-row); padding:clamp(10px,2.4vw,18px) clamp(12px,2.8vw,22px); display:flex; align-items:center; gap:clamp(10px,2.4vw,18px); cursor:pointer; box-shadow:0 1px 5px rgba(0,0,0,.04); transition:box-shadow .2s,background .3s; user-select:none; min-height:var(--row-min-h); }
-        .row:active { box-shadow:var(--shadow); }
-        .row.active { outline:clamp(1.5px,.3vw,2.5px) solid var(--accent); }
-        .row-img { width:var(--row-img); height:var(--row-img); border-radius:clamp(8px,2vw,16px); background:var(--pill); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(17px,4vw,30px); transition:width .3s,height .3s; }
-        .row-img img { width:100%; height:100%; object-fit:cover; }
-        .row-info { flex:1; min-width:0; }
-        .row-name { font-size:var(--f-row-name); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .row-sub { font-size:var(--f-row-sub); color:var(--muted); margin-top:clamp(2px,.5vw,5px); }
-        .row-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
-        .row-dot { width:clamp(6px,1.4vw,10px); height:clamp(6px,1.4vw,10px); border-radius:50%; background:var(--border); }
-        .row.active .row-dot { background:var(--green); animation:blink 1.5s infinite; }
-        .row-cnt { font-size:clamp(9px,1.9vw,12px); color:var(--muted); }
-        .empty { text-align:center; color:var(--muted); font-size:var(--f-row-sub); padding:clamp(24px,6vw,48px) 0; line-height:1.6; }
-        .empty-icon { font-size:clamp(28px,7vw,46px); display:block; margin-bottom:8px; }
+        /* Чат */
+        .chat-overlay { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--card); border-top: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0,0,0,.1); display: none; flex-direction: column; height: clamp(280px, 50vh, 450px); transition: background .3s; }
+        .chat-overlay.show { display: flex; }
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: clamp(10px,2.5vw,16px) clamp(14px,3.5vw,24px); border-bottom: 1px solid var(--border); }
+        .chat-header-title { font-weight: 600; font-size: var(--f-tab); }
+        .chat-open-btn { background: var(--accent); color: var(--bg); border: none; border-radius: 100px; padding: 6px 14px; font-size: var(--f-pill); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: clamp(8px,2vw,12px) clamp(10px,2.5vw,18px); display: flex; flex-direction: column; gap: 8px; }
+        .chat-msg { display: flex; gap: 8px; align-items: flex-start; font-size: var(--f-comment); }
+        .chat-msg-avatar { width: clamp(26px,6vw,36px); height: clamp(26px,6vw,36px); border-radius: 50%; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .chat-msg-body { background: var(--pill); padding: 6px 12px; border-radius: 12px; max-width: 85%; }
+        .chat-msg-name { font-weight: 600; font-size: var(--f-cmeta); }
+        .chat-msg-text { word-break: break-word; }
     </style>
 </head>
 <body>
@@ -168,11 +148,8 @@
                     <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Авторежим">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
                     </button>
-                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsWidget()" title="Обсуждение">
+                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleChat()" title="Чат">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </button>
-                    <button class="icon-btn" id="shazamBtn" onclick="shazam()" title="Распознать трек">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                     </button>
                     <span class="live-dot" id="liveDot"></span>
                     <span class="clock" id="clock"></span>
@@ -180,25 +157,17 @@
             </div>
 
             <div class="resume-badge" id="resumeBadge"><span class="resume-dot"></span><span id="resumeText">Восстанавливаю радио…</span></div>
-
             <div class="tabs" id="tabs">
                 <button class="tab-btn active" id="tabAll" onclick="setTab('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции</button>
                 <button class="tab-btn" id="tabFav" onclick="setTab('fav')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное</button>
             </div>
-
-            <div class="search-wrap" id="searchWrap">
-                <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-                <input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()">
-            </div>
+            <div class="search-wrap" id="searchWrap"><span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="search-input" id="searchInput" placeholder="Поиск станции..." oninput="renderList()"></div>
             <div class="genres" id="genrePills"></div>
 
             <div class="now-card" id="nowCard">
                 <div class="now-top">
                     <div class="now-logo" id="nowLogo">🎵</div>
-                    <div class="now-info">
-                        <div class="now-name" id="nowName">—</div>
-                        <div class="now-genre" id="nowGenre">—</div>
-                    </div>
+                    <div class="now-info"><div class="now-name" id="nowName">—</div><div class="now-genre" id="nowGenre">—</div></div>
                     <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
                 </div>
                 <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
@@ -215,30 +184,34 @@
                 </div>
             </div>
 
-            <!-- Виджет обсуждений Telegram -->
-            <div class="telegram-discussion-widget" id="telegramDiscussionWidget"></div>
-
-            <div class="car-recommendations" id="carRecommendations">
-                <div class="car-rec-title">Рекомендуемые</div>
-                <div class="car-rec-grid" id="carRecGrid"></div>
-            </div>
-
             <div class="section-label" id="listLabel">Все станции</div>
             <div class="list" id="stationList"></div>
         </div>
     </div>
 </div>
+
+<!-- Чат-панель (Twitch-стиль) -->
+<div class="chat-overlay" id="chatOverlay">
+    <div class="chat-header">
+        <span class="chat-header-title">💬 Чат радио</span>
+        <button class="chat-open-btn" onclick="openChat()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Открыть чат
+        </button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div style="text-align:center;color:var(--muted);padding:20px;">Загрузка сообщений...</div>
+    </div>
+</div>
+
 <audio id="audio"></audio>
 
 <script>
+    const CHAT_API_BASE = "https://your-worker.workers.dev"; // ← замените на URL вашего Cloudflare Worker
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
-    // ─── НАСТРОЙКИ ВИДЖЕТА ───
-    const DISCUSSION_USERNAME = "https://t.me/strmradiochat";   // ← замените на @username вашего канала (без @)
-    const DISCUSSION_POST_ID = "2";   // ← замените на номер поста (например, "2")
-
-    // Станции
+    // Станции (полный список)
     const stations = [
         {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8", listeners:3317},
         {name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", stream:"https://h.getradio.me/rp85/hls.m3u8", listeners:17757},
@@ -274,13 +247,6 @@
         {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"}
     ];
 
-    const recommendedStations = [
-        {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8"},
-        {name:"Ретро FM", genre:"Ретро хиты", tag:"retro", logo:null, stream:"https://retro.hostingradio.ru/retro96.aacp"},
-        {name:"Radio Jazz", genre:"Jazz", tag:"jazz", logo:null, stream:"https://jazz.hostingradio.ru/jazz96.aacp"},
-        {name:"Наше Радио", genre:"Русский рок", tag:"rock", logo:null, stream:"https://nashe.hostingradio.ru/nashe96.aacp"}
-    ];
-
     let curIdx=0, playing=false, activeGenre="all", activeTab="all";
     let darkMode=localStorage.getItem("rDark")==="1";
     let carMode=localStorage.getItem("rCar")==="1";
@@ -291,45 +257,13 @@
     let hlsInstance=null;
 
     if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.documentElement.classList.add("dark");}
-    if(carMode) applyCarMode(carMode);
+    if(carMode) document.body.classList.add("car");
     document.getElementById("darkBtn").classList.toggle("on",darkMode);
     document.getElementById("carBtn").classList.toggle("on",carMode);
 
     function toggleDark(){darkMode=!darkMode;document.documentElement.classList.toggle("dark",darkMode);document.getElementById("darkBtn").classList.toggle("on",darkMode);localStorage.setItem("rDark",darkMode?"1":"0");}
-
-    function toggleCar(){
-        carMode=!carMode;
-        document.body.classList.toggle("car",carMode);
-        document.getElementById("carBtn").classList.toggle("on",carMode);
-        localStorage.setItem("rCar",carMode?"1":"0");
-        applyCarMode(carMode);
-        document.getElementById("backBtn").style.display=carMode?'flex':'none';
-    }
-
-    function applyCarMode(on){
-        document.getElementById("tabs").style.display=on?'none':'';
-        document.getElementById("searchWrap").style.display=on?'none':'';
-        document.getElementById("genrePills").style.display=on?'none':'';
-        document.getElementById("listLabel").style.display=on?'none':'';
-        document.getElementById("stationList").style.display=on?'none':'';
-        document.getElementById("carRecommendations").classList.toggle("show", on);
-        if(on) renderCarRecommendations();
-    }
-
-    function renderCarRecommendations(){
-        const grid = document.getElementById("carRecGrid");
-        grid.innerHTML = "";
-        recommendedStations.forEach(s => {
-            const item = document.createElement("div");
-            item.className = "car-rec-item";
-            item.innerHTML = `<div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.innerHTML='🎵'">` : "🎵"}</div><div><div class="car-rec-name">${s.name}</div><div class="car-rec-genre">${s.genre}</div></div>`;
-            item.onclick = ()=>{
-                const idx = stations.findIndex(st=>st.name===s.name || st.stream===s.stream);
-                if(idx!==-1) loadStation(idx, true);
-            };
-            grid.appendChild(item);
-        });
-    }
+    function toggleCar(){carMode=!carMode;document.body.classList.toggle("car",carMode);document.getElementById("carBtn").classList.toggle("on",carMode);localStorage.setItem("rCar",carMode?"1":"0");applyCarMode(carMode);}
+    function applyCarMode(on){document.getElementById("tabs").style.display=on?'none':'';document.getElementById("searchWrap").style.display=on?'none':'';document.getElementById("genrePills").style.display=on?'none':'';document.getElementById("listLabel").style.display=on?'none':'';document.getElementById("stationList").style.display=on?'none':'';}
 
     function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
     setInterval(tick,1000);tick();
@@ -385,33 +319,61 @@
     function renderGenres(){const el=document.getElementById("genrePills");el.innerHTML="";genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});}
     function renderList(){const q=(document.getElementById("searchInput").value||"").toLowerCase();const el=document.getElementById("stationList");el.innerHTML="";const filtered=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${filtered.length})`:activeGenre==="all"?`Все станции (${filtered.length})`:` ${filtered.length} станций`;if(!filtered.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}filtered.forEach(s=>{const idx=stations.indexOf(s);const row=document.createElement("div");row.className="row"+(idx===curIdx?" active":"");row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};el.appendChild(row);});}
 
-    // ─── ВИДЖЕТ ОБСУЖДЕНИЙ ───
-    let discussionVisible = false;
-    function toggleCommentsWidget(){
-        discussionVisible = !discussionVisible;
-        const widgetDiv = document.getElementById("telegramDiscussionWidget");
-        widgetDiv.classList.toggle("show", discussionVisible);
-        document.getElementById("commentToggleBtn").classList.toggle("comment-on", discussionVisible);
-        if(discussionVisible && !widgetDiv.hasChildNodes()){
-            // Создаём виджет
-            Telegram.Discussion.create(widgetDiv, {
-                username: DISCUSSION_USERNAME,
-                post_id: DISCUSSION_POST_ID,
-                comments_limit: 50,
-                dark: darkMode
-            });
+    // Чат
+    let chatVisible = false;
+    function toggleChat() {
+        chatVisible = !chatVisible;
+        document.getElementById("chatOverlay").classList.toggle("show", chatVisible);
+        document.getElementById("commentToggleBtn").classList.toggle("comment-on", chatVisible);
+        if (chatVisible) loadChatMessages();
+    }
+
+    function openChat() {
+        const chatUrl = "https://t.me/strmradiochat/2";
+        if (tg) {
+            tg.openTelegramLink(chatUrl);
+        } else {
+            window.open(chatUrl, "_blank");
         }
     }
 
-    // Shazam (заглушка)
-    function shazam(){
-        if(!playing) return;
-        alert("Распознавание треков недоступно без сервера. Настройте серверную часть.");
+    async function loadChatMessages() {
+        const container = document.getElementById("chatMessages");
+        if (!CHAT_API_BASE.includes("your-worker")) {
+            try {
+                const res = await fetch(`${CHAT_API_BASE}/get-messages`);
+                const msgs = await res.json();
+                container.innerHTML = "";
+                if (!msgs.length) {
+                    container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">Пока нет сообщений</div>';
+                    return;
+                }
+                msgs.forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = "chat-msg";
+                    div.innerHTML = `
+                        <div class="chat-msg-avatar">${(m.name[0]||'').toUpperCase()}</div>
+                        <div class="chat-msg-body">
+                            <div class="chat-msg-name">${m.name}</div>
+                            <div class="chat-msg-text">${m.text}</div>
+                        </div>`;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            } catch(e) {
+                container.innerHTML = '<div style="text-align:center;color:var(--muted);">Не удалось загрузить сообщения</div>';
+            }
+        } else {
+            container.innerHTML = '<div style="text-align:center;color:var(--muted);">Настройте CHAT_API_BASE</div>';
+        }
     }
 
-    // Старт
+    // Обновление чата раз в 3 секунды
+    setInterval(() => {
+        if (chatVisible) loadChatMessages();
+    }, 3000);
+
     renderGenres();renderList();loadStation(0,false);
-    if(!carMode){ document.getElementById("backBtn").style.display='none'; document.getElementById("carRecommendations").classList.remove("show"); }
 </script>
 </body>
 </html>
