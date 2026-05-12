@@ -63,7 +63,6 @@
         .icon-btn svg { width:44%; height:44%; }
         .icon-btn.comment-on { background:var(--accent); color:var(--bg); }
         .back-btn { display:none; }
-
         .tabs { display:flex; gap:var(--gap); margin-bottom:var(--space-sm); }
         .tab-btn { flex:1; padding:clamp(8px,2vw,14px) 0; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:var(--f-tab); font-weight:500; cursor:pointer; border:none; background:var(--pill); color:var(--pill-text); transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px; }
         .tab-btn.active { background:var(--accent); color:var(--bg); }
@@ -83,7 +82,7 @@
         .resume-dot { width:8px; height:8px; border-radius:50%; background:var(--orange); animation:blink 1s infinite; flex-shrink:0; }
         .now-card { background:var(--card); border-radius:var(--r-card); padding:var(--space-md); box-shadow:var(--shadow); margin-bottom:0; display:none; transition:background .3s; border-bottom-left-radius:0; border-bottom-right-radius:0; }
         .now-card.visible { display:block; }
-        .now-card.connected { border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:0; }
+        .now-card.connected { border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:0; box-shadow:0 -2px 18px rgba(0,0,0,.07); }
         .now-top { display:flex; align-items:center; gap:var(--gap); margin-bottom:var(--space-md); }
         .now-logo { width:var(--now-logo); height:var(--now-logo); border-radius:clamp(10px,2.5vw,20px); background:var(--pill); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:clamp(22px,5.5vw,44px); transition:width .3s,height .3s; }
         .now-logo img { width:100%; height:100%; object-fit:cover; }
@@ -109,8 +108,6 @@
         .play-btn:active { transform:scale(.93); }
         .play-btn svg { width:var(--play-icon); height:var(--play-icon); fill:var(--bg); margin-left:8%; transition:fill .3s; }
         .play-btn.playing svg { margin-left:0; }
-
-        /* VOLUME – clean color zones */
         .vol-row { display:flex; align-items:center; gap:clamp(8px,2vw,16px); padding-top:var(--space-sm); border-top:1px solid var(--border); }
         .vol-emoji { font-size:clamp(15px,3vw,22px); display:inline-block; flex-shrink:0; transition:transform .2s; }
         .vol-wrap { flex:1; position:relative; display:flex; align-items:center; height:clamp(32px,7vw,48px); }
@@ -121,7 +118,7 @@
         input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb { transform:scale(1.18); box-shadow:0 3px 14px rgba(0,0,0,.22); }
         .vol-val { font-size:clamp(11px,2vw,14px); font-weight:600; color:var(--muted); min-width:clamp(26px,5vw,36px); text-align:right; flex-shrink:0; transition:color .25s; }
 
-        /* COMMENTS inline */
+        /* Discussion widget */
         .comments-panel { background:var(--card); border-top:1px solid var(--border); border-radius:0 0 var(--r-card) var(--r-card); box-shadow:var(--shadow); margin-bottom:var(--space-md); overflow:hidden; display:none; transition:background .3s; }
         .comments-panel.visible { display:block; }
         .now-card.connected { border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:0; box-shadow:0 -2px 18px rgba(0,0,0,.07); }
@@ -152,7 +149,6 @@
         .send-btn:active { transform:scale(.92); }
         .send-btn svg { width:44%; height:44%; fill:var(--bg); }
 
-        /* Рекомендации в авторежиме */
         .car-recommendations { display:none; margin-top:var(--space-md); padding:0 clamp(8px,2vw,16px); }
         .car-recommendations.show { display:block; }
         .car-rec-title { font-size:var(--f-label); color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:clamp(8px,2vw,14px); }
@@ -198,7 +194,7 @@
                     <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Авторежим">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
                     </button>
-                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsPanel()" title="Комментарии">
+                    <button class="icon-btn" id="commentToggleBtn" onclick="toggleCommentsPanel()" title="Обсуждение">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </button>
                     <button class="icon-btn" id="shazamBtn" onclick="shazam()" title="Распознать трек">
@@ -212,12 +208,8 @@
             <div class="resume-badge" id="resumeBadge"><span class="resume-dot"></span><span id="resumeText">Восстанавливаю радио…</span></div>
 
             <div class="tabs" id="tabs">
-                <button class="tab-btn active" id="tabAll" onclick="setTab('all')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции
-                </button>
-                <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное
-                </button>
+                <button class="tab-btn active" id="tabAll" onclick="setTab('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg> Все станции</button>
+                <button class="tab-btn" id="tabFav" onclick="setTab('fav')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Избранное</button>
             </div>
 
             <div class="search-wrap" id="searchWrap">
@@ -249,6 +241,7 @@
                 </div>
             </div>
 
+            <!-- Discussion widget -->
             <div class="comments-panel" id="commentsPanel">
                 <div class="comments-preview" id="commentsPreview" onclick="toggleCommentsExpanded()">
                     <div id="previewMessages"><div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div></div>
@@ -263,7 +256,6 @@
                 </div>
             </div>
 
-            <!-- Рекомендации в авторежиме -->
             <div class="car-recommendations" id="carRecommendations">
                 <div class="car-rec-title">Рекомендуемые</div>
                 <div class="car-rec-grid" id="carRecGrid"></div>
@@ -277,32 +269,51 @@
 <audio id="audio"></audio>
 
 <script>
-    const CHAT_API_BASE = null; // ← замените на URL вашего сервера для синхронизации комментариев и Shazam
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation(); }
 
+    // Большой массив станций (полный список из предыдущих версий)
     const stations = [
-        // ... весь ваш большой массив станций (оставлен без изменений для краткости)
         {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8", listeners:3317},
-        // ... и т.д.
+        {name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", stream:"https://h.getradio.me/rp85/hls.m3u8", listeners:17757},
+        {name:"Маруся ФМ", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8", listeners:15262},
+        {name:"Европа Плюс", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8", listeners:8133},
+        {name:"Ретро Хит", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8", listeners:3588},
+        {name:"Радио Шансон", genre:"Шансон", tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png", stream:"https://h.getradio.me/rp2/hls.m3u8", listeners:2464},
+        {name:"Вести FM", genre:"Новости", tag:"news", logo:"https://radiopotok.ru/f/station/256/644.png", stream:"https://h.getradio.me/rp644/hls.m3u8", listeners:7716},
+        {name:"Дорожное радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/83.png", stream:"https://h.getradio.me/rp83/hls.m3u8", listeners:4922},
+        {name:"Авторадио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/66.png", stream:"https://h.getradio.me/rp66/hls.m3u8", listeners:9200},
+        {name:"Юмор FM", genre:"Юмор", tag:"pop", logo:"https://radiopotok.ru/f/station/256/158.png", stream:"https://h.getradio.me/rp158/hls.m3u8", listeners:3700},
+        {name:"Романтика", genre:"Лирика", tag:"pop", logo:"https://radiopotok.ru/f/station/256/177.png", stream:"https://h.getradio.me/rp177/hls.m3u8", listeners:2001},
+        {name:"Русская Волна", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1543.png", stream:"https://h.getradio.me/rp1543/hls.m3u8", listeners:13308},
+        {name:"Радио ЭНЕРДЖИ", genre:"Электро", tag:"edm", logo:"https://radiopotok.ru/f/station/256/4.png", stream:"https://h.getradio.me/rp4/hls.m3u8", listeners:1473},
+        {name:"Шоколад", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/780.png", stream:"https://h.getradio.me/rp780/hls.m3u8", listeners:4212},
+        {name:"Хорошее Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/487.png", stream:"https://h.getradio.me/rp487/hls.m3u8", listeners:3818},
+        {name:"Радио Монте-Карло", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/603.png", stream:"https://h.getradio.me/rp603/hls.m3u8", listeners:5059},
+        {name:"Русский Рок", genre:"Рок", tag:"rock", logo:"https://radiopotok.ru/f/station/256/1594.png", stream:"https://h.getradio.me/rp1594/hls.m3u8", listeners:2345},
+        {name:"Наше Радио", genre:"Рок", tag:"rock", logo:"https://radiopotok.ru/f/station/256/256.png", stream:"https://h.getradio.me/rp256/hls.m3u8", listeners:7300},
+        {name:"Серебряный Дождь", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/130.png", stream:"https://h.getradio.me/rp130/hls.m3u8", listeners:4400},
+        {name:"Для фона", genre:"Лаундж", tag:"chill", logo:"https://radiopotok.ru/f/station/256/1480.png", stream:"https://h.getradio.me/rp1480/hls.m3u8", listeners:900},
+        {name:"Для души", genre:"Лирика", tag:"chill", logo:"https://radiopotok.ru/f/station/256/1434.png", stream:"https://h.getradio.me/rp1434/hls.m3u8", listeners:800},
+        {name:"TOP 100", genre:"Хиты", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1992.png", stream:"https://h.getradio.me/rp1992/hls.m3u8", listeners:1678},
+        {name:"Ретро FM", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/189.png", stream:"https://h.getradio.me/rp189/hls.m3u8", listeners:12000},
+        {name:"Радио КП", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/250.png", stream:"https://h.getradio.me/rp250/hls.m3u8", listeners:2800},
+        {name:"Relax FM", genre:"Лаундж", tag:"chill", logo:"https://radiopotok.ru/f/station/256/267.png", stream:"https://h.getradio.me/rp267/hls.m3u8", listeners:2600},
+        {name:"Дядя Ваня на даче", genre:"Шансон", tag:"shanson", logo:"https://radiopotok.ru/f/station/256/1743.png", stream:"https://h.getradio.me/rp1743/hls.m3u8", listeners:1702}
     ];
 
-    // Рекомендованные станции (отображаются в авторежиме)
+    const genres = [
+        {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
+        {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
+        {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"}
+    ];
+
     const recommendedStations = [
         {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8"},
         {name:"Ретро FM", genre:"Ретро хиты", tag:"retro", logo:null, stream:"https://retro.hostingradio.ru/retro96.aacp"},
         {name:"Radio Jazz", genre:"Jazz", tag:"jazz", logo:null, stream:"https://jazz.hostingradio.ru/jazz96.aacp"},
         {name:"Наше Радио", genre:"Русский рок", tag:"rock", logo:null, stream:"https://nashe.hostingradio.ru/nashe96.aacp"},
-        {name:"SomaFM Groove Salad", genre:"Ambient", tag:"deep", logo:null, stream:"https://ice1.somafm.com/groovesalad-128-mp3"},
-    ];
-
-    const genres = [
-        {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
-        {id:"edm",label:"EDM"},{id:"rap",label:"Рэп"},{id:"dnb",label:"DnB"},
-        {id:"trance",label:"Транс"},{id:"techno",label:"Техно"},{id:"chill",label:"Чилаут"},
-        {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
-        {id:"news",label:"Новости"},{id:"jazz",label:"Jazz"},{id:"classic",label:"Классика"},
-        {id:"foreign",label:"Зарубежная"},
+        {name:"SomaFM Groove Salad", genre:"Ambient", tag:"deep", logo:null, stream:"https://ice1.somafm.com/groovesalad-128-mp3"}
     ];
 
     let curIdx=0, playing=false, activeGenre="all", activeTab="all";
@@ -331,36 +342,25 @@
     }
 
     function applyCarMode(on){
-        const elements = ['tabs','searchWrap','genrePills','listLabel','stationList'];
-        elements.forEach(id=>{
-            const el=document.getElementById(id);
-            if(el) el.style.display=on?'none':'';
-        });
-        document.getElementById('carRecommendations').classList.toggle('show', on);
+        document.getElementById("tabs").style.display=on?'none':'';
+        document.getElementById("searchWrap").style.display=on?'none':'';
+        document.getElementById("genrePills").style.display=on?'none':'';
+        document.getElementById("listLabel").style.display=on?'none':'';
+        document.getElementById("stationList").style.display=on?'none':'';
+        document.getElementById("carRecommendations").classList.toggle("show", on);
         if(on) renderCarRecommendations();
     }
 
     function renderCarRecommendations(){
-        const grid = document.getElementById('carRecGrid');
-        grid.innerHTML = '';
+        const grid = document.getElementById("carRecGrid");
+        grid.innerHTML = "";
         recommendedStations.forEach(s => {
-            const item = document.createElement('div');
-            item.className = 'car-rec-item';
-            item.innerHTML = `
-                <div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.innerHTML='🎵'">` : '🎵'}</div>
-                <div>
-                    <div class="car-rec-name">${s.name}</div>
-                    <div class="car-rec-genre">${s.genre}</div>
-                </div>
-            `;
+            const item = document.createElement("div");
+            item.className = "car-rec-item";
+            item.innerHTML = `<div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.innerHTML='🎵'">` : "🎵"}</div><div><div class="car-rec-name">${s.name}</div><div class="car-rec-genre">${s.genre}</div></div>`;
             item.onclick = ()=>{
-                // ищем станцию в общем списке по имени или тегу, чтобы установить curIdx
                 const idx = stations.findIndex(st=>st.name===s.name || st.stream===s.stream);
                 if(idx!==-1) loadStation(idx, true);
-                else {
-                    // если станция не из основного списка, добавляем её как временную
-                    // но в нашем случае все recommended есть в stations
-                }
             };
             grid.appendChild(item);
         });
@@ -388,7 +388,7 @@
 
     function playStream(url){if(!url)return;if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}setLoading(true);vizOn(false);if(url.includes(".m3u8")){if(audio.canPlayType("application/vnd.apple.mpegurl")){audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;}if(typeof Hls!=="undefined"&&Hls.isSupported()){hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});return;}}audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));}
 
-    function ge(tag){return{deep:"🎧",pop:"🎤",edm:"🎛",rap:"🎤",dnb:"🥁",trance:"🌀",techno:"⚙️",chill:"🌊",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";}
+    function ge(tag){return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊"}[tag]||"🎵";}
 
     function loadStation(idx,autoplay){
         curIdx=idx;const s=stations[idx];
@@ -420,56 +420,67 @@
     function renderGenres(){const el=document.getElementById("genrePills");el.innerHTML="";genres.forEach(g=>{const b=document.createElement("button");b.className="genre-pill"+(g.id===activeGenre?" active":"");b.textContent=g.label;b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};el.appendChild(b);});}
     function renderList(){const q=(document.getElementById("searchInput").value||"").toLowerCase();const el=document.getElementById("stationList");el.innerHTML="";const filtered=activeTab==="fav"?stations.filter(s=>favs.includes(s.name)):stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${filtered.length})`:activeGenre==="all"?`Все станции (${filtered.length})`:` ${filtered.length} станций`;if(!filtered.length){el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';return;}filtered.forEach(s=>{const idx=stations.indexOf(s);const row=document.createElement("div");row.className="row"+(idx===curIdx?" active":"");row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div></div>`;row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};el.appendChild(row);});}
 
-    // Комментарии
+    // ── Локальный чат (Discussion Widget) ──
     let commentsVisible=false, commentsExpanded=false;
     let comments=JSON.parse(localStorage.getItem("rComments")||"[]");
     const MY_NAME=tg?.initDataUnsafe?.user?(tg.initDataUnsafe.user.first_name+" "+(tg.initDataUnsafe.user.last_name||"")).trim():"Вы";
     function avatarColor(n){const p=["#5b7fa6","#6f9e6b","#a67c52","#9b6da6","#a65b5b","#5b9a9e","#7a7a50","#6b7da6"];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))&0xffff;return p[h%p.length];}
     function initials(n){return n.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)||"?";}
     function fmtTime(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
-    function toggleCommentsPanel(){commentsVisible=!commentsVisible;document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);document.getElementById("nowCard").classList.toggle("connected",commentsVisible);document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);if(commentsVisible)updatePreview();else{commentsExpanded=false;document.getElementById("commentsExpanded").classList.remove("open");}}
-    function toggleCommentsExpanded(){commentsExpanded=!commentsExpanded;document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";if(commentsExpanded)renderAllComments();}
-    function updatePreview(){const el=document.getElementById("previewMessages");const last=comments.slice(-2);if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");}
-    function renderComment(c){const el=document.getElementById("commentsList");const div=document.createElement("div");div.className="comment";const color=avatarColor(c.name);const isMe=c.name===MY_NAME;div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;el.appendChild(div);}
-    function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));}
-    function addNewComment(c,fromSelf=false){comments.push(c);if(comments.length>80)comments=comments.slice(-80);localStorage.setItem("rComments",JSON.stringify(comments));updatePreview();if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}}
-    async function sendComment(){const inp=document.getElementById("commentInput");const text=inp.value.trim();if(!text)return;inp.value="";if(tg)tg.HapticFeedback?.impactOccurred("light");const msg={name:MY_NAME,text,ts:Date.now()};if(CHAT_API_BASE){try{await fetch(`${CHAT_API_BASE}/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(msg)});}catch(e){}}else{addNewComment(msg,true);}}
-    document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
-    if(CHAT_API_BASE){let lastSync=Date.now();setInterval(async()=>{try{const res=await fetch(`${CHAT_API_BASE}/get-messages?since=${lastSync}`);const newMsgs=await res.json();if(Array.isArray(newMsgs)){newMsgs.forEach(m=>{if(!comments.some(c=>c.ts===m.ts&&c.name===m.name))addNewComment(m);});}lastSync=Date.now();}catch(e){}},5000);}
 
-    // Shazam
+    function toggleCommentsPanel(){
+        commentsVisible=!commentsVisible;
+        document.getElementById("commentsPanel").classList.toggle("visible",commentsVisible);
+        document.getElementById("nowCard").classList.toggle("connected",commentsVisible);
+        document.getElementById("commentToggleBtn").classList.toggle("comment-on",commentsVisible);
+        if(commentsVisible) updatePreview();
+        else { commentsExpanded=false; document.getElementById("commentsExpanded").classList.remove("open"); }
+    }
+    function toggleCommentsExpanded(){
+        commentsExpanded=!commentsExpanded;
+        document.getElementById("commentsExpanded").classList.toggle("open",commentsExpanded);
+        document.getElementById("previewHint").textContent=commentsExpanded?"Нажмите чтобы свернуть ↑":"Нажмите чтобы открыть чат ↓";
+        if(commentsExpanded) renderAllComments();
+    }
+    function updatePreview(){
+        const el=document.getElementById("previewMessages");
+        const last=comments.slice(-2);
+        if(!last.length){el.innerHTML='<div class="preview-empty">Пока нет сообщений. Напишите первым 💬</div>';return;}
+        el.innerHTML=last.map(c=>`<div class="preview-msg"><span class="preview-name">${c.name}</span><span class="preview-text">${c.text}</span></div>`).join("");
+    }
+    function renderComment(c){
+        const el=document.getElementById("commentsList");
+        const div=document.createElement("div");div.className="comment";
+        const color=avatarColor(c.name);const isMe=c.name===MY_NAME;
+        div.innerHTML=`<div class="c-avatar" style="background:${color}">${initials(c.name)}</div><div class="c-content"><div class="c-meta"><span class="c-name">${c.name}</span>${isMe?'<span class="c-own">вы</span>':''}<span class="c-time">${fmtTime(c.ts)}</span></div><div class="c-text">${c.text}</div></div>`;
+        el.appendChild(div);
+    }
+    function renderAllComments(){const el=document.getElementById("commentsList");el.innerHTML="";comments.forEach(c=>renderComment(c));}
+    function addNewComment(c,fromSelf=false){
+        comments.push(c);
+        if(comments.length>80)comments=comments.slice(-80);
+        localStorage.setItem("rComments",JSON.stringify(comments));
+        updatePreview();
+        if(commentsExpanded){renderComment(c);document.getElementById("commentsList").scrollTop=99999;}
+    }
+    function sendComment(){
+        const inp=document.getElementById("commentInput");
+        const text=inp.value.trim();if(!text)return;
+        inp.value="";
+        if(tg)tg.HapticFeedback?.impactOccurred("light");
+        addNewComment({name:MY_NAME,text,ts:Date.now()}, true);
+    }
+    document.getElementById("commentInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendComment();}});
+
+    // Shazam (заглушка)
     function shazam(){
         if(!playing) return;
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const source = ctx.createMediaElementSource(audio);
-        const dest = ctx.createMediaStreamDestination();
-        source.connect(dest);
-        const mediaRecorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm' });
-        const chunks = [];
-        mediaRecorder.ondataavailable = e => chunks.push(e.data);
-        mediaRecorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'audio/webm' });
-            if(CHAT_API_BASE){
-                const formData = new FormData();
-                formData.append('audio', blob, 'sample.webm');
-                try{
-                    const res = await fetch(`${CHAT_API_BASE}/shazam`, { method:'POST', body: formData });
-                    const data = await res.json();
-                    addNewComment({name:'Shazam', text: data.track || 'Не удалось распознать', ts:Date.now()}, false);
-                } catch(e){
-                    addNewComment({name:'Shazam', text:'Ошибка распознавания', ts:Date.now()}, false);
-                }
-            } else {
-                addNewComment({name:'Shazam', text:'Сервер распознавания не настроен', ts:Date.now()}, false);
-            }
-        };
-        mediaRecorder.start();
-        setTimeout(() => mediaRecorder.stop(), 5000);
+        addNewComment({name:"Shazam", text:"🔇 Распознавание не настроено. Подключите сервер для работы.", ts:Date.now()}, false);
     }
 
-    // Запуск
+    // Старт
     renderGenres();renderList();loadStation(0,false);updatePreview();
-    if(!carMode){ document.getElementById('backBtn').style.display='none'; document.getElementById('carRecommendations').classList.remove('show'); }
+    if(!carMode){ document.getElementById("backBtn").style.display='none'; document.getElementById("carRecommendations").classList.remove("show"); }
 </script>
 </body>
 </html>
