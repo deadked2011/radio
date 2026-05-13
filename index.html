@@ -403,6 +403,7 @@ body.car .row-sub{font-size:13px}
 
 <audio id="audio"></audio>
 
+<script src="stations.js"></script>
 <script>
 // ══════════════════════════════════════════════════════
 // CONFIG
@@ -414,144 +415,8 @@ if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
 // ══════════════════════════════════════════════════════
 // STATIONS (дубли убраны, жанры исправлены)
 // ══════════════════════════════════════════════════════
-const stations = [
-  // DEEP HOUSE
-  {name:"SOUNDPARK DEEP",        genre:"Deep House",          tag:"deep",    logo:"https://radiopotok.ru/f/station/256/1260.png",stream:"https://h.getradio.me/spdeep/hls.m3u8",listeners:3317},
-  {name:"Record Deep",           genre:"Deep House",          tag:"deep",    logo:"https://radiorecord.ru/images/logos/deep.png",stream:"https://radiorecord.hostingradio.ru/deep96.aacp",listeners:2100},
-  {name:"SomaFM Groove Salad",   genre:"Ambient / Deep",      tag:"deep",    logo:"https://somafm.com/img3/groovesalad-400.jpg",stream:"https://ice1.somafm.com/groovesalad-128-mp3",listeners:8500},
-  {name:"SomaFM Deep Space",     genre:"Space / Deep",        tag:"deep",    logo:"https://somafm.com/img3/deepspaceone-400.jpg",stream:"https://ice1.somafm.com/deepspaceone-128-mp3",listeners:4200},
-  {name:"SomaFM Beat Blender",   genre:"Deep / Techno",       tag:"deep",    logo:"https://somafm.com/img3/beatblender-400.jpg",stream:"https://ice1.somafm.com/beatblender-128-mp3",listeners:3100},
-  {name:"SomaFM Digitalis",      genre:"Indie Electronic",    tag:"deep",    logo:"https://somafm.com/img3/digitalis-400.jpg",stream:"https://ice1.somafm.com/digitalis-128-mp3",listeners:2200},
-  {name:"SomaFM Fluid",          genre:"Ambient House",       tag:"deep",    logo:"https://somafm.com/img3/fluid-400.jpg",stream:"https://ice1.somafm.com/fluid-128-mp3",listeners:1800},
-  // POP
-  {name:"Русское Радио",         genre:"Русская поп",         tag:"pop",     logo:"https://radiopotok.ru/f/station/256/85.png",stream:"https://h.getradio.me/rp85/hls.m3u8",listeners:17757},
-  {name:"Маруся ФМ",             genre:"Русская поп",         tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1323.png",stream:"https://h.getradio.me/rp1323/hls.m3u8",listeners:15262},
-  {name:"Русская Волна",         genre:"Русская поп",         tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1543.png",stream:"https://h.getradio.me/rp1543/hls.m3u8",listeners:13308},
-  {name:"Европа Плюс",           genre:"Поп / Хиты",          tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1576.png",stream:"https://h.getradio.me/rp1576/hls.m3u8",listeners:8133},
-  {name:"Хит FM",                genre:"Поп / Хиты",          tag:"pop",     logo:"https://hitfm.ru/upload/iblock/hitfm_logo.png",stream:"https://hitfm.hostingradio.ru/hitfm96.aacp",listeners:5800},
-  {name:"Love Radio",            genre:"Поп",                 tag:"pop",     logo:"https://loveradio.ru/images/logo.png",stream:"https://love.hostingradio.ru/love96.aacp",listeners:4100},
-  {name:"Авторадио",             genre:"Поп / Разное",        tag:"pop",     logo:"https://radiopotok.ru/f/station/256/107.png",stream:"https://avto.hostingradio.ru/avto96.aacp",listeners:9200},
-  {name:"Юмор FM",               genre:"Юмор / Поп",          tag:"pop",     logo:"https://radiopotok.ru/f/station/256/280.png",stream:"https://humor.hostingradio.ru/humor96.aacp",listeners:3700},
-  {name:"Новое радио",           genre:"Поп",                 tag:"pop",     logo:"https://radiopotok.ru/f/station/256/221.png",stream:"https://h.getradio.me/rp221/hls.m3u8",listeners:3096},
-  {name:"ТНТ MUSIC RADIO",       genre:"Поп",                 tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1218.png",stream:"https://h.getradio.me/rp1218/hls.m3u8",listeners:2214},
-  {name:"Like FM",               genre:"Поп",                 tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1544.png",stream:"https://like.hostingradio.ru/like96.aacp",listeners:3200},
-  {name:"Серебряный Дождь",      genre:"Поп / Разное",        tag:"pop",     logo:"https://radiopotok.ru/f/station/256/56.png",stream:"https://silver.hostingradio.ru/silver96.aacp",listeners:4400},
-  {name:"Радио КП",              genre:"Поп / Новости",       tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1559.png",stream:"https://radiokp.hostingradio.ru/radiokp96.aacp",listeners:2800},
-  {name:"Relax FM",              genre:"Поп / Лаундж",        tag:"pop",     logo:"https://radiopotok.ru/f/station/256/104.png",stream:"https://relax.hostingradio.ru/relax96.aacp",listeners:2600},
-  {name:"Русская Песня",         genre:"Русская поп",         tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1032.png",stream:"https://russong.hostingradio.ru/russong96.aacp",listeners:3100},
-  {name:"TOP 100",               genre:"Хиты",                tag:"pop",     logo:"https://radiopotok.ru/f/station/256/1992.png",stream:"https://h.getradio.me/rp1992/hls.m3u8",listeners:1678},
-  {name:"Романтика",             genre:"Лирика",              tag:"pop",     logo:"https://radiopotok.ru/f/station/256/177.png",stream:"https://h.getradio.me/rp177/hls.m3u8",listeners:2001},
-  {name:"Comedy Radio",          genre:"Юмор",                tag:"pop",     logo:"https://radiopotok.ru/f/station/256/279.png",stream:"https://comedy.hostingradio.ru/comedy96.aacp",listeners:2900},
-  {name:"SomaFM PopTron",        genre:"Electropop",          tag:"pop",     logo:"https://somafm.com/img3/poptron-400.jpg",stream:"https://ice1.somafm.com/poptron-128-mp3",listeners:1900},
-  {name:"SomaFM Indiepop",       genre:"Indie Pop",           tag:"pop",     logo:"https://somafm.com/img3/indiepop-400.jpg",stream:"https://ice1.somafm.com/indiepop-128-mp3",listeners:2400},
-  // EDM
-  {name:"Radio Record",          genre:"EDM / Электро",       tag:"edm",     logo:"https://radiopotok.ru/f/station/256/108.png",stream:"https://radiorecord.hostingradio.ru/rr96.aacp",listeners:6500},
-  {name:"DFM",                   genre:"Электронная",         tag:"edm",     logo:"https://radiopotok.ru/f/station/256/3.png",stream:"https://dfm.hostingradio.ru/dfm96.aacp",listeners:5100},
-  {name:"Радио ЭНЕРДЖИ",         genre:"Электронная",         tag:"edm",     logo:"https://radiopotok.ru/f/station/256/4.png",stream:"https://h.getradio.me/rp4/hls.m3u8",listeners:1473},
-  {name:"Record House",          genre:"House",               tag:"edm",     logo:"https://radiorecord.ru/images/logos/house.png",stream:"https://radiorecord.hostingradio.ru/house96.aacp",listeners:1900},
-  {name:"Record EDM",            genre:"EDM",                 tag:"edm",     logo:"https://radiorecord.ru/images/logos/edm.png",stream:"https://radiorecord.hostingradio.ru/edm96.aacp",listeners:2300},
-  {name:"Remix FM",              genre:"Ремиксы",             tag:"edm",     logo:"https://radiopotok.ru/f/station/256/1901.png",stream:"https://h.getradio.me/rp1901/hls.m3u8",listeners:1871},
-  {name:"Record Progressive",    genre:"Progressive House",   tag:"edm",     logo:"https://radiorecord.ru/images/logos/progressive.png",stream:"https://radiorecord.hostingradio.ru/progressive96.aacp",listeners:1400},
-  {name:"Record Club",           genre:"Club",                tag:"edm",     logo:"https://radiorecord.ru/images/logos/club.png",stream:"https://radiorecord.hostingradio.ru/club96.aacp",listeners:1600},
-  {name:"Record Vocal House",    genre:"Vocal House",         tag:"edm",     logo:"https://radiorecord.ru/images/logos/vocalhouse.png",stream:"https://radiorecord.hostingradio.ru/vocalhouse96.aacp",listeners:1200},
-  {name:"Record Breaks",         genre:"Breaks",              tag:"edm",     logo:"https://radiorecord.ru/images/logos/breaks.png",stream:"https://radiorecord.hostingradio.ru/breaks96.aacp",listeners:900},
-  {name:"Record Hardstyle",      genre:"Hardstyle",           tag:"edm",     logo:"https://radiorecord.ru/images/logos/hardstyle.png",stream:"https://radiorecord.hostingradio.ru/hardstyle96.aacp",listeners:1100},
-  {name:"Record AllBack",        genre:"Dance Retro",         tag:"edm",     logo:"https://radiorecord.ru/images/logos/allback.png",stream:"https://radiorecord.hostingradio.ru/allback96.aacp",listeners:1300},
-  {name:"Record Disco",          genre:"Disco",               tag:"edm",     logo:"https://radiorecord.ru/images/logos/disco.png",stream:"https://radiorecord.hostingradio.ru/disco96.aacp",listeners:1500},
-  {name:"SomaFM The Trip",       genre:"Electronic / Trip",   tag:"edm",     logo:"https://somafm.com/img3/thetrip-400.jpg",stream:"https://ice1.somafm.com/thetrip-128-mp3",listeners:3100},
-  {name:"SomaFM Cliqhop",        genre:"IDM / Clicks",        tag:"edm",     logo:"https://somafm.com/img3/cliqhop-400.jpg",stream:"https://ice1.somafm.com/cliqhop-128-mp3",listeners:2600},
-  {name:"SomaFM Space Station",  genre:"Spacesynth",          tag:"edm",     logo:"https://somafm.com/img3/spacestation-400.jpg",stream:"https://ice1.somafm.com/spacestation-128-mp3",listeners:2100},
-  {name:"SomaFM Synphaera",      genre:"Synth / Space",       tag:"edm",     logo:"https://somafm.com/img3/synphaera-400.jpg",stream:"https://ice1.somafm.com/synphaera-128-mp3",listeners:1700},
-  {name:"SomaFM Suburbs of Goa", genre:"Psychedelic / Goa",   tag:"edm",     logo:"https://somafm.com/img3/suburbsofgoa-400.jpg",stream:"https://ice1.somafm.com/suburbsofgoa-128-mp3",listeners:2900},
-  {name:"SomaFM Mission Ctrl",   genre:"Ambient Electronic",  tag:"edm",     logo:"https://somafm.com/img3/missioncontrol-400.jpg",stream:"https://ice1.somafm.com/missioncontrol-128-mp3",listeners:1500},
-  // RAP (дубли убраны, жанры исправлены, SomaFM-не-рэп убраны)
-  {name:"101.ru Русский Рэп",    genre:"Русский рэп",         tag:"rap",     logo:"https://101.ru/images/logo.png",stream:"https://pub0302.101.ru:8443/stream/pro/aac/64/43",listeners:5400},
-  {name:"101.ru Gangsta Hip-Hop",genre:"Gangsta Hip-Hop",     tag:"rap",     logo:"https://101.ru/images/logo_gangsta.png",stream:"https://pub0302.101.ru:8443/stream/pro/aac/64/50",listeners:4200},
-  {name:"Record Rap",            genre:"Hip-Hop / Rap",       tag:"rap",     logo:"https://radiorecord.ru/images/logos/rap.png",stream:"https://radiorecord.hostingradio.ru/rap96.aacp",listeners:3800},
-  {name:"Record Trap",           genre:"Trap",                tag:"rap",     logo:"https://radiorecord.ru/images/logos/trap.png",stream:"https://radiorecord.hostingradio.ru/trap96.aacp",listeners:5100},
-  {name:"Record Phonk",          genre:"Phonk",               tag:"rap",     logo:"https://radiorecord.ru/images/logos/phonk.png",stream:"https://radiorecord.hostingradio.ru/phonk96.aacp",listeners:6200},
-  {name:"Record Black",          genre:"Hip-Hop",             tag:"rap",     logo:"https://radiorecord.ru/images/logos/black.png",stream:"https://radiorecord.hostingradio.ru/black96.aacp",listeners:2800},
-  {name:"Record R&B",            genre:"R&B",                 tag:"rap",     logo:"https://radiorecord.ru/images/logos/rnb.png",stream:"https://radiorecord.hostingradio.ru/rnb96.aacp",listeners:3400},
-  {name:"Record Hip-Hop",        genre:"Hip-Hop",             tag:"rap",     logo:"https://radiorecord.ru/images/logos/hiphop.png",stream:"https://radiorecord.hostingradio.ru/hiphop96.aacp",listeners:2100},
-  {name:"Record Reggae",         genre:"Reggae",              tag:"rap",     logo:"https://radiorecord.ru/images/logos/reggae.png",stream:"https://radiorecord.hostingradio.ru/reggae96.aacp",listeners:1100},
-  {name:"Record Underground",    genre:"Underground Hip-Hop", tag:"rap",     logo:"https://radiorecord.ru/images/logos/rapclassics.png",stream:"https://radiorecord.hostingradio.ru/rapclassics96.aacp",listeners:2100},
-  {name:"Hot 108 Jamz",          genre:"Hip-Hop",             tag:"rap",     logo:"https://cdn-radiotime-logos.tunein.com/s24982q.png",stream:"https://live.hot108.com/hot108",listeners:8400},
-  {name:"181.FM The Beat",       genre:"Hip-Hop",             tag:"rap",     logo:"https://cdn-radiotime-logos.tunein.com/s91847q.png",stream:"https://listen.181fm.com/181-beat_128k.mp3",listeners:6100},
-  {name:"Powerhitz Hip-Hop",     genre:"Hip-Hop",             tag:"rap",     logo:"https://cdn-radiotime-logos.tunein.com/s234534q.png",stream:"https://listen.powerhitz.com/realrnb",listeners:4200},
-  {name:"Urban Hitz Radio",      genre:"Hip-Hop",             tag:"rap",     logo:"https://cdn-radiotime-logos.tunein.com/s288907q.png",stream:"https://radio.streemlion.com:1875/stream",listeners:3100},
-  {name:"Classic Hip Hop",       genre:"Classic Hip-Hop",     tag:"rap",     logo:"https://cdn-radiotime-logos.tunein.com/s285638q.png",stream:"https://icecast.radiofrance.fr/fiphiphop-hifi.aac",listeners:5000},
-  // DNB / TRANCE / TECHNO
-  {name:"Record DnB",            genre:"Drum & Bass",         tag:"dnb",     logo:"https://radiorecord.ru/images/logos/dnb.png",stream:"https://radiorecord.hostingradio.ru/dnb96.aacp",listeners:1400},
-  {name:"Record Trance",         genre:"Trance",              tag:"trance",  logo:"https://radiorecord.ru/images/logos/trance.png",stream:"https://radiorecord.hostingradio.ru/trance96.aacp",listeners:1600},
-  {name:"Record Techno",         genre:"Techno",              tag:"techno",  logo:"https://radiorecord.ru/images/logos/techno.png",stream:"https://radiorecord.hostingradio.ru/techno96.aacp",listeners:1200},
-  // CHILL
-  {name:"Атмосфера",             genre:"Lounge / Chill",      tag:"chill",   logo:"https://radiopotok.ru/f/station/256/542.png",stream:"https://h.getradio.me/rp542/hls.m3u8",listeners:1470},
-  {name:"Record Chill",          genre:"Chillout",            tag:"chill",   logo:"https://radiorecord.ru/images/logos/chill.png",stream:"https://radiorecord.hostingradio.ru/chill96.aacp",listeners:1100},
-  {name:"SomaFM Drone Zone",     genre:"Ambient / Dark",      tag:"chill",   logo:"https://somafm.com/img3/dronezone-400.jpg",stream:"https://ice1.somafm.com/dronezone-128-mp3",listeners:5200},
-  {name:"SomaFM Secret Agent",   genre:"Spy / Lounge",        tag:"chill",   logo:"https://somafm.com/img3/secretagent-400.jpg",stream:"https://ice1.somafm.com/secretagent-128-mp3",listeners:6800},
-  {name:"SomaFM Lush",           genre:"Adult Alternative",   tag:"chill",   logo:"https://somafm.com/img3/lush-400.jpg",stream:"https://ice1.somafm.com/lush-128-mp3",listeners:4100},
-  {name:"SomaFM n5MD",           genre:"Ambient / Post-Rock", tag:"chill",   logo:"https://somafm.com/img3/n5md-400.jpg",stream:"https://ice1.somafm.com/n5md-128-mp3",listeners:2100},
-  {name:"Для фона",              genre:"Chillout",            tag:"chill",   logo:"https://radiopotok.ru/f/station/256/1480.png",stream:"https://h.getradio.me/rp1480/hls.m3u8",listeners:900},
-  {name:"Для души",              genre:"Лирика",              tag:"chill",   logo:"https://radiopotok.ru/f/station/256/1434.png",stream:"https://h.getradio.me/rp1434/hls.m3u8",listeners:800},
-  {name:"Nightwave Plaza",       genre:"Lo-Fi / Vaporwave",   tag:"chill",   logo:"https://nightwave.plaza.one/img/nwp-logo.png",stream:"https://radio.plaza.one/mp3",listeners:4200},
-  // ROCK
-  {name:"Русский Рок",           genre:"Рок",                 tag:"rock",    logo:"https://radiopotok.ru/f/station/256/1594.png",stream:"https://h.getradio.me/rp1594/hls.m3u8",listeners:2345},
-  {name:"Наше Радио",            genre:"Русский рок",         tag:"rock",    logo:"https://radiopotok.ru/f/station/256/106.png",stream:"https://nashe.hostingradio.ru/nashe96.aacp",listeners:7300},
-  {name:"Rock FM",               genre:"Рок",                 tag:"rock",    logo:"https://radiopotok.ru/f/station/256/1579.png",stream:"https://rockfm.hostingradio.ru/rockfm96.aacp",listeners:4800},
-  {name:"Maximum",               genre:"Рок / Альт",          tag:"rock",    logo:"https://radiopotok.ru/f/station/256/103.png",stream:"https://maximum.hostingradio.ru/maximum96.aacp",listeners:3900},
-  {name:"Record Rock",           genre:"Рок",                 tag:"rock",    logo:"https://radiorecord.ru/images/logos/rock.png",stream:"https://radiorecord.hostingradio.ru/rock96.aacp",listeners:1800},
-  {name:"Record Alt Rock",       genre:"Alt Rock",            tag:"rock",    logo:"https://radiorecord.ru/images/logos/altrock.png",stream:"https://radiorecord.hostingradio.ru/alternativerock96.aacp",listeners:1500},
-  {name:"Record Hard Rock",      genre:"Hard Rock",           tag:"rock",    logo:"https://radiorecord.ru/images/logos/hardrock.png",stream:"https://radiorecord.hostingradio.ru/hardrock96.aacp",listeners:1200},
-  {name:"Record Punk",           genre:"Punk",                tag:"rock",    logo:"https://radiorecord.ru/images/logos/punk.png",stream:"https://radiorecord.hostingradio.ru/punk96.aacp",listeners:900},
-  {name:"Record Indie",          genre:"Indie",               tag:"rock",    logo:"https://radiorecord.ru/images/logos/indie.png",stream:"https://radiorecord.hostingradio.ru/indie96.aacp",listeners:1100},
-  {name:"Record Acoustic",       genre:"Acoustic",            tag:"rock",    logo:"https://radiorecord.ru/images/logos/acoustic.png",stream:"https://radiorecord.hostingradio.ru/acoustic96.aacp",listeners:1300},
-  {name:"SomaFM Metal Detector", genre:"Metal",               tag:"rock",    logo:"https://somafm.com/img3/metal-400.jpg",stream:"https://ice1.somafm.com/metal-128-mp3",listeners:3400},
-  {name:"SomaFM Folk Forward",   genre:"Folk",                tag:"rock",    logo:"https://somafm.com/img3/folkfwd-400.jpg",stream:"https://ice1.somafm.com/folkfwd-128-mp3",listeners:1800},
-  {name:"SomaFM Covers",         genre:"Acoustic Covers",     tag:"rock",    logo:"https://somafm.com/img3/covers-400.jpg",stream:"https://ice1.somafm.com/covers-128-mp3",listeners:2200},
-  // RETRO
-  {name:"Ретро Хит",             genre:"Ретро",               tag:"retro",   logo:"https://radiopotok.ru/f/station/256/1570.png",stream:"https://h.getradio.me/rp1570/hls.m3u8",listeners:3588},
-  {name:"Ретро FM",              genre:"Ретро хиты",          tag:"retro",   logo:"https://radiopotok.ru/f/station/256/148.png",stream:"https://retro.hostingradio.ru/retro96.aacp",listeners:12000},
-  {name:"SomaFM Underground 80s",genre:"80-е",                tag:"retro",   logo:"https://somafm.com/img3/u80s-400.jpg",stream:"https://ice1.somafm.com/u80s-128-mp3",listeners:5900},
-  {name:"SomaFM 70s Hits",       genre:"70-е",                tag:"retro",   logo:"https://somafm.com/img3/seventies-400.jpg",stream:"https://ice1.somafm.com/seventies-128-mp3",listeners:4300},
-  {name:"Record Dance Retro",    genre:"Disco / Dance 90s",   tag:"retro",   logo:"https://radiorecord.ru/images/logos/danceretro.png",stream:"https://radiorecord.hostingradio.ru/danceretro96.aacp",listeners:1700},
-  {name:"Record New Wave",       genre:"New Wave 80s",        tag:"retro",   logo:"https://radiorecord.ru/images/logos/newwave.png",stream:"https://radiorecord.hostingradio.ru/newwave96.aacp",listeners:1200},
-  {name:"SomaFM Bagel Radio",    genre:"Eclectic",            tag:"retro",   logo:"https://somafm.com/img3/bagel-400.jpg",stream:"https://ice1.somafm.com/bagel-128-mp3",listeners:3100},
-  // SHANSON
-  {name:"Радио Шансон",          genre:"Шансон",              tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png",stream:"https://h.getradio.me/rp2/hls.m3u8",listeners:2464},
-  {name:"Дядя Ваня на даче",     genre:"Шансон",              tag:"shanson", logo:"https://radiopotok.ru/f/station/256/1743.png",stream:"https://h.getradio.me/rp1743/hls.m3u8",listeners:1702},
-  {name:"Шансон FM",             genre:"Шансон",              tag:"shanson", logo:"https://radiopotok.ru/f/station/256/1582.png",stream:"https://shanson.hostingradio.ru/shanson96.aacp",listeners:3100},
-  // NEWS
-  {name:"Вести FM",              genre:"Новости",             tag:"news",    logo:"https://radiopotok.ru/f/station/256/644.png",stream:"https://h.getradio.me/rp644/hls.m3u8",listeners:7716},
-  {name:"Маяк",                  genre:"Новости / Радио",     tag:"news",    logo:"https://radiopotok.ru/f/station/256/57.png",stream:"https://mayk.hostingradio.ru/mayk96.aacp",listeners:5400},
-  {name:"Business FM",           genre:"Новости / Бизнес",    tag:"news",    logo:"https://radiopotok.ru/f/station/256/287.png",stream:"https://business.hostingradio.ru/business96.aacp",listeners:4100},
-  {name:"Спорт FM",              genre:"Спорт",               tag:"news",    logo:"https://radiopotok.ru/f/station/256/285.png",stream:"https://sport.hostingradio.ru/sport96.aacp",listeners:3800},
-  // JAZZ
-  {name:"Radio Jazz",            genre:"Jazz",                tag:"jazz",    logo:"https://radiopotok.ru/f/station/256/1574.png",stream:"https://jazz.hostingradio.ru/jazz96.aacp",listeners:2900},
-  {name:"SomaFM Ill Street",     genre:"Jazz / Blues",        tag:"jazz",    logo:"https://somafm.com/img3/illstreet-400.jpg",stream:"https://ice1.somafm.com/illstreet-128-mp3",listeners:3700},
-  {name:"SomaFM Sonic Universe", genre:"Jazz / Fusion",       tag:"jazz",    logo:"https://somafm.com/img3/sonicuniverse-400.jpg",stream:"https://ice1.somafm.com/sonicuniverse-128-mp3",listeners:3300},
-  {name:"Record Jazz Funk",      genre:"Jazz Funk",           tag:"jazz",    logo:"https://radiorecord.ru/images/logos/jazzfunk.png",stream:"https://radiorecord.hostingradio.ru/jazzfunk96.aacp",listeners:1100},
-  {name:"Record Blues",          genre:"Blues",               tag:"jazz",    logo:"https://radiorecord.ru/images/logos/blues.png",stream:"https://radiorecord.hostingradio.ru/blues96.aacp",listeners:900},
-  {name:"Record Soul",           genre:"Soul",                tag:"jazz",    logo:"https://radiorecord.ru/images/logos/soul.png",stream:"https://radiorecord.hostingradio.ru/soul96.aacp",listeners:1000},
-  {name:"Record Funk",           genre:"Funk",                tag:"jazz",    logo:"https://radiorecord.ru/images/logos/funk.png",stream:"https://radiorecord.hostingradio.ru/funk96.aacp",listeners:800},
-  // CLASSIC
-  {name:"Radio Klassika",        genre:"Классическая",        tag:"classic", logo:"https://radiopotok.ru/f/station/256/286.png",stream:"https://classic.hostingradio.ru/classic96.aacp",listeners:3200},
-  {name:"SomaFM Doomed",         genre:"Gothic / Dark",       tag:"classic", logo:"https://somafm.com/img3/doomed-400.jpg",stream:"https://ice1.somafm.com/doomed-128-mp3",listeners:2100},
-  // FOREIGN
-  {name:"Радио Монте-Карло",     genre:"Зарубежная",          tag:"foreign", logo:"https://radiopotok.ru/f/station/256/603.png",stream:"https://h.getradio.me/rp603/hls.m3u8",listeners:5059},
-  {name:"Шоколад",               genre:"Каверы",              tag:"foreign", logo:"https://radiopotok.ru/f/station/256/780.png",stream:"https://h.getradio.me/rp780/hls.m3u8",listeners:4212},
-  {name:"Хорошее Радио",         genre:"Зарубежная",          tag:"foreign", logo:"https://radiopotok.ru/f/station/256/487.png",stream:"https://h.getradio.me/rp487/hls.m3u8",listeners:3818},
-  {name:"Дорожное радио СПб",    genre:"Разное",              tag:"foreign", logo:"https://radiopotok.ru/f/station/256/83.png",stream:"https://h.getradio.me/rp83/hls.m3u8",listeners:4922},
-  {name:"Монте-Карло",           genre:"Зарубежная",          tag:"foreign", logo:"https://radiopotok.ru/f/station/256/603.png",stream:"https://montecarlo.hostingradio.ru/montecarlo96.aacp",listeners:6100},
-  {name:"Дорожное Радио",        genre:"Разное",              tag:"foreign", logo:"https://radiopotok.ru/f/station/256/83.png",stream:"https://dorog.hostingradio.ru/dorog96.aacp",listeners:5700},
-  {name:"SomaFM Thistle",        genre:"Scottish / Celtic",   tag:"foreign", logo:"https://somafm.com/img3/thistle-400.jpg",stream:"https://ice1.somafm.com/thistle-128-mp3",listeners:1800},
-  {name:"SomaFM Bootliquor",     genre:"Country / Honkytonk", tag:"foreign", logo:"https://somafm.com/img3/bootliquor-400.jpg",stream:"https://ice1.somafm.com/bootliquor-128-mp3",listeners:2400},
-];
+// станции загружаются из stations.js
 
-const genres = [
-  {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
-  {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
-  {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},{id:"rap",label:"Рэп"},
-];
 
 // ══════════════════════════════════════════════════════
 // STATE
