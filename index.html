@@ -218,7 +218,6 @@ body.car .row-sub{font-size:13px}
   max-height:0;opacity:0;pointer-events:none;
 }
 .chat-section.show{max-height:340px;opacity:1;pointer-events:auto;margin-bottom:16px}
-body.car .chat-section{display:none}
 .chat-section-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
@@ -330,11 +329,7 @@ body.car .chat-section{display:none}
         </div>
       </div>
 
-      <!-- LIST -->
-      <div class="section-label" id="listLabel">Все станции</div>
-      <div class="list" id="stationList"></div>
-
-      <!-- CHAT SECTION (inline, toggled by header button) -->
+      <!-- CHAT SECTION (inline, сразу после плеера) -->
       <div class="chat-section" id="chatSection">
         <div class="chat-section-header">
           <span class="chat-section-title">💬 Чат радио</span>
@@ -347,6 +342,10 @@ body.car .chat-section{display:none}
           <div style="text-align:center;color:var(--muted);padding:40px 16px;font-size:14px">Загрузка сообщений…</div>
         </div>
       </div>
+
+      <!-- LIST -->
+      <div class="section-label" id="listLabel">Все станции</div>
+      <div class="list" id="stationList"></div>
 
     </div><!-- /app -->
   </div><!-- /scroll-area -->
@@ -547,7 +546,7 @@ function applyCarMode(on){
   hide(document.getElementById("genrePills"));
   hide(document.getElementById("listLabel"));
   hide(document.getElementById("stationList"));
-  // чат скрывается через CSS body.car .chat-section{display:none}
+  // чат остаётся видимым в авторежиме
 }
 
 // ══════════════════════════════════════════════════════
@@ -802,23 +801,23 @@ function openChat(){
 }
 async function loadChatMessages(){
   const container=document.getElementById("chatMessages");
-  if(!CHAT_API_BASE.includes("your-worker")){
-    try{
-      const res=await fetch(`${CHAT_API_BASE}/get-messages`);
-      const msgs=await res.json();
-      container.innerHTML="";
-      if(!msgs.length){container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';return;}
-      msgs.forEach(m=>{
-        const div=document.createElement("div");div.className="chat-msg";
-        div.innerHTML=`<div class="chat-msg-avatar">${(m.name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}</div><div class="chat-msg-text">${m.text}</div></div>`;
-        container.appendChild(div);
-      });
-      container.scrollTop=container.scrollHeight;
-    }catch(e){
-      container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Не удалось загрузить сообщения</div>';
-    }
-  }else{
-    container.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px 16px;font-size:14px;line-height:1.6">Чат появится после<br>настройки CHAT_API_BASE</div>';
+  try{
+    const res=await fetch(`${CHAT_API_BASE}/get-messages`,{headers:{"Accept":"application/json"}});
+    if(!res.ok){container.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Ошибка сервера: ${res.status}</div>`;return;}
+    const msgs=await res.json();
+    const list=Array.isArray(msgs)?msgs:(msgs.messages||msgs.data||[]);
+    container.innerHTML="";
+    if(!list.length){container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';return;}
+    list.forEach(m=>{
+      const name=m.name||m.username||m.user||"?";
+      const text=m.text||m.message||m.content||"";
+      const div=document.createElement("div");div.className="chat-msg";
+      div.innerHTML=`<div class="chat-msg-avatar">${(name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${name}</div><div class="chat-msg-text">${text}</div></div>`;
+      container.appendChild(div);
+    });
+    container.scrollTop=container.scrollHeight;
+  }catch(e){
+    container.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Ошибка загрузки<br><small style="opacity:.6">${e.message}</small></div>`;
   }
 }
 setInterval(()=>{if(chatVisible)loadChatMessages();},3000);
