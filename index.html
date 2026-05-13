@@ -253,14 +253,15 @@ body.car .row-sub{font-size:13px}
 .show-more-btn svg{width:15px;height:15px;transition:transform .25s}
 .show-more-btn.expanded svg{transform:rotate(180deg)}
 
-/* ══ CHAT SECTION (inline, below list) ═══════════════ */
+/* ══ CHAT SECTION ════════════════════════════════════ */
 .chat-section{
   background:var(--card);border-radius:var(--r-card);
   box-shadow:var(--shadow);margin-top:var(--gap);
-  overflow:hidden;transition:background .25s,max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s;
-  max-height:0;opacity:0;pointer-events:none;
+  display:none;flex-direction:column;
+  height:320px;
+  transition:background .25s;
 }
-.chat-section.show{max-height:340px;opacity:1;pointer-events:auto;margin-bottom:16px}
+.chat-section.show{display:flex;margin-bottom:16px}
 .chat-section-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
@@ -272,8 +273,9 @@ body.car .row-sub{font-size:13px}
   display:flex;align-items:center;gap:6px;
 }
 .chat-msgs{
-  height:260px;overflow-y:auto;
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding:10px 14px;display:flex;flex-direction:column;gap:8px;
+  min-height:0;
 }
 .chat-msg{display:flex;gap:8px;align-items:flex-start;font-size:13px}
 .chat-msg-avatar{
@@ -284,29 +286,6 @@ body.car .row-sub{font-size:13px}
 .chat-msg-body{background:var(--pill);padding:6px 12px;border-radius:12px;max-width:85%}
 .chat-msg-name{font-weight:600;font-size:11px;margin-bottom:2px;color:var(--muted)}
 .chat-msg-text{word-break:break-word;line-height:1.4}
-.chat-input-row{
-  display:flex;gap:8px;padding:10px 14px;
-  border-top:1px solid var(--border);flex-shrink:0;
-}
-.chat-name-input,.chat-text-input{
-  background:var(--pill);border:none;border-radius:10px;
-  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);
-  padding:9px 12px;outline:none;-webkit-appearance:none;
-  transition:box-shadow .18s;
-}
-.chat-name-input:focus,.chat-text-input:focus{box-shadow:0 0 0 2px var(--accent)}
-.chat-name-input::placeholder,.chat-text-input::placeholder{color:var(--muted)}
-.chat-name-input{width:90px;flex-shrink:0}
-.chat-text-input{flex:1}
-.chat-send-btn{
-  width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;
-  background:var(--accent);color:var(--bg);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:transform .15s,opacity .15s;
-}
-.chat-send-btn:active{transform:scale(.92)}
-.chat-send-btn:disabled{opacity:.4;cursor:default}
-.chat-send-btn svg{width:16px;height:16px}
 </style>
 <script>if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
 </head>
@@ -411,13 +390,7 @@ body.car .row-sub{font-size:13px}
         <div class="chat-msgs" id="chatMessages">
           <div style="text-align:center;color:var(--muted);padding:40px 16px;font-size:14px">Загрузка сообщений…</div>
         </div>
-        <div class="chat-input-row">
-          <input class="chat-name-input" id="chatName" placeholder="Имя" maxlength="30">
-          <input class="chat-text-input" id="chatText" placeholder="Написать сообщение…" maxlength="300">
-          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
+
       </div>
 
       <!-- LIST -->
@@ -903,10 +876,8 @@ function toggleChat(){
   sec.classList.toggle("show",chatVisible);
   document.getElementById("chatToggleBtn").classList.toggle("on",chatVisible);
   if(chatVisible){
-    const saved=localStorage.getItem("chatName");
-    if(saved)document.getElementById("chatName").value=saved;
     loadChatMessages();
-    setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),360);
+    setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),160);
   }
 }
 function openChat(){
@@ -935,36 +906,8 @@ async function loadChatMessages(){
   }catch(e){}
 }
 
-async function sendChatMessage(){
-  const nameEl=document.getElementById("chatName");
-  const textEl=document.getElementById("chatText");
-  const btn=document.getElementById("chatSendBtn");
-  const name=(nameEl.value||"").trim();
-  const text=(textEl.value||"").trim();
-  if(!name){nameEl.focus();nameEl.style.boxShadow="0 0 0 2px var(--red)";setTimeout(()=>nameEl.style.boxShadow="",1200);return;}
-  if(!text){textEl.focus();return;}
-  btn.disabled=true;
-  try{
-    const res=await fetch(`${CHAT_API_BASE}/send-message`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({name,text})
-    });
-    if(res.ok){
-      textEl.value="";
-      localStorage.setItem("chatName",name);
-      await loadChatMessages();
-      if(tg)tg.HapticFeedback?.notificationOccurred("success");
-    }
-  }catch(e){}
-  btn.disabled=false;
-  textEl.focus();
-}
 setInterval(()=>{if(chatVisible)loadChatMessages();},3000);
-document.addEventListener("DOMContentLoaded",()=>{
-  const t=document.getElementById("chatText");
-  if(t)t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage();}});
-});
+
 
 // ══════════════════════════════════════════════════════
 // INIT
