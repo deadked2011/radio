@@ -112,8 +112,41 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
   padding:var(--sp-md);box-shadow:var(--shadow);
   margin-bottom:var(--sp-sm);display:none;
   transition:background .25s;
+  position:relative;overflow:hidden;
 }
 .now-card.visible{display:block}
+.now-card-bg{
+  position:absolute;inset:-20px;z-index:0;
+  background-size:cover;background-position:center;
+  filter:blur(28px) saturate(1.4) brightness(.55);
+  opacity:0;transition:opacity .6s ease, background-image .4s ease;
+  transform:scale(1.1);
+}
+.now-card.has-bg .now-card-bg{opacity:1}
+.now-card-bg-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(160deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.38) 100%);
+  opacity:0;transition:opacity .6s;
+}
+.now-card.has-bg .now-card-bg-overlay{opacity:1}
+.now-card-content{position:relative;z-index:2}
+.now-card.has-bg .now-name{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.now-card.has-bg .now-genre{color:rgba(255,255,255,.7)}
+.now-card.has-bg .fav-btn{color:rgba(255,255,255,.7)}
+.now-card.has-bg .fav-btn.on{color:#ff6b7a}
+.now-card.has-bg .ctrl{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
+.now-card.has-bg .ctrl:active{background:rgba(255,255,255,.3)}
+.now-card.has-bg .play-btn{background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.35)}
+.now-card.has-bg .play-btn svg{fill:#111}
+.now-card.has-bg .vol-row{border-top-color:rgba(255,255,255,.18)}
+.now-card.has-bg .vol-emoji{filter:brightness(10)}
+.now-card.has-bg .vol-val{color:rgba(255,255,255,.75)!important}
+.now-card.has-bg .vol-track-bg{background:rgba(255,255,255,.2)}
+.now-card.has-bg input.vol-input::-webkit-slider-thumb{background:#fff;border-color:rgba(255,255,255,.4)}
+.now-card.has-bg .loading-bar{background:rgba(255,255,255,.2)}
+.now-card.has-bg .loading-bar-inner{background:#fff}
+.now-card.has-bg .bar{background:rgba(255,255,255,.2)}
+.now-card.has-bg .bar.on{background:rgba(255,255,255,.9)}
 .now-top{display:flex;align-items:center;gap:14px;margin-bottom:var(--sp-md)}
 .now-logo{
   width:60px;height:60px;border-radius:14px;background:var(--pill);
@@ -304,6 +337,9 @@ body.car .row-sub{font-size:13px}
 
       <!-- NOW PLAYING -->
       <div class="now-card" id="nowCard">
+        <div class="now-card-bg" id="nowCardBg"></div>
+        <div class="now-card-bg-overlay"></div>
+        <div class="now-card-content">
         <div class="now-top">
           <div class="now-logo" id="nowLogo">🎵</div>
           <div class="now-info">
@@ -337,6 +373,7 @@ body.car .row-sub{font-size:13px}
           </div>
           <span class="vol-val" id="volVal">80%</span>
         </div>
+        </div><!-- /now-card-content -->
       </div>
 
       <!-- CHAT SECTION (inline, сразу после плеера) -->
@@ -664,7 +701,17 @@ function loadStation(idx,autoplay){
   document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
   document.getElementById("nowName").textContent=s.name;
   document.getElementById("nowGenre").textContent=s.genre;
-  document.getElementById("nowCard").classList.add("visible");
+  const card=document.getElementById("nowCard");
+  card.classList.add("visible");
+  // Фон из обложки
+  const bg=document.getElementById("nowCardBg");
+  if(s.logo){
+    bg.style.backgroundImage=`url(${s.logo})`;
+    card.classList.add("has-bg");
+  }else{
+    bg.style.backgroundImage="";
+    card.classList.remove("has-bg");
+  }
   updateFavBtn();updateMediaSession(s);renderList();
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
