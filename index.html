@@ -775,7 +775,8 @@ function setTab(tab){
   activeTab=tab;
   document.getElementById("tabAll").classList.toggle("active",tab==="all");
   document.getElementById("tabFav").classList.toggle("active",tab==="fav");
-  document.getElementById("tabRap").classList.toggle("active",tab==="rap");
+  const tabRap=document.getElementById("tabRap");
+  if(tabRap)tabRap.classList.toggle("active",tab==="rap");
   // поиск и жанры только на вкладке «Все»
   const showFilters=tab==="all";
   document.getElementById("searchWrap").style.display=showFilters?"":"none";
