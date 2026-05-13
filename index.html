@@ -284,6 +284,29 @@ body.car .row-sub{font-size:13px}
 .chat-msg-body{background:var(--pill);padding:6px 12px;border-radius:12px;max-width:85%}
 .chat-msg-name{font-weight:600;font-size:11px;margin-bottom:2px;color:var(--muted)}
 .chat-msg-text{word-break:break-word;line-height:1.4}
+.chat-input-row{
+  display:flex;gap:8px;padding:10px 14px;
+  border-top:1px solid var(--border);flex-shrink:0;
+}
+.chat-name-input,.chat-text-input{
+  background:var(--pill);border:none;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);
+  padding:9px 12px;outline:none;-webkit-appearance:none;
+  transition:box-shadow .18s;
+}
+.chat-name-input:focus,.chat-text-input:focus{box-shadow:0 0 0 2px var(--accent)}
+.chat-name-input::placeholder,.chat-text-input::placeholder{color:var(--muted)}
+.chat-name-input{width:90px;flex-shrink:0}
+.chat-text-input{flex:1}
+.chat-send-btn{
+  width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;
+  background:var(--accent);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:transform .15s,opacity .15s;
+}
+.chat-send-btn:active{transform:scale(.92)}
+.chat-send-btn:disabled{opacity:.4;cursor:default}
+.chat-send-btn svg{width:16px;height:16px}
 </style>
 <script>if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
 </head>
@@ -387,6 +410,13 @@ body.car .row-sub{font-size:13px}
         </div>
         <div class="chat-msgs" id="chatMessages">
           <div style="text-align:center;color:var(--muted);padding:40px 16px;font-size:14px">Загрузка сообщений…</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-name-input" id="chatName" placeholder="Имя" maxlength="30">
+          <input class="chat-text-input" id="chatText" placeholder="Написать сообщение…" maxlength="300">
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
         </div>
       </div>
 
@@ -873,8 +903,9 @@ function toggleChat(){
   sec.classList.toggle("show",chatVisible);
   document.getElementById("chatToggleBtn").classList.toggle("on",chatVisible);
   if(chatVisible){
+    const saved=localStorage.getItem("chatName");
+    if(saved)document.getElementById("chatName").value=saved;
     loadChatMessages();
-    // плавно скроллим к чату
     setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),360);
   }
 }
@@ -884,47 +915,56 @@ function openChat(){
 }
 async function loadChatMessages(){
   const container=document.getElementById("chatMessages");
-  container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">⏳ Загрузка…</div>';
   try{
-    const res=await fetch(`${CHAT_API_BASE}/get-messages`,{headers:{"Accept":"application/json"}});
-    const rawText=await res.text();
-    
-    // Показываем сырой ответ для диагностики
-    if(!res.ok){
-      container.innerHTML=`<div style="padding:12px;font-size:12px;color:var(--muted)">❌ HTTP ${res.status}<br><pre style="white-space:pre-wrap;word-break:break-all;margin-top:8px;font-size:11px">${rawText.slice(0,500)}</pre></div>`;
-      return;
-    }
-    
-    let msgs;
-    try{ msgs=JSON.parse(rawText); }
-    catch(e){
-      container.innerHTML=`<div style="padding:12px;font-size:12px;color:var(--muted)">❌ Не JSON:<br><pre style="white-space:pre-wrap;word-break:break-all;margin-top:8px;font-size:11px">${rawText.slice(0,500)}</pre></div>`;
-      return;
-    }
-
-    // Показываем структуру ответа для диагностики
-    const debugInfo=`<div style="padding:12px;font-size:11px;color:var(--muted);background:rgba(0,0,0,.05);border-radius:8px;margin-bottom:8px">🔍 Ответ сервера: <b>${typeof msgs}</b>${Array.isArray(msgs)?` [массив, ${msgs.length} эл.]`:""}<br><pre style="white-space:pre-wrap;word-break:break-all;margin-top:4px">${JSON.stringify(msgs).slice(0,400)}</pre></div>`;
-
-    const list=Array.isArray(msgs)?msgs:(msgs.messages||msgs.data||msgs.comments||msgs.items||[]);
-    container.innerHTML=debugInfo;
-    
+    const res=await fetch(`${CHAT_API_BASE}/get-messages`);
+    if(!res.ok)return;
+    const msgs=await res.json();
+    const list=Array.isArray(msgs)?msgs:[];
+    container.innerHTML="";
     if(!list.length){
-      container.innerHTML+='<div style="text-align:center;color:var(--muted);padding:12px;font-size:14px">Пока нет сообщений</div>';
+      container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';
       return;
     }
     list.forEach(m=>{
-      const name=m.name||m.username||m.user||m.from||m.author||"?";
-      const text=m.text||m.message||m.content||m.body||JSON.stringify(m);
       const div=document.createElement("div");div.className="chat-msg";
-      div.innerHTML=`<div class="chat-msg-avatar">${(String(name)[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${name}</div><div class="chat-msg-text">${text}</div></div>`;
+      const t=m.time?new Date(m.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}):"";
+      div.innerHTML=`<div class="chat-msg-avatar">${(m.name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t?` <span style="font-weight:400;opacity:.6">${t}</span>`:""}</div><div class="chat-msg-text">${m.text}</div></div>`;
       container.appendChild(div);
     });
     container.scrollTop=container.scrollHeight;
-  }catch(e){
-    container.innerHTML=`<div style="padding:12px;font-size:12px;color:var(--muted)">❌ Ошибка сети: <b>${e.message}</b><br><small style="opacity:.7">Возможно CORS или воркер недоступен</small></div>`;
-  }
+  }catch(e){}
+}
+
+async function sendChatMessage(){
+  const nameEl=document.getElementById("chatName");
+  const textEl=document.getElementById("chatText");
+  const btn=document.getElementById("chatSendBtn");
+  const name=(nameEl.value||"").trim();
+  const text=(textEl.value||"").trim();
+  if(!name){nameEl.focus();nameEl.style.boxShadow="0 0 0 2px var(--red)";setTimeout(()=>nameEl.style.boxShadow="",1200);return;}
+  if(!text){textEl.focus();return;}
+  btn.disabled=true;
+  try{
+    const res=await fetch(`${CHAT_API_BASE}/send-message`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name,text})
+    });
+    if(res.ok){
+      textEl.value="";
+      localStorage.setItem("chatName",name);
+      await loadChatMessages();
+      if(tg)tg.HapticFeedback?.notificationOccurred("success");
+    }
+  }catch(e){}
+  btn.disabled=false;
+  textEl.focus();
 }
 setInterval(()=>{if(chatVisible)loadChatMessages();},3000);
+document.addEventListener("DOMContentLoaded",()=>{
+  const t=document.getElementById("chatText");
+  if(t)t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage();}});
+});
 
 // ══════════════════════════════════════════════════════
 // INIT
