@@ -132,6 +132,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card-content{position:relative;z-index:2}
 .now-card.has-bg .now-name{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4)}
 .now-card.has-bg .now-genre{color:rgba(255,255,255,.7)}
+.now-card.has-bg .now-track{color:rgba(160,220,255,.9)}
 .now-card.has-bg .fav-btn{color:rgba(255,255,255,.7)}
 .now-card.has-bg .fav-btn.on{color:#ff6b7a}
 .now-card.has-bg .ctrl{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
@@ -163,6 +164,15 @@ body.car .now-logo{width:80px;height:80px;border-radius:18px;font-size:34px}
 }
 body.car .now-name{font-size:clamp(20px,5vw,30px)}
 .now-genre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.now-track{
+  font-size:12px;color:var(--accent);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;display:none;
+}
+.now-track.visible{display:block}
+.now-track.marquee{animation:marquee 12s linear infinite}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-60%)}}
+.now-card.has-bg .now-track{color:#7df}
 .fav-btn{
   background:none;border:none;cursor:pointer;
   font-size:26px;color:var(--muted);flex-shrink:0;
@@ -347,6 +357,7 @@ body.car .row-sub{font-size:13px}
           <div class="now-info">
             <div class="now-name" id="nowName">—</div>
             <div class="now-genre" id="nowGenre">—</div>
+            <div class="now-track" id="nowTrack">♪</div>
           </div>
           <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
         </div>
@@ -581,6 +592,7 @@ function loadStation(idx,autoplay){
     card.classList.remove("has-bg");
   }
   updateFavBtn();updateMediaSession(s);renderList();
+  startNowPlaying(s.stream);
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
@@ -749,6 +761,38 @@ function openChat(){
   const url="https://t.me/strmradiochat/2";
   if(tg)tg.openTelegramLink(url);else window.open(url,"_blank");
 }
+let nowPlayingTimer = null;
+
+async function fetchNowPlaying(streamUrl) {
+  const el = document.getElementById("nowTrack");
+  if (!el) return;
+  try {
+    const res = await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(streamUrl)}`);
+    if (!res.ok) return;
+    const { title } = await res.json();
+    if (title && title.trim()) {
+      el.textContent = "♪ " + title.trim();
+      el.classList.add("visible");
+      // марки если текст длинный
+      el.classList.toggle("marquee", title.length > 40);
+    } else {
+      el.textContent = "";
+      el.classList.remove("visible", "marquee");
+    }
+  } catch(e) {
+    el.classList.remove("visible", "marquee");
+  }
+}
+
+function startNowPlaying(streamUrl) {
+  if (nowPlayingTimer) clearInterval(nowPlayingTimer);
+  const el = document.getElementById("nowTrack");
+  el.textContent = "";
+  el.classList.remove("visible", "marquee");
+  fetchNowPlaying(streamUrl);
+  nowPlayingTimer = setInterval(() => fetchNowPlaying(streamUrl), 15000);
+}
+
 async function loadChatMessages(){
   const container=document.getElementById("chatMessages");
   try{
