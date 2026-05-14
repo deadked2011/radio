@@ -227,6 +227,33 @@ body.car .ctrl{width:72px;height:72px;border-radius:18px}
 body.car .ctrl svg{width:30px;height:30px}
 body.car .play-btn{width:96px;height:96px}
 body.car .play-btn svg{width:34px;height:34px}
+.mute-btn{
+  display:none;width:56px;height:56px;border-radius:14px;border:none;cursor:pointer;
+  background:var(--pill);color:var(--text);
+  align-items:center;justify-content:center;
+  transition:all .18s;flex-shrink:0;
+}
+.mute-btn svg{width:22px;height:22px}
+.mute-btn.muted{background:#ff4444;color:#fff}
+.now-card.has-bg .mute-btn{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
+.now-card.has-bg .mute-btn.muted{background:rgba(255,60,60,.75);color:#fff}
+body.car .mute-btn{display:flex}
+/* Рекомендации в авторежиме */
+.car-recs{display:none;padding:0 var(--sp-md) var(--sp-md);flex-direction:column;gap:8px}
+body.car .car-recs{display:flex}
+.car-recs-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:2px}
+.car-rec-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--pill);border-radius:14px;cursor:pointer;
+  transition:opacity .15s;border:none;width:100%;text-align:left;
+}
+.car-rec-row:active{opacity:.7}
+.car-rec-img{width:44px;height:44px;min-width:44px;border-radius:10px;background:var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+.car-rec-img img{width:100%;height:100%;object-fit:cover}
+.car-rec-info{flex:1;min-width:0}
+.car-rec-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.car-rec-genre{font-size:11px;color:var(--muted)}
+.car-rec-pop{font-size:11px;color:var(--muted);flex-shrink:0}
 .vol-row{display:flex;align-items:center;gap:10px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
 .vol-emoji{font-size:18px;flex-shrink:0}
 .vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:36px}
@@ -388,6 +415,12 @@ body.car .row-sub{font-size:13px}
           <button class="ctrl" onclick="next()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
           </button>
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="Заглушить">
+            <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
         </div>
         <div class="vol-row">
           <span class="vol-emoji" id="volEmoji">🔈</span>
@@ -400,6 +433,9 @@ body.car .row-sub{font-size:13px}
               ontouchstart="this.classList.add('dragging')" ontouchend="this.classList.remove('dragging')">
           </div>
           <span class="vol-val" id="volVal">80%</span>
+        </div>
+        <div class="car-recs" id="carRecs">
+          <div class="car-recs-title">🎯 Похожие станции</div>
         </div>
         </div><!-- /now-card-content -->
       </div>
@@ -608,6 +644,7 @@ function loadStation(idx,autoplay){
   }
   updateFavBtn();updateMediaSession(s);renderList();
   startNowPlaying(s.stream);
+  renderCarRecs(idx);
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
@@ -797,6 +834,47 @@ function openChat(){
   if(tg)tg.openTelegramLink(url);else window.open(url,"_blank");
 }
 let nowPlayingTimer = null;
+let isMuted = false;
+
+function toggleMute(){
+  const audio = document.getElementById("audio");
+  isMuted = !isMuted;
+  audio.muted = isMuted;
+  const btn = document.getElementById("muteBtn");
+  btn.classList.toggle("muted", isMuted);
+  document.getElementById("muteIcon").innerHTML = isMuted
+    ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+    : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+  if(tg) tg.HapticFeedback?.impactOccurred("medium");
+}
+
+function renderCarRecs(idx){
+  const recs = document.getElementById("carRecs");
+  if(!recs) return;
+  const cur = stations[idx];
+  if(!cur){ recs.innerHTML=""; return; }
+  // Станции того же жанра, кроме текущей, отсортированные по listeners
+  const similar = stations
+    .filter(s => s.tag === cur.tag && stations.indexOf(s) !== idx)
+    .sort((a,b) => (b.listeners||0) - (a.listeners||0))
+    .slice(0, 4);
+  if(!similar.length){ recs.innerHTML=""; return; }
+  recs.innerHTML = '<div class="car-recs-title">🎯 Похожие станции</div>';
+  similar.forEach(s => {
+    const si = stations.indexOf(s);
+    const btn = document.createElement("button");
+    btn.className = "car-rec-row";
+    btn.innerHTML = `
+      <div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.style.display='none'">` : ge(s.tag)}</div>
+      <div class="car-rec-info">
+        <div class="car-rec-name">${s.name}</div>
+        <div class="car-rec-genre">${s.genre}</div>
+      </div>
+      <div class="car-rec-pop">${s.listeners ? (s.listeners/1000).toFixed(0)+"k" : ""}</div>`;
+    btn.onclick = () => { if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(si, true); };
+    recs.appendChild(btn);
+  });
+}
 
 async function fetchNowPlaying(streamUrl) {
   const el = document.getElementById("nowTrack");
