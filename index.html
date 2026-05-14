@@ -87,6 +87,8 @@ body.car .tab-btn{font-size:16px;padding:14px 0}
 /* ══ GENRE PILLS ══════════════════════════════════════ */
 .genres{display:flex;gap:6px;overflow-x:auto;margin-bottom:var(--sp-md);padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .genres::-webkit-scrollbar{display:none}
+.genres{cursor:grab}
+.genres.grabbing{cursor:grabbing}
 .genre-pill{
   padding:7px 14px;border-radius:100px;background:var(--pill);
   color:var(--pill-text);font-size:12px;font-weight:500;cursor:pointer;
@@ -678,13 +680,33 @@ function setTab(tab){
   renderList();
 }
 
+function initGenreScroll(){
+  const el=document.getElementById("genrePills");
+  if(el._scrollInited)return;
+  el._scrollInited=true;
+  // колёсико мыши — горизонтальный скролл
+  el.addEventListener("wheel",e=>{
+    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){
+      e.preventDefault();
+      el.scrollLeft+=e.deltaY*1.5;
+    }
+  },{passive:false});
+  // перетаскивание мышью
+  let isDown=false,startX=0,scrollL=0;
+  el.addEventListener("mousedown",e=>{isDown=true;el.classList.add("grabbing");startX=e.pageX-el.offsetLeft;scrollL=el.scrollLeft;});
+  el.addEventListener("mouseleave",()=>{isDown=false;el.classList.remove("grabbing");});
+  el.addEventListener("mouseup",()=>{isDown=false;el.classList.remove("grabbing");});
+  el.addEventListener("mousemove",e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollL-(x-startX);});
+}
 function renderGenres(){
   const el=document.getElementById("genrePills");el.innerHTML="";
-  genres.forEach(g=>{
+  // Сортировка по алфавиту, "Все" всегда первый
+  const sorted=[genres[0],...genres.slice(1).sort((a,b)=>a.label.localeCompare(b.label,"ru"))];
+  sorted.forEach(g=>{
     const b=document.createElement("button");
     b.className="genre-pill"+(g.id===activeGenre?" active":"");
     b.textContent=g.label;
-    b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};
+    b.onclick=()=>{activeGenre=g.id;renderGenres();initGenreScroll();renderList();};
     el.appendChild(b);
   });
 }
