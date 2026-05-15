@@ -22,7 +22,7 @@ html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:trans
   --bg:#f5f4f0;--card:#ffffff;--text:#1a1a1a;--muted:#9a9a9a;
   --accent:#1a1a1a;--border:#e8e6e0;--pill:#eeece7;--pill-text:#7a7a7a;
   --green:#3eb87a;--red:#e05555;--orange:#f0a030;
-  --shadow:0 2px 16px rgba(0,0,0,.07);--shadow-up:0 -2px 16px rgba(0,0,0,.07);
+  --shadow:0 4px 32px rgba(0,0,0,.06),0 1px 6px rgba(0,0,0,.04);--shadow-up:0 -4px 32px rgba(0,0,0,.06);
   --px:16px;--gap:8px;--sp-sm:12px;--sp-md:18px;
   --r-card:20px;--r-row:14px;--r-btn:12px;
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
@@ -35,6 +35,16 @@ html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:trans
 
 /* ══ LAYOUT ══════════════════════════════════════════ */
 /* Platform detection via JS adds class to <html> */
+.ambient-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-size:cover;background-position:center;
+  filter:blur(80px) saturate(1.6) brightness(.35);
+  opacity:0;transition:opacity 1.2s ease,background-image .8s ease;
+  transform:scale(1.2);
+}
+.ambient-bg.on{opacity:.28}
+body.dark .ambient-bg.on{opacity:.38}
+.page,.scroll-area,.app{position:relative;z-index:1}
 body{font-family:var(--sys-font);background:var(--bg);color:var(--text);transition:background .25s,color .25s}
 /* iOS/macOS */
 html.plt-ios body,html.plt-mac body{--sys-font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;--r-card:18px;--r-row:16px;--r-pill:100px}
@@ -88,7 +98,11 @@ body.car .tab-btn{font-size:16px;padding:14px 0}
   box-shadow:0 1px 8px rgba(0,0,0,.07);outline:none;-webkit-appearance:none;
   transition:background .25s,color .25s,box-shadow .18s,border-color .18s;
 }
-.search-input:focus{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent)}
+.search-input:focus{
+  box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 2px var(--accent);
+  border-color:var(--accent);
+  transform:translateY(-1px);
+}
 .search-input::placeholder{color:var(--muted)}
 .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
 .search-icon svg{width:16px;height:16px}
@@ -147,7 +161,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .now-genre{color:rgba(255,255,255,.7)}
 .now-card.has-bg .fav-btn{color:rgba(255,255,255,.7)}
 .now-card.has-bg .fav-btn.on{color:#ff6b7a}
-.now-card.has-bg .ctrl{background:rgba(255,255,255,.22);color:#fff;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15)}
+.now-card.has-bg .ctrl{background:transparent;border:none;color:rgba(255,255,255,.9)}
 .now-card.has-bg .ctrl:active{background:rgba(255,255,255,.3)}
 .now-card.has-bg .play-btn{background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.35)}
 .now-card.has-bg .play-btn svg{fill:#111}
@@ -189,9 +203,15 @@ body.car .fav-btn{font-size:32px;width:52px;height:52px}
 .loading-bar.active{display:block}
 .loading-bar-inner{height:100%;width:35%;background:var(--accent);border-radius:99px;animation:loadAnim 1.1s ease-in-out infinite}
 @keyframes loadAnim{0%{transform:translateX(-150%)}100%{transform:translateX(450%)}}
-.viz{height:36px;display:flex;align-items:center;gap:2px;margin-bottom:var(--sp-md)}
-.bar{flex:1;background:var(--border);border-radius:99px;height:4px}
+.viz{
+  height:36px;display:flex;align-items:flex-end;gap:3px;
+  margin-bottom:var(--sp-md);
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);
+}
+.bar{width:4px;min-width:4px;flex:none;background:var(--border);border-radius:99px;height:4px;transition:background .25s}
 .bar.on{background:var(--accent);animation:pulse var(--dur,.8s) ease-in-out infinite alternate}
+.now-card.has-bg .bar.on{background:rgba(255,255,255,.85)}
 @keyframes pulse{from{height:var(--min,4px)}to{height:var(--max,24px)}}
 .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--sp-md)}
 .ctrl{
@@ -271,7 +291,7 @@ input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-s
 .vol-val{font-size:12px;font-weight:600;color:var(--muted);min-width:34px;text-align:right;flex-shrink:0;transition:color .25s}
 
 /* ══ STATION LIST ═════════════════════════════════════ */
-.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:10px;padding:0 2px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:10px;padding:0 2px;margin-top:18px}
 .list{display:flex;flex-direction:column;gap:6px}
 .row{
   background:var(--card);border-radius:var(--r-row);
@@ -359,13 +379,13 @@ body.car .row-sub{font-size:13px}
           <span class="live-dot" id="liveDot"></span>
           <span class="clock" id="clock"></span>
           <button class="icon-btn" id="darkBtn" onclick="toggleDark()" title="Тёмная тема">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
           <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Авторежим">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l3-4h8l3 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M7.5 15h9"/></svg>
           </button>
           <button class="icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Чат">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
       </div>
@@ -559,10 +579,18 @@ setInterval(tick,1000);tick();
 // VISUALIZER
 // ══════════════════════════════════════════════════════
 const bars=[];const vizEl=document.getElementById("viz");
-for(let i=0;i<30;i++){
+// Генерируем волнообразный паттерн высот
+const totalBars=40;
+for(let i=0;i<totalBars;i++){
   const b=document.createElement("div");b.className="bar";
-  const mn=3+Math.random()*4,mx=10+Math.random()*20,dur=.4+Math.random()*.75;
-  b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.5).toFixed(2)}s`;
+  // волна: центральные бары выше
+  const center=totalBars/2;
+  const dist=Math.abs(i-center)/center;
+  const baseH=4+Math.round((1-dist*dist)*18);
+  const mn=Math.max(3,baseH-2+Math.random()*3|0);
+  const mx=mn+6+Math.random()*16|0;
+  const dur=.35+Math.random()*.6;
+  b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.4).toFixed(2)}s`;
   vizEl.appendChild(b);bars.push(b);
 }
 function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
@@ -658,12 +686,15 @@ function loadStation(idx,autoplay){
   card.classList.add("visible");
   // Фон из обложки
   const bg=document.getElementById("nowCardBg");
+  const amb=document.getElementById("ambientBg");
   if(s.logo){
     bg.style.backgroundImage=`url(${s.logo})`;
     card.classList.add("has-bg");
+    if(amb){amb.style.backgroundImage=`url(${s.logo})`;amb.classList.add("on");}
   }else{
     bg.style.backgroundImage="";
     card.classList.remove("has-bg");
+    if(amb){amb.style.backgroundImage="";amb.classList.remove("on");}
   }
   updateFavBtn();updateMediaSession(s);renderList();
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
@@ -794,7 +825,9 @@ function renderList(){
       </div>
       <div class="row-right">
         <div class="row-dot"></div>
-        <div class="row-cnt">${(s.listeners||0).toLocaleString("ru")}</div>
+        <div class="row-cnt">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;vertical-align:middle;margin-right:2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(s.listeners||0).toLocaleString("ru")}
+        </div>
       </div>`;
     row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};
     el.appendChild(row);
