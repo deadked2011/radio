@@ -536,7 +536,12 @@ function applyCarMode(on){
   hide(document.getElementById("genrePills"));
   hide(document.getElementById("listLabel"));
   hide(document.getElementById("stationList"));
-  // чат остаётся видимым в авторежиме
+  // при включении авторежима показываем рекомендации для текущей станции
+  if(on && curIdx>=0) renderCarRecs(curIdx);
+  if(!on){
+    const recs=document.getElementById("carRecs");
+    if(recs) recs.innerHTML="";
+  }
 }
 
 // ══════════════════════════════════════════════════════
