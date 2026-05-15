@@ -34,7 +34,16 @@ html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:trans
 }
 
 /* ══ LAYOUT ══════════════════════════════════════════ */
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .25s,color .25s}
+/* Platform detection via JS adds class to <html> */
+body{font-family:var(--sys-font);background:var(--bg);color:var(--text);transition:background .25s,color .25s}
+/* iOS/macOS */
+html.plt-ios body,html.plt-mac body{--sys-font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;--r-card:18px;--r-row:16px;--r-pill:100px}
+/* Android */
+html.plt-android body{--sys-font:'Google Sans','Roboto',sans-serif;--r-card:16px;--r-row:14px;--r-pill:100px}
+/* Windows */
+html.plt-windows body{--sys-font:'Segoe UI Variable','Segoe UI',sans-serif;--r-card:12px;--r-row:8px;--r-pill:6px}
+/* Fallback */
+html body{--sys-font:'DM Sans','Helvetica Neue',Arial,sans-serif;--r-card:20px;--r-row:16px;--r-pill:100px}
 .page{display:flex;flex-direction:column;min-height:100vh;padding:calc(var(--sat) + 14px) var(--px) 0}
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--sab) + 20px)}
 .app{width:100%;max-width:640px;margin:0 auto}
@@ -87,8 +96,6 @@ body.car .tab-btn{font-size:16px;padding:14px 0}
 /* ══ GENRE PILLS ══════════════════════════════════════ */
 .genres{display:flex;gap:6px;overflow-x:auto;margin-bottom:var(--sp-md);padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .genres::-webkit-scrollbar{display:none}
-.genres{cursor:grab}
-.genres.grabbing{cursor:grabbing}
 .genre-pill{
   padding:7px 14px;border-radius:100px;background:var(--pill);
   color:var(--pill-text);font-size:12px;font-weight:500;cursor:pointer;
@@ -115,9 +122,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
   margin-bottom:var(--sp-sm);display:none;
   transition:background .25s;
   position:relative;overflow:hidden;
-  border:1px solid rgba(128,128,128,.18);
 }
-.now-card.has-bg{border-color:rgba(255,255,255,.15)}
 .now-card.visible{display:block}
 .now-card-bg{
   position:absolute;inset:-20px;z-index:0;
@@ -136,7 +141,6 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card-content{position:relative;z-index:2}
 .now-card.has-bg .now-name{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4)}
 .now-card.has-bg .now-genre{color:rgba(255,255,255,.7)}
-.now-card.has-bg .now-track{color:rgba(160,220,255,.9)}
 .now-card.has-bg .fav-btn{color:rgba(255,255,255,.7)}
 .now-card.has-bg .fav-btn.on{color:#ff6b7a}
 .now-card.has-bg .ctrl{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
@@ -160,7 +164,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 }
 .now-logo img{width:100%;height:100%;object-fit:cover}
 body.car .now-logo{width:80px;height:80px;border-radius:18px;font-size:34px}
-.now-info{flex:1;min-width:0;overflow:hidden}
+.now-info{flex:1;min-width:0}
 .now-name{
   font-family:'DM Serif Display',serif;font-size:clamp(17px,4vw,24px);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -168,26 +172,6 @@ body.car .now-logo{width:80px;height:80px;border-radius:18px;font-size:34px}
 }
 body.car .now-name{font-size:clamp(20px,5vw,30px)}
 .now-genre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.now-track{
-  font-size:12px;color:var(--accent);margin-top:5px;
-  white-space:nowrap;overflow:hidden;
-  max-width:100%;display:none;
-  position:relative;
-}
-.now-track.visible{display:block}
-.now-track-inner{
-  display:inline-block;
-  white-space:nowrap;
-}
-.now-track.marquee .now-track-inner{
-  animation:marquee 14s linear infinite;
-  padding-right:40px;
-}
-@keyframes marquee{
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-50%)}
-}
-.now-card.has-bg .now-track{color:rgba(160,220,255,.95)}
 .fav-btn{
   background:none;border:none;cursor:pointer;
   font-size:26px;color:var(--muted);flex-shrink:0;
@@ -236,24 +220,41 @@ body.car .play-btn svg{width:34px;height:34px}
 .mute-btn svg{width:22px;height:22px}
 .mute-btn.muted{background:#ff4444;color:#fff}
 .now-card.has-bg .mute-btn{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
-.now-card.has-bg .mute-btn.muted{background:rgba(255,60,60,.75);color:#fff}
+.now-card.has-bg .mute-btn.muted{background:rgba(255,60,60,.75)}
 body.car .mute-btn{display:flex}
-/* Рекомендации в авторежиме */
-.car-recs{display:none;padding:0 var(--sp-md) var(--sp-md);flex-direction:column;gap:8px}
+
+/* ── CAR RECS ───────────────────────────────────── */
+.car-recs{
+  display:none;padding:0 var(--sp-md) var(--sp-md);
+  flex-direction:column;gap:8px;
+}
 body.car .car-recs{display:flex}
-.car-recs-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:2px}
+.car-recs-title{
+  font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--muted);margin-bottom:2px;font-weight:600;
+}
 .car-rec-row{
   display:flex;align-items:center;gap:12px;padding:10px 14px;
-  background:var(--pill);border-radius:14px;cursor:pointer;
+  background:var(--pill);border-radius:var(--r-row);cursor:pointer;
   transition:opacity .15s;border:none;width:100%;text-align:left;
+  font-family:var(--sys-font);
 }
 .car-rec-row:active{opacity:.7}
-.car-rec-img{width:44px;height:44px;min-width:44px;border-radius:10px;background:var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+.car-rec-img{
+  width:44px;height:44px;min-width:44px;border-radius:10px;
+  background:var(--border);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
 .car-rec-img img{width:100%;height:100%;object-fit:cover}
 .car-rec-info{flex:1;min-width:0}
 .car-rec-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.car-rec-genre{font-size:11px;color:var(--muted)}
-.car-rec-pop{font-size:11px;color:var(--muted);flex-shrink:0}
+.car-rec-genre{font-size:11px;color:var(--muted);margin-top:1px}
+.car-rec-listeners{
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;color:var(--muted);flex-shrink:0;
+}
+.car-rec-listeners svg{width:13px;height:13px;opacity:.7}
+.vol-row{margin-bottom:8px}
 .vol-row{display:flex;align-items:center;gap:10px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
 .vol-emoji{font-size:18px;flex-shrink:0}
 .vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:36px}
@@ -399,7 +400,6 @@ body.car .row-sub{font-size:13px}
           <div class="now-info">
             <div class="now-name" id="nowName">—</div>
             <div class="now-genre" id="nowGenre">—</div>
-            <div class="now-track" id="nowTrack"><span class="now-track-inner" id="nowTrackInner"></span></div>
           </div>
           <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
         </div>
@@ -415,10 +415,11 @@ body.car .row-sub{font-size:13px}
           <button class="ctrl" onclick="next()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
           </button>
-          <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="Заглушить">
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
           </button>
         </div>
@@ -434,9 +435,7 @@ body.car .row-sub{font-size:13px}
           </div>
           <span class="vol-val" id="volVal">80%</span>
         </div>
-        <div class="car-recs" id="carRecs">
-          <div class="car-recs-title">🎯 Похожие станции</div>
-        </div>
+        <div class="car-recs" id="carRecs"></div>
         </div><!-- /now-card-content -->
       </div>
 
@@ -471,6 +470,18 @@ body.car .row-sub{font-size:13px}
 // CONFIG
 // ══════════════════════════════════════════════════════
 const CHAT_API_BASE = "https://radio-chat.deadked2011.workers.dev";
+
+// ── Platform detection ─────────────────────────────────
+(function(){
+  const ua = navigator.userAgent;
+  const pl = navigator.platform || '';
+  let cls = 'plt-other';
+  if (/iPhone|iPad|iPod/.test(ua) || (/Mac/.test(pl) && navigator.maxTouchPoints > 1)) cls = 'plt-ios';
+  else if (/Macintosh/.test(ua)) cls = 'plt-mac';
+  else if (/Android/.test(ua)) cls = 'plt-android';
+  else if (/Win/.test(pl) || /Windows/.test(ua)) cls = 'plt-windows';
+  document.documentElement.classList.add(cls);
+})();
 const tg = window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
 
@@ -643,8 +654,6 @@ function loadStation(idx,autoplay){
     card.classList.remove("has-bg");
   }
   updateFavBtn();updateMediaSession(s);renderList();
-  startNowPlaying(s.stream);
-  renderCarRecs(idx);
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
@@ -717,33 +726,13 @@ function setTab(tab){
   renderList();
 }
 
-function initGenreScroll(){
-  const el=document.getElementById("genrePills");
-  if(el._scrollInited)return;
-  el._scrollInited=true;
-  // колёсико мыши — горизонтальный скролл
-  el.addEventListener("wheel",e=>{
-    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){
-      e.preventDefault();
-      el.scrollLeft+=e.deltaY*1.5;
-    }
-  },{passive:false});
-  // перетаскивание мышью
-  let isDown=false,startX=0,scrollL=0;
-  el.addEventListener("mousedown",e=>{isDown=true;el.classList.add("grabbing");startX=e.pageX-el.offsetLeft;scrollL=el.scrollLeft;});
-  el.addEventListener("mouseleave",()=>{isDown=false;el.classList.remove("grabbing");});
-  el.addEventListener("mouseup",()=>{isDown=false;el.classList.remove("grabbing");});
-  el.addEventListener("mousemove",e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollL-(x-startX);});
-}
 function renderGenres(){
   const el=document.getElementById("genrePills");el.innerHTML="";
-  // Сортировка по алфавиту, "Все" всегда первый
-  const sorted=[genres[0],...genres.slice(1).sort((a,b)=>a.label.localeCompare(b.label,"ru"))];
-  sorted.forEach(g=>{
+  genres.forEach(g=>{
     const b=document.createElement("button");
     b.className="genre-pill"+(g.id===activeGenre?" active":"");
     b.textContent=g.label;
-    b.onclick=()=>{activeGenre=g.id;renderGenres();initGenreScroll();renderList();};
+    b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};
     el.appendChild(b);
   });
 }
@@ -827,13 +816,16 @@ function toggleChat(){
   if(chatVisible){
     loadChatMessages();
     setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),160);
+  } else {
+    // when chat closes, scroll recs back into view
+    const recs=document.getElementById("carRecs");
+    if(recs && recs.children.length>1) setTimeout(()=>recs.scrollIntoView({behavior:"smooth",block:"nearest"}),160);
   }
 }
 function openChat(){
   const url="https://t.me/strmradiochat/2";
   if(tg)tg.openTelegramLink(url);else window.open(url,"_blank");
 }
-let nowPlayingTimer = null;
 let isMuted = false;
 
 function toggleMute(){
@@ -853,62 +845,29 @@ function renderCarRecs(idx){
   if(!recs) return;
   const cur = stations[idx];
   if(!cur){ recs.innerHTML=""; return; }
-  // Станции того же жанра, кроме текущей, отсортированные по listeners
   const similar = stations
     .filter(s => s.tag === cur.tag && stations.indexOf(s) !== idx)
     .sort((a,b) => (b.listeners||0) - (a.listeners||0))
     .slice(0, 4);
   if(!similar.length){ recs.innerHTML=""; return; }
-  recs.innerHTML = '<div class="car-recs-title">🎯 Похожие станции</div>';
+  recs.innerHTML = '<div class="car-recs-title">🎵 Рекомендации</div>';
   similar.forEach(s => {
     const si = stations.indexOf(s);
     const btn = document.createElement("button");
     btn.className = "car-rec-row";
+    const listeners = s.listeners
+      ? `<div class="car-rec-listeners"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(s.listeners/1000).toFixed(0)}k</div>`
+      : '';
     btn.innerHTML = `
       <div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.style.display='none'">` : ge(s.tag)}</div>
       <div class="car-rec-info">
         <div class="car-rec-name">${s.name}</div>
         <div class="car-rec-genre">${s.genre}</div>
       </div>
-      <div class="car-rec-pop">${s.listeners ? (s.listeners/1000).toFixed(0)+"k" : ""}</div>`;
+      ${listeners}`;
     btn.onclick = () => { if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(si, true); };
     recs.appendChild(btn);
   });
-}
-
-async function fetchNowPlaying(streamUrl) {
-  const el = document.getElementById("nowTrack");
-  if (!el) return;
-  try {
-    const res = await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(streamUrl)}`);
-    if (!res.ok) return;
-    const { title } = await res.json();
-    if (title && title.trim()) {
-      const inner = document.getElementById("nowTrackInner");
-      const long = title.length > 35;
-      const text = "♪ " + title.trim();
-      // для marquee дублируем текст чтобы шло бесконечно
-      inner.textContent = long ? text + "   " + text : text;
-      el.classList.add("visible");
-      el.classList.toggle("marquee", long);
-    } else {
-      const inner = document.getElementById("nowTrackInner");
-      if(inner) inner.textContent = "";
-      el.classList.remove("visible", "marquee");
-    }
-  } catch(e) {
-    el.classList.remove("visible", "marquee");
-  }
-}
-
-function startNowPlaying(streamUrl) {
-  if (nowPlayingTimer) clearInterval(nowPlayingTimer);
-  const el = document.getElementById("nowTrack");
-  const inner = document.getElementById("nowTrackInner");
-  if(inner) inner.textContent = "";
-  el.classList.remove("visible", "marquee");
-  fetchNowPlaying(streamUrl);
-  nowPlayingTimer = setInterval(() => fetchNowPlaying(streamUrl), 15000);
 }
 
 async function loadChatMessages(){
