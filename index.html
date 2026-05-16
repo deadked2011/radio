@@ -301,6 +301,9 @@ body.dark .chat-msg-body { background: rgba(255,255,255,0.04); }
 <script>if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
 </head>
 <body>
+<div id="offlineBanner" style="display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 18px;border-radius:16px;background:rgba(255,80,80,.92);backdrop-filter:blur(10px);font-weight:700;color:white;box-shadow:0 10px 40px rgba(0,0,0,.3)">
+📡 Нет сети — ждём восстановление соединения
+</div>
 
 <div class="ambient-bg" id="ambientBg"></div>
 
@@ -494,10 +497,48 @@ function playStream(url) {
       audio.src = url; audio.play().then(() => setPlaying(true)).catch(onPlayError); return;
     }
     if (typeof Hls !== "undefined" && Hls.isSupported()) {
-      hlsInstance = new Hls({enableWorker: true, lowLatencyMode: true});
+      hlsInstance = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 90,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        manifestLoadingTimeOut: 20000,
+        manifestLoadingMaxRetry: 8,
+        levelLoadingMaxRetry: 8,
+        fragLoadingMaxRetry: 10
+      });
       hlsInstance.loadSource(url); hlsInstance.attachMedia(audio);
       hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { audio.play().then(() => setPlaying(true)).catch(onPlayError); });
-      hlsInstance.on(Hls.Events.ERROR, (_, d) => { if(d.fatal) onPlayError(); });
+      hlsInstance.on(Hls.Events.ERROR, (_, d) => {
+        console.warn("HLS ERROR", d);
+
+        if (!navigator.onLine) {
+          showOfflineState(true);
+          return;
+        }
+
+        if (d.fatal) {
+          switch (d.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.warn("Сетевая ошибка — восстанавливаем поток");
+              setTimeout(() => {
+                try { hlsInstance.startLoad(); } catch(e){}
+              }, 1500);
+              break;
+
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.warn("Media error — recoverMediaError()");
+              try { hlsInstance.recoverMediaError(); } catch(e){}
+              break;
+
+            default:
+              onPlayError();
+              try { hlsInstance.destroy(); } catch(e){}
+              break;
+          }
+        }
+      });
       return;
     }
   }
@@ -669,6 +710,39 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("stationList").innerHTML = '<div class="empty">Не удалось загрузить stations.js</div>';
   }
 });
+
+function showOfflineState(isOffline){
+  let box = document.getElementById("offlineBanner");
+  if(!box) return;
+  box.style.display = isOffline ? "flex" : "none";
+}
+
+window.addEventListener("offline", () => {
+  showOfflineState(true);
+});
+
+window.addEventListener("online", () => {
+  showOfflineState(false);
+
+  if(stations && stations[curIdx] && !playing){
+    setTimeout(() => {
+      try { playStream(stations[curIdx].stream); } catch(e){}
+    }, 1200);
+  }
+});
+
+audio.addEventListener("waiting", () => {
+  document.getElementById("loadingBar").classList.add("active");
+});
+
+audio.addEventListener("playing", () => {
+  document.getElementById("loadingBar").classList.remove("active");
+});
+
+audio.addEventListener("stalled", () => {
+  document.getElementById("loadingBar").classList.add("active");
+});
+
 </script>
 </body>
 </html>
