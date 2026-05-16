@@ -105,18 +105,18 @@ body.split .row{margin-bottom:0}
 /* ══ HEADER ══════════════════════════════════════════ */
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-md)}
 .header-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,5vw,28px);letter-spacing:-.3px;line-height:1}
-.header-right{display:flex;align-items:center;gap:var(--gap)}
+.header-right{display:flex;align-items:center;gap:10px}
 .clock{font-size:13px;color:var(--muted);font-weight:300;font-variant-numeric:tabular-nums}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s;flex-shrink:0}
 .live-dot.on{background:var(--green);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 .icon-btn{
-  width:36px;height:36px;border-radius:10px;background:var(--pill);
+  width:40px;height:40px;border-radius:12px;background:var(--pill);
   border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
   color:var(--muted);transition:all .18s;flex-shrink:0;
 }
-.icon-btn svg{width:17px;height:17px}
+.icon-btn svg{width:19px;height:19px}
 .icon-btn:active,.icon-btn.on{background:var(--accent);color:var(--bg)}
 body.car .icon-btn{width:48px;height:48px;border-radius:14px}
 body.car .icon-btn svg{width:22px;height:22px}
@@ -212,7 +212,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .now-card-bg-overlay{opacity:1}
 .now-card-content{position:relative;z-index:2}
 .now-card.has-bg .now-name{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4)}
-.now-card.has-bg .now-genre{color:rgba(255,255,255,.7)}
+.now-card.has-bg .now-genre{color:rgba(255,255,255,.85)}
 .now-card.has-bg .fav-btn{color:rgba(255,255,255,.7)}
 .now-card.has-bg .fav-btn.on{color:#ff6b7a}
 .now-card.has-bg .ctrl{background:transparent;border:none;color:rgba(255,255,255,.9)}
@@ -220,7 +220,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .play-btn{background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.35)}
 .now-card.has-bg .play-btn svg{fill:#111}
 .now-card.has-bg .vol-row{border-top-color:rgba(255,255,255,.18)}
-.now-card.has-bg .vol-emoji{filter:brightness(10)}
+.now-card.has-bg .vol-emoji{color:#fff;opacity:.9}
 .now-card.has-bg .vol-val{color:rgba(255,255,255,.75)!important}
 .now-card.has-bg .vol-track-bg{background:rgba(255,255,255,.2)}
 .now-card.has-bg input.vol-input::-webkit-slider-thumb{background:#fff;border-color:rgba(255,255,255,.4)}
@@ -247,7 +247,7 @@ body.car .now-logo img{border-radius:20px}
   line-height:1.15;margin-bottom:4px;
 }
 body.car .now-name{font-size:clamp(20px,5vw,30px)}
-.now-genre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.now-genre{font-size:12px;color:var(--text);opacity:.65;text-transform:uppercase;letter-spacing:.5px}
 .fav-btn{
   background:none;border:none;cursor:pointer;
   font-size:26px;color:var(--muted);flex-shrink:0;
@@ -345,7 +345,7 @@ body.split .car-recs{padding:0}
 .car-rec-listeners svg{width:13px;height:13px;opacity:.7}
 .vol-row{margin-bottom:8px}
 .vol-row{display:flex;align-items:center;gap:10px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
-.vol-emoji{font-size:18px;flex-shrink:0}
+.vol-emoji{display:flex;align-items:center;flex-shrink:0;color:var(--muted);opacity:.8}
 .vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:36px}
 .vol-track-bg{position:absolute;left:0;top:50%;transform:translateY(-50%);width:100%;height:4px;border-radius:99px;background:var(--border);pointer-events:none}
 .vol-fill{position:absolute;left:0;top:50%;transform:translateY(-50%);height:4px;border-radius:99px;pointer-events:none;transition:width .06s linear,background-color .25s}
@@ -377,6 +377,15 @@ input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-s
 .row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:4px}
 .row-dot{width:7px;height:7px;border-radius:50%;background:var(--border)}
 .row.active .row-dot{background:var(--green);animation:blink 1.5s infinite}
+.row-eq{display:none;align-items:flex-end;gap:2px;height:14px}
+.row.active .row-dot{display:none}
+.row.active .row-eq{display:flex}
+.row-eq-bar{width:3px;background:var(--brand);border-radius:99px;animation:eqpulse .7s ease-in-out infinite alternate}
+.row-eq-bar:nth-child(1){height:5px;animation-delay:0s}
+.row-eq-bar:nth-child(2){height:10px;animation-delay:.15s}
+.row-eq-bar:nth-child(3){height:7px;animation-delay:.3s}
+.row-eq-bar:nth-child(4){height:12px;animation-delay:.1s}
+@keyframes eqpulse{0%{transform:scaleY(.4)}100%{transform:scaleY(1)}}
 .row-cnt{font-size:11px;color:var(--muted);white-space:nowrap;opacity:.7}
 body.car .row{min-height:78px;padding:14px 16px;gap:14px}
 body.car .row-img{width:58px;height:58px;min-width:58px;border-radius:14px;font-size:26px}
@@ -547,7 +556,13 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
           </button>
         </div>
         <div class="vol-row">
-          <span class="vol-emoji" id="volEmoji">🔈</span>
+          <span class="vol-emoji" id="volEmoji">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path id="volWave1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path id="volWave2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </span>
           <div class="vol-wrap">
             <div class="vol-track-bg"></div>
             <div class="vol-fill" id="volFill"></div>
@@ -962,6 +977,7 @@ function renderList(){
       </div>
       <div class="row-right">
         <div class="row-dot"></div>
+        <div class="row-eq"><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div></div>
         <div class="row-cnt">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;vertical-align:middle;margin-right:2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(s.listeners||0).toLocaleString("ru")}
         </div>
