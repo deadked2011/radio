@@ -59,10 +59,10 @@ html body{--sys-font:'DM Sans','Helvetica Neue',Arial,sans-serif;--r-card:20px;-
 .app{width:100%;max-width:640px;margin:0 auto;transition:max-width .3s}
 
 /* ── SPLIT MODE ─────────────────────────────────── */
-body.split .app{max-width:1200px}
+body.split .app{max-width:1280px}
 body.split .app-inner{
   display:grid;
-  grid-template-columns:1fr 380px;
+  grid-template-columns:minmax(0,1fr) 340px;
   gap:20px;
   align-items:start;
 }
@@ -71,26 +71,35 @@ body.split .app-right{
   position:sticky;top:20px;
   display:flex;flex-direction:column;gap:12px;
 }
-/* in split: hide chat from main flow, show in right panel */
+/* Chat aligns to player height in split */
 body.split .chat-section{
-  background:rgba(255,255,255,.06);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.1);
-  height:100%;min-height:280px;max-height:500px;
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(0,0,0,.06);
+  height:auto;min-height:0;max-height:none;
+  flex:1;
 }
 body.dark.split .chat-section{
-  background:rgba(0,0,0,.25);
+  background:rgba(30,30,32,.7);
   border-color:rgba(255,255,255,.08);
 }
-body.split .car-recs{display:flex!important}
-body.split .car-recs{padding:0}
-/* on split: recs go horizontal scroll */
+/* Hide chat toggle btn when in split — chat always visible */
+body.split #chatToggleBtn{display:none}
+body.split .chat-section{display:flex!important;margin:0}
+body.split .car-recs{display:flex!important;padding:0}
 body.split #carRecs{flex-direction:column;gap:6px}
-/* in split left: hide separate chat toggle result, it moves to right */
-@media(max-width:767px){
-  body.split .app-inner{grid-template-columns:1fr;gap:0}
-  body.split .app-right{position:static;margin-top:12px}
+/* Station list → 2 columns in split */
+body.split .list{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+body.split .row{margin-bottom:0}
+@media(max-width:900px){
+  body.split .app-inner{grid-template-columns:1fr;gap:12px}
+  body.split .app-right{position:static}
+  body.split .list{grid-template-columns:1fr}
+  body.split #chatToggleBtn{display:flex}
 }
 
 /* ══ HEADER ══════════════════════════════════════════ */
@@ -113,7 +122,7 @@ body.car .icon-btn{width:48px;height:48px;border-radius:14px}
 body.car .icon-btn svg{width:22px;height:22px}
 
 /* ══ TABS ════════════════════════════════════════════ */
-.tabs{display:flex;gap:var(--gap);margin-bottom:var(--sp-sm)}
+.tabs{display:flex;gap:var(--gap);margin-bottom:var(--sp-sm);align-items:center}
 .tab-btn{
   flex:1;padding:10px 0;border-radius:100px;
   font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
@@ -123,6 +132,16 @@ body.car .icon-btn svg{width:22px;height:22px}
 .tab-btn svg{width:14px;height:14px;flex-shrink:0}
 .tab-btn.active{background:var(--accent);color:var(--bg)}
 body.car .tab-btn{font-size:16px;padding:14px 0}
+/* Shazam placeholder btn */
+.shazam-btn{
+  flex:0 0 44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(61,184,122,.35);
+  transition:transform .15s,box-shadow .15s;flex-shrink:0;
+}
+.shazam-btn:active{transform:scale(.92);box-shadow:0 1px 6px rgba(61,184,122,.2)}
+.shazam-btn svg{width:18px;height:18px}
 
 /* ══ SEARCH ══════════════════════════════════════════ */
 .search-wrap{position:relative;margin-bottom:var(--sp-sm)}
@@ -297,7 +316,7 @@ body.car .mute-btn{display:flex}
   padding:12px 0 16px;
   flex-direction:column;gap:6px;
 }
-body.car .car-recs{display:flex}
+body.car .car-recs,body.split .car-recs{display:flex}
 body.split .car-recs{padding:0}
 .car-recs-title{
   font-size:10px;text-transform:uppercase;letter-spacing:.8px;
@@ -470,6 +489,14 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
           Все станции
         </button>
+        <button class="shazam-btn" title="Распознать трек" onclick="alert('Скоро!')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
         <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           Избранное
@@ -494,7 +521,10 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
             <div class="now-name" id="nowName">—</div>
             <div class="now-genre" id="nowGenre">—</div>
           </div>
-          <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
+          <div class="now-top-right">
+            <div class="now-listeners" id="nowListeners"></div>
+            <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
+          </div>
         </div>
         <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
         <div class="viz" id="viz"></div>
@@ -577,10 +607,10 @@ function applySplit(on){
   document.body.classList.toggle("split", on);
   const btn = document.getElementById("splitBtn");
   if(btn) btn.classList.toggle("on", on);
-  // show chat in split always
   if(on){
-    document.getElementById("chatSection").classList.add("show");
+    // in split: chat always in right col, load messages
     loadChatMessages();
+    if(curIdx>=0) renderCarRecs(curIdx);
   }
   localStorage.setItem("splitMode", on?"1":"0");
 }
@@ -785,6 +815,11 @@ function loadStation(idx,autoplay){
   document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
   document.getElementById("nowName").textContent=s.name;
   document.getElementById("nowGenre").textContent=s.genre;
+  const lisEl=document.getElementById("nowListeners");
+  if(lisEl && s.listeners){
+    lisEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners}`;
+    lisEl.classList.add("visible");
+  } else if(lisEl) lisEl.classList.remove("visible");
   const card=document.getElementById("nowCard");
   card.classList.add("visible");
   // Фон из обложки
