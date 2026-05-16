@@ -13,16 +13,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-/* ══ RESET ══════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
-
-/* ══ TOKENS ═════════════════════════════════════════ */
 :root{
   --bg:#f5f4f0;--card:#ffffff;--text:#1a1a1a;--muted:#9a9a9a;
   --accent:#1a1a1a;--brand:#3db87a;--border:#e8e6e0;--pill:#eeece7;--pill-text:#7a7a7a;
   --green:#3eb87a;--red:#e05555;--orange:#f0a030;
-  --shadow:0 4px 32px rgba(0,0,0,.06),0 1px 6px rgba(0,0,0,.04);--shadow-up:0 -4px 32px rgba(0,0,0,.06);
+  --shadow:0 4px 32px rgba(0,0,0,.06),0 1px 6px rgba(0,0,0,.04);
   --px:16px;--gap:8px;--sp-sm:12px;--sp-md:18px;
   --r-card:20px;--r-row:14px;--r-btn:12px;
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
@@ -30,11 +27,10 @@ html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:trans
 :root.dark{
   --bg:#111113;--card:#1c1c1e;--text:#f0f0f0;--muted:#636366;
   --accent:#f0f0f0;--brand:#3db87a;--border:#2c2c2e;--pill:#242426;--pill-text:#8e8e93;
-  --shadow:0 2px 16px rgba(0,0,0,.4);--shadow-up:0 -2px 16px rgba(0,0,0,.4);
+  --shadow:0 2px 16px rgba(0,0,0,.4);
 }
 
-/* ══ LAYOUT ══════════════════════════════════════════ */
-/* Platform detection via JS adds class to <html> */
+/* AMBIENT */
 .ambient-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background-size:cover;background-position:center;
@@ -43,190 +39,113 @@ html,body{height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:trans
   transform:scale(1.2);
 }
 .ambient-bg.on{opacity:.28}
-body.dark .ambient-bg.on{opacity:.38}
+:root.dark .ambient-bg.on{opacity:.38}
 .page,.scroll-area,.app{position:relative;z-index:1}
+
+/* PLATFORM */
+html.plt-ios body,html.plt-mac body{--sys-font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;--r-card:18px;--r-row:16px}
+html.plt-android body{--sys-font:'Google Sans','Roboto',sans-serif;--r-card:16px;--r-row:14px}
+html.plt-windows body{--sys-font:'Segoe UI Variable','Segoe UI',sans-serif;--r-card:12px;--r-row:8px}
+html body{--sys-font:'DM Sans','Helvetica Neue',Arial,sans-serif;--r-card:20px;--r-row:16px}
 body{font-family:var(--sys-font);background:var(--bg);color:var(--text);transition:background .25s,color .25s}
-/* iOS/macOS */
-html.plt-ios body,html.plt-mac body{--sys-font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;--r-card:18px;--r-row:16px;--r-pill:100px}
-/* Android */
-html.plt-android body{--sys-font:'Google Sans','Roboto',sans-serif;--r-card:16px;--r-row:14px;--r-pill:100px}
-/* Windows */
-html.plt-windows body{--sys-font:'Segoe UI Variable','Segoe UI',sans-serif;--r-card:12px;--r-row:8px;--r-pill:6px}
-/* Fallback */
-html body{--sys-font:'DM Sans','Helvetica Neue',Arial,sans-serif;--r-card:20px;--r-row:16px;--r-pill:100px}
-.page{display:flex;flex-direction:column;min-height:100vh;padding:calc(var(--sat) + 14px) var(--px) 0}
-.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--sab) + 20px)}
+
+/* LAYOUT */
+.page{display:flex;flex-direction:column;min-height:100vh;padding:calc(var(--sat)+14px) var(--px) 0}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--sab)+20px)}
 .app{width:100%;max-width:640px;margin:0 auto;transition:max-width .3s}
 
-/* ── SPLIT MODE ─────────────────────────────────── */
+/* SPLIT MODE */
 body.split .app{max-width:1280px}
 body.split .app-inner{
   display:grid;
   grid-template-columns:minmax(0,1fr) 340px;
-  gap:20px;
-  align-items:start;
+  gap:20px;align-items:start;
 }
-body.split .app-left{}
 body.split .app-right{
   position:sticky;top:20px;
   display:flex;flex-direction:column;gap:12px;
 }
-/* align chat top with player — skip tabs+search height (~110px) */
-body.split .app-right::before{
-  content:"";display:block;
-  height:110px;flex-shrink:0;
-}
-/* Chat aligns to player height in split */
+/* Spacer is set dynamically by JS — no fixed px here */
+.split-spacer{flex-shrink:0;transition:height .25s}
 body.split .chat-section{
   background:rgba(255,255,255,.55);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border:1px solid rgba(0,0,0,.06);
-  height:auto;min-height:0;max-height:none;
-  flex:1;
+  /* height set by JS to match player */
+  flex-shrink:0;
 }
-body.dark.split .chat-section{
+:root.dark body.split .chat-section{
   background:rgba(30,30,32,.7);
   border-color:rgba(255,255,255,.08);
 }
-/* Hide chat toggle btn when in split — chat always visible */
 body.split #chatToggleBtn{display:none}
 body.split .chat-section{display:flex!important;margin:0}
 body.split .car-recs{display:flex!important;padding:0}
 body.split #carRecs{flex-direction:column;gap:6px}
-/* Station list → 2 columns in split */
-body.split .list{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
+body.split .list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 body.split .row{margin-bottom:0}
 @media(max-width:900px){
   body.split .app-inner{grid-template-columns:1fr;gap:12px}
   body.split .app-right{position:static}
   body.split .list{grid-template-columns:1fr}
   body.split #chatToggleBtn{display:flex}
+  body.split .chat-section{height:auto!important;min-height:240px!important}
 }
 
-/* ══ HEADER ══════════════════════════════════════════ */
+/* HEADER */
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-md)}
 .header-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,5vw,28px);letter-spacing:-.3px;line-height:1}
-.header-right{display:flex;align-items:center;gap:10px}
+.header-right{display:flex;align-items:center;gap:10px;position:relative}
 .clock{font-size:13px;color:var(--muted);font-weight:300;font-variant-numeric:tabular-nums}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s;flex-shrink:0}
 .live-dot.on{background:var(--green);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-.icon-btn{
-  width:40px;height:40px;border-radius:12px;background:var(--pill);
-  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--muted);transition:all .18s;flex-shrink:0;
-}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .18s;flex-shrink:0}
 .icon-btn svg{width:19px;height:19px}
 .icon-btn:active,.icon-btn.on{background:var(--accent);color:var(--bg)}
 .icon-btn.disabled{opacity:.35;cursor:not-allowed}
-.split-tooltip{
-  position:absolute;top:calc(100% + 8px);right:0;
-  background:var(--text);color:var(--bg);
-  font-size:11px;padding:5px 10px;border-radius:8px;
-  white-space:nowrap;pointer-events:none;
-  opacity:0;transform:translateY(-4px);
-  transition:opacity .2s,transform .2s;z-index:100;
-}
+.split-tooltip{position:absolute;top:calc(100% + 8px);right:0;background:var(--text);color:var(--bg);font-size:11px;padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .2s,transform .2s;z-index:100}
 .split-tooltip.show{opacity:1;transform:translateY(0)}
-.header-right{position:relative}
 body.car .icon-btn{width:48px;height:48px;border-radius:14px}
 body.car .icon-btn svg{width:22px;height:22px}
 
-/* ══ TABS ════════════════════════════════════════════ */
+/* TABS */
 .tabs{display:flex;gap:var(--gap);margin-bottom:var(--sp-sm);align-items:center;justify-content:space-between}
-.tab-btn{
-  flex:0 0 auto;padding:10px 24px;border-radius:100px;
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-  cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);
-  transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px;
-}
+.tab-btn{flex:0 0 auto;padding:10px 24px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
 .tab-btn svg{width:14px;height:14px;flex-shrink:0}
 .tab-btn.active{background:var(--accent);color:var(--bg)}
 body.car .tab-btn{font-size:16px;padding:14px 0}
-/* AI / Gemini btn */
-.shazam-btn{
-  flex:0 0 auto;height:36px;padding:0 14px;border-radius:100px;border:none;cursor:pointer;
-  background:linear-gradient(135deg,#4285f4 0%,#9b59b6 40%,#e91e8c 70%,#f4511e 100%);
-  color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  box-shadow:0 2px 16px rgba(100,80,200,.35);
-  transition:transform .15s,box-shadow .15s,filter .15s;flex-shrink:0;
-  letter-spacing:.3px;
-}
+.shazam-btn{flex:0 0 auto;height:36px;padding:0 14px;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,#4285f4 0%,#9b59b6 40%,#e91e8c 70%,#f4511e 100%);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 16px rgba(100,80,200,.35);transition:transform .15s,box-shadow .15s,filter .15s;flex-shrink:0;letter-spacing:.3px}
 .shazam-btn:active{transform:scale(.94);filter:brightness(.9)}
 .shazam-btn svg{width:16px;height:16px;flex-shrink:0}
 
-/* ══ SEARCH ══════════════════════════════════════════ */
+/* SEARCH */
 .search-wrap{position:relative;margin-bottom:var(--sp-sm)}
-.search-input{
-  width:100%;padding:11px 16px 11px 42px;
-  background:var(--card);border:1.5px solid var(--border);border-radius:14px;
-  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
-  box-shadow:0 1px 8px rgba(0,0,0,.07);outline:none;-webkit-appearance:none;
-  transition:background .25s,color .25s,box-shadow .18s,border-color .18s;
-}
-.search-input:focus{
-  box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 2px var(--brand);
-  border-color:var(--brand);
-  transform:translateY(-1px);
-}
+.search-input{width:100%;padding:11px 16px 11px 42px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);box-shadow:0 1px 8px rgba(0,0,0,.07);outline:none;-webkit-appearance:none;transition:background .25s,color .25s,box-shadow .18s,border-color .18s}
+.search-input:focus{box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 2px var(--brand);border-color:var(--brand);transform:translateY(-1px)}
 .search-input::placeholder{color:var(--muted)}
 .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
 .search-icon svg{width:16px;height:16px}
 
-/* ══ GENRE PILLS ══════════════════════════════════════ */
-.genres{display:flex;gap:6px;overflow-x:auto;margin-bottom:var(--sp-md);padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+/* GENRE PILLS */
+.genres{display:flex;gap:6px;overflow-x:auto;margin-bottom:var(--sp-md);padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab}
+.genres.grabbing{cursor:grabbing}
 .genres::-webkit-scrollbar{display:none}
-.genre-pill{
-  padding:7px 14px;border-radius:100px;background:var(--pill);
-  color:var(--pill-text);font-size:12px;font-weight:500;cursor:pointer;
-  border:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0;
-  transition:all .18s;
-}
-.genre-pill.active{
-  background:var(--pill);color:var(--brand);
-  font-weight:700;
-  box-shadow:inset 0 -2px 0 var(--brand);
-}
+.genre-pill{padding:7px 14px;border-radius:100px;background:var(--pill);color:var(--pill-text);font-size:12px;font-weight:500;cursor:pointer;border:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0;transition:all .18s}
+.genre-pill.active{background:var(--pill);color:var(--brand);font-weight:700;box-shadow:inset 0 -2px 0 var(--brand)}
 body.car .genre-pill{font-size:15px;padding:10px 18px}
 
-/* ══ RESUME BADGE ════════════════════════════════════ */
-.resume-badge{
-  display:none;align-items:center;gap:8px;
-  background:var(--card);border:1.5px solid var(--border);
-  border-radius:12px;padding:10px 16px;margin-bottom:var(--sp-sm);
-  font-size:13px;color:var(--muted);
-}
+/* RESUME BADGE */
+.resume-badge{display:none;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:10px 16px;margin-bottom:var(--sp-sm);font-size:13px;color:var(--muted)}
 .resume-badge.show{display:flex}
 .resume-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:blink 1s infinite;flex-shrink:0}
 
-/* ══ NOW PLAYING CARD ════════════════════════════════ */
-.now-card{
-  background:var(--card);border-radius:var(--r-card);
-  padding:var(--sp-md);box-shadow:var(--shadow);
-  margin-bottom:var(--sp-sm);display:none;
-  transition:background .25s;
-  position:relative;overflow:hidden;
-}
+/* NOW PLAYING CARD */
+.now-card{background:var(--card);border-radius:var(--r-card);padding:var(--sp-md);box-shadow:var(--shadow);margin-bottom:var(--sp-sm);display:none;transition:background .25s;position:relative;overflow:hidden}
 .now-card.visible{display:block}
-.now-card-bg{
-  position:absolute;inset:-20px;z-index:0;
-  background-size:cover;background-position:center;
-  filter:blur(28px) saturate(1.4) brightness(.55);
-  opacity:0;transition:opacity .6s ease, background-image .4s ease;
-  transform:scale(1.1);
-}
+.now-card-bg{position:absolute;inset:-20px;z-index:0;background-size:cover;background-position:center;filter:blur(28px) saturate(1.4) brightness(.55);opacity:0;transition:opacity .6s ease,background-image .4s ease;transform:scale(1.1)}
 .now-card.has-bg .now-card-bg{opacity:1}
-.now-card-bg-overlay{
-  position:absolute;inset:0;z-index:1;
-  background:linear-gradient(160deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.38) 100%);
-  opacity:0;transition:opacity .6s;
-}
+.now-card-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.38) 100%);opacity:0;transition:opacity .6s}
 .now-card.has-bg .now-card-bg-overlay{opacity:1}
 .now-card-content{position:relative;z-index:2}
 .now-card.has-bg .now-name{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4)}
@@ -238,7 +157,7 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .play-btn{background:#fff;box-shadow:0 6px 28px rgba(0,0,0,.35)}
 .now-card.has-bg .play-btn svg{fill:#111}
 .now-card.has-bg .vol-row{border-top-color:rgba(255,255,255,.18)}
-.now-card.has-bg .vol-emoji{color:#fff;opacity:.9}
+.now-card.has-bg .vol-icon-svg{color:rgba(255,255,255,.8)}
 .now-card.has-bg .vol-val{color:rgba(255,255,255,.75)!important}
 .now-card.has-bg .vol-track-bg{background:rgba(255,255,255,.2)}
 .now-card.has-bg input.vol-input::-webkit-slider-thumb{background:#fff;border-color:rgba(255,255,255,.4)}
@@ -246,42 +165,23 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .loading-bar-inner{background:#fff}
 .now-card.has-bg .bar{background:rgba(255,255,255,.2)}
 .now-card.has-bg .bar.on{background:rgba(255,255,255,.9)}
+.now-card.has-bg .mute-btn{background:transparent;color:rgba(255,255,255,.9)}
+.now-card.has-bg .mute-btn.muted{color:#ff6b7a}
 .now-top{display:flex;align-items:center;gap:14px;margin-bottom:var(--sp-md)}
-.now-logo{
-  width:clamp(64px,10vw,120px);height:clamp(64px,10vw,120px);
-  border-radius:50%;background:var(--pill);
-  overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  font-size:clamp(26px,4vw,48px);transition:all .4s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 4px 24px rgba(0,0,0,.22);
-}
+.now-logo{width:clamp(64px,10vw,120px);height:clamp(64px,10vw,120px);border-radius:50%;background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:clamp(26px,4vw,48px);transition:all .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 24px rgba(0,0,0,.22)}
 .now-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.now-card.has-bg .now-logo{box-shadow:0 8px 36px rgba(0,0,0,.5)}
 body.car .now-logo{width:clamp(72px,12vw,100px);height:clamp(72px,12vw,100px);font-size:34px}
-body.car .now-logo img{border-radius:50%}
 .now-info{flex:1;min-width:0}
-.now-name{
-  font-family:'DM Serif Display',serif;font-size:clamp(16px,4vw,22px);
-  font-weight:500;letter-spacing:.3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  line-height:1.15;margin-bottom:4px;
-}
+.now-name{font-family:'DM Serif Display',serif;font-size:clamp(16px,4vw,22px);font-weight:500;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;margin-bottom:4px}
 body.car .now-name{font-size:clamp(20px,5vw,30px)}
 .now-genre{font-size:12px;color:var(--text);opacity:.65;text-transform:uppercase;letter-spacing:.5px}
-.now-track{
-  font-size:12px;color:var(--brand);margin-top:5px;
-  white-space:nowrap;overflow:hidden;max-width:100%;display:none;
-}
+.now-track{font-size:12px;color:var(--brand);margin-top:5px;white-space:nowrap;overflow:hidden;max-width:100%;display:none}
 .now-track.visible{display:block}
 .now-track-inner{display:inline-block;white-space:nowrap}
 .now-track.marquee .now-track-inner{animation:marquee 14s linear infinite;padding-right:40px}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .now-card.has-bg .now-track{color:rgba(160,230,200,.95)}
-.fav-btn{
-  background:none;border:none;cursor:pointer;
-  font-size:26px;color:var(--muted);flex-shrink:0;
-  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;transition:all .15s;
-}
+.fav-btn{background:none;border:none;cursor:pointer;font-size:26px;color:var(--muted);flex-shrink:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .15s}
 .fav-btn:active{background:var(--pill);transform:scale(1.2)}
 .fav-btn.on{color:var(--brand)}
 body.car .fav-btn{font-size:32px;width:52px;height:52px}
@@ -289,35 +189,17 @@ body.car .fav-btn{font-size:32px;width:52px;height:52px}
 .loading-bar.active{display:block}
 .loading-bar-inner{height:100%;width:35%;background:var(--accent);border-radius:99px;animation:loadAnim 1.1s ease-in-out infinite}
 @keyframes loadAnim{0%{transform:translateX(-150%)}100%{transform:translateX(450%)}}
-.viz{
-  height:36px;display:flex;align-items:flex-end;gap:3px;
-  margin-bottom:var(--sp-md);
-  width:70%;margin-left:auto;margin-right:auto;
-  -webkit-mask-image:linear-gradient(to right,transparent 0%,black 15%,black 85%,transparent 100%);
-  mask-image:linear-gradient(to right,transparent 0%,black 15%,black 85%,transparent 100%);
-}
+.viz{height:36px;display:flex;align-items:flex-end;gap:3px;margin-bottom:var(--sp-md);width:70%;margin-left:auto;margin-right:auto;-webkit-mask-image:linear-gradient(to right,transparent 0%,black 15%,black 85%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,black 15%,black 85%,transparent 100%)}
 .bar{width:3px;min-width:3px;flex:none;background:rgba(128,128,128,.2);border-radius:99px;height:4px;transition:background .25s}
 .bar.on{background:var(--accent);animation:pulse var(--dur,.8s) ease-in-out infinite alternate}
-.bar.on.played{background:color-mix(in srgb,var(--accent) 70%,white 30%);opacity:.85}
 .now-card.has-bg .bar{background:rgba(255,255,255,.15)}
 .now-card.has-bg .bar.on{background:rgba(255,255,255,.9)}
-.now-card.has-bg .bar.on.played{background:rgba(255,255,255,.65)}
 @keyframes pulse{from{height:var(--min,4px)}to{height:var(--max,24px)}}
 .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--sp-md)}
-.ctrl{
-  width:52px;height:52px;border-radius:var(--r-btn);
-  background:var(--pill);border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--muted);transition:all .15s;flex-shrink:0;
-}
+.ctrl{width:52px;height:52px;border-radius:var(--r-btn);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s;flex-shrink:0}
 .ctrl:active{background:var(--border);color:var(--text);transform:scale(.95)}
 .ctrl svg{width:22px;height:22px}
-.play-btn{
-  width:68px;height:68px;border-radius:50%;
-  background:var(--accent);border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 24px rgba(0,0,0,.18);transition:transform .15s,background .25s;flex-shrink:0;
-}
+.play-btn{width:68px;height:68px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:transform .15s,background .25s;flex-shrink:0}
 .play-btn:active{transform:scale(.93)}
 .play-btn svg{width:24px;height:24px;fill:var(--bg);margin-left:3px;transition:fill .25s}
 .play-btn.playing svg{margin-left:0}
@@ -325,88 +207,90 @@ body.car .ctrl{width:72px;height:72px;border-radius:18px}
 body.car .ctrl svg{width:30px;height:30px}
 body.car .play-btn{width:96px;height:96px}
 body.car .play-btn svg{width:34px;height:34px}
-.mute-btn{
-  display:none;width:48px;height:48px;border-radius:14px;border:none;cursor:pointer;
-  background:transparent;color:var(--text);
-  align-items:center;justify-content:center;
-  transition:all .18s;flex-shrink:0;
-}
+.mute-btn{display:none;width:48px;height:48px;border-radius:14px;border:none;cursor:pointer;background:transparent;color:var(--text);align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
 .mute-btn svg{width:22px;height:22px;stroke-width:1.5}
 .mute-btn.muted{color:var(--red)}
-.now-card.has-bg .mute-btn{background:transparent;color:rgba(255,255,255,.9)}
-.now-card.has-bg .mute-btn.muted{color:#ff6b7a}
 .mute-btn:active{opacity:.5;transform:scale(.9)}
 body.car .mute-btn{display:flex}
 
-/* ── CAR RECS ───────────────────────────────────── */
-.car-recs{
-  display:none;
-  padding:12px 0 16px;
-  flex-direction:column;gap:6px;
+/* VOLUME — адаптивный слайдер */
+.vol-row{display:flex;align-items:center;gap:10px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
+.vol-icon-svg{display:flex;align-items:center;flex-shrink:0;color:var(--muted);width:20px;height:20px;transition:color .2s,opacity .2s}
+.vol-icon-svg svg{width:100%;height:100%}
+.vol-wrap{
+  flex:1;position:relative;display:flex;align-items:center;
+  height:36px;
+  /* min/max to keep usable on any screen */
+  min-width:80px;
 }
+.vol-track-bg{
+  position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:4px;border-radius:99px;background:var(--border);pointer-events:none;
+}
+/* fill: left и width задаются через JS с учётом thumbRadius */
+.vol-fill{
+  position:absolute;top:50%;transform:translateY(-50%);
+  height:4px;border-radius:99px;pointer-events:none;
+  transition:background-color .25s;
+  /* НЕ transition width — чтобы не лагало при перетаскивании */
+}
+input.vol-input{
+  position:relative;z-index:2;width:100%;
+  -webkit-appearance:none;appearance:none;
+  height:4px;border-radius:99px;background:transparent;
+  outline:none;cursor:pointer;
+}
+input.vol-input::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--card);border:2px solid var(--border);
+  cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  transition:transform .15s,box-shadow .15s;
+}
+input.vol-input:active::-webkit-slider-thumb,
+input.vol-input.dragging::-webkit-slider-thumb{
+  transform:scale(1.2);box-shadow:0 3px 14px rgba(0,0,0,.22);
+}
+input.vol-input::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--card);border:2px solid var(--border);
+  cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.vol-val{
+  font-size:12px;font-weight:600;color:var(--muted);
+  min-width:34px;text-align:right;flex-shrink:0;transition:color .25s;
+}
+
+/* CAR RECS */
+.car-recs{display:none;padding:12px 0 16px;flex-direction:column;gap:6px}
 body.car .car-recs,body.split .car-recs{display:flex}
 body.split .car-recs{padding:0}
-.car-recs-title{
-  font-size:10px;text-transform:uppercase;letter-spacing:.8px;
-  color:var(--muted);margin-bottom:6px;font-weight:700;
-}
-.car-rec-row{
-  display:flex;align-items:center;gap:12px;padding:9px 12px;
-  background:var(--pill);border-radius:var(--r-row);cursor:pointer;
-  transition:opacity .15s;border:none;width:100%;text-align:left;
-  font-family:var(--sys-font);
-}
+.car-recs-title{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.car-rec-row{display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--pill);border-radius:var(--r-row);cursor:pointer;transition:opacity .15s;border:none;width:100%;text-align:left;font-family:var(--sys-font)}
 .car-rec-row:active{opacity:.7}
-.car-rec-img{
-  width:44px;height:44px;min-width:44px;border-radius:10px;
-  background:var(--border);overflow:hidden;
-  display:flex;align-items:center;justify-content:center;font-size:20px;
-}
+.car-rec-img{width:44px;height:44px;min-width:44px;border-radius:10px;background:var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
 .car-rec-img img{width:100%;height:100%;object-fit:cover}
 .car-rec-info{flex:1;min-width:0}
 .car-rec-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .car-rec-genre{font-size:11px;color:var(--muted);margin-top:1px}
-.car-rec-listeners{
-  display:flex;align-items:center;gap:4px;
-  font-size:11px;color:var(--muted);flex-shrink:0;
-}
+.car-rec-listeners{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);flex-shrink:0}
 .car-rec-listeners svg{width:13px;height:13px;opacity:.7}
-.vol-row{margin-bottom:8px}
-.vol-row{display:flex;align-items:center;gap:10px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
-.vol-emoji{display:flex;align-items:center;flex-shrink:0;color:var(--muted);opacity:.8}
-.vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:36px}
-.vol-track-bg{position:absolute;left:0;top:50%;transform:translateY(-50%);width:100%;height:4px;border-radius:99px;background:var(--border);pointer-events:none}
-.vol-fill{position:absolute;left:0;top:50%;transform:translateY(-50%);height:4px;border-radius:99px;pointer-events:none;transition:width .06s linear,background-color .25s}
-input.vol-input{position:relative;z-index:2;width:100%;-webkit-appearance:none;height:4px;border-radius:99px;background:transparent;outline:none;cursor:pointer}
-input.vol-input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--card);border:2px solid var(--border);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:transform .15s,box-shadow .15s}
-input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb{transform:scale(1.2);box-shadow:0 3px 14px rgba(0,0,0,.22)}
-.vol-val{font-size:12px;font-weight:600;color:var(--muted);min-width:34px;text-align:right;flex-shrink:0;transition:color .25s}
 
-/* ══ STATION LIST ═════════════════════════════════════ */
+/* STATION LIST */
 .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:10px;padding:0 2px;margin-top:18px}
 .list{display:flex;flex-direction:column;gap:6px}
-.row{
-  background:var(--card);border-radius:var(--r-row);
-  padding:12px 14px;display:flex;align-items:center;gap:12px;
-  cursor:pointer;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.05);
-  transition:box-shadow .15s,background .25s;min-height:64px;width:100%;
-}
+.row{background:var(--card);border-radius:var(--r-row);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:box-shadow .15s,background .25s;min-height:64px;width:100%}
 .row:active{box-shadow:var(--shadow);transform:scale(.993)}
 .row.active{outline:2px solid var(--accent);outline-offset:-1px}
-.row-img{
-  width:46px;height:46px;min-width:46px;
-  border-radius:11px;background:var(--pill);overflow:hidden;
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;
-}
+.row-img{width:46px;height:46px;min-width:46px;border-radius:11px;background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
 .row-img img{width:100%;height:100%;object-fit:cover;display:block}
 .row-info{flex:1;min-width:0;overflow:hidden}
 .row-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .row-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:4px}
 .row-dot{width:7px;height:7px;border-radius:50%;background:var(--border)}
-.row.active .row-dot{background:var(--green);animation:blink 1.5s infinite}
-.row-eq{display:none;align-items:flex-end;gap:2px;height:14px}
 .row.active .row-dot{display:none}
+.row-eq{display:none;align-items:flex-end;gap:2px;height:14px}
 .row.active .row-eq{display:flex}
 .row-eq-bar{width:3px;background:var(--brand);border-radius:99px;animation:eqpulse .7s ease-in-out infinite alternate}
 .row-eq-bar:nth-child(1){height:5px;animation-delay:0s}
@@ -414,25 +298,20 @@ input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-s
 .row-eq-bar:nth-child(3){height:7px;animation-delay:.3s}
 .row-eq-bar:nth-child(4){height:12px;animation-delay:.1s}
 @keyframes eqpulse{0%{transform:scaleY(.4)}100%{transform:scaleY(1)}}
-.row-cnt{font-size:11px;color:var(--muted);white-space:nowrap;opacity:.7}
+.row-cnt{font-size:11px;color:var(--muted);white-space:nowrap;opacity:.7;display:flex;align-items:center;gap:3px}
+.row-cnt svg{opacity:.6;flex-shrink:0}
 body.car .row{min-height:78px;padding:14px 16px;gap:14px}
 body.car .row-img{width:58px;height:58px;min-width:58px;border-radius:14px;font-size:26px}
 body.car .row-name{font-size:17px}
 body.car .row-sub{font-size:13px}
 .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;line-height:1.7}
 .empty-icon{display:block;font-size:36px;margin-bottom:10px}
-.show-more-btn{
-  width:100%;margin-top:8px;padding:13px;border:none;cursor:pointer;
-  background:var(--pill);color:var(--pill-text);border-radius:var(--r-row);
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  transition:all .18s;
-}
+.show-more-btn{width:100%;margin-top:8px;padding:13px;border:none;cursor:pointer;background:var(--pill);color:var(--pill-text);border-radius:var(--r-row);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .18s}
 .show-more-btn:active{background:var(--border)}
 .show-more-btn svg{width:15px;height:15px;transition:transform .25s}
 .show-more-btn.expanded svg{transform:rotate(180deg)}
 
-/* ══ CHAT SECTION ════════════════════════════════════ */
+/* CHAT */
 .chat-section{
   background:rgba(255,255,255,.55);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
@@ -442,50 +321,30 @@ body.car .row-sub{font-size:13px}
   height:240px;
   transition:background .25s;
 }
-body.dark .chat-section{
-  background:rgba(30,30,32,.7);
-  border-color:rgba(255,255,255,.07);
-}
+:root.dark .chat-section{background:rgba(30,30,32,.7);border-color:rgba(255,255,255,.07)}
 .chat-section.show{display:flex;margin-bottom:16px}
 body.split .chat-section.show{display:flex;margin:0}
-.chat-section-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06);flex-shrink:0;
-}
-body.dark .chat-section-header{border-bottom-color:rgba(255,255,255,.06)}
+.chat-section-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06);flex-shrink:0}
+:root.dark .chat-section-header{border-bottom-color:rgba(255,255,255,.06)}
 .chat-section-title{font-weight:600;font-size:14px}
-.chat-open-btn{
-  background:transparent;color:var(--muted);border:1px solid var(--border);
-  border-radius:100px;padding:5px 12px;font-size:11px;font-weight:500;cursor:pointer;
-  display:flex;align-items:center;gap:5px;transition:all .15s;
-}
+.chat-open-btn{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
 .chat-open-btn:hover{background:var(--pill)}
-.chat-msgs{
-  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:8px 12px;display:flex;flex-direction:column;gap:6px;
-  min-height:0;
-  scrollbar-width:thin;scrollbar-color:rgba(128,128,128,.2) transparent;
-}
+.chat-msgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px;display:flex;flex-direction:column;gap:6px;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(128,128,128,.2) transparent}
 .chat-msgs::-webkit-scrollbar{width:3px}
-.chat-msgs::-webkit-scrollbar-track{background:transparent}
 .chat-msgs::-webkit-scrollbar-thumb{background:rgba(128,128,128,.25);border-radius:99px}
 .chat-msg{display:flex;gap:8px;align-items:flex-start;font-size:13px}
-.chat-msg-avatar{
-  width:28px;height:28px;min-width:28px;border-radius:50%;
-  background:var(--brand);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
-  opacity:.85;
-}
-/* Different hues per first letter */
-.chat-msg-avatar[data-hue]{background:hsl(attr(data-hue),55%,48%)}
+.chat-msg-avatar{width:28px;height:28px;min-width:28px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;opacity:.85}
 .chat-msg-body{background:rgba(0,0,0,.04);padding:5px 10px;border-radius:10px;max-width:88%}
-body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
+:root.dark .chat-msg-body{background:rgba(255,255,255,.06)}
 .chat-msg-name{font-weight:600;font-size:10px;margin-bottom:1px;color:var(--muted)}
 .chat-msg-text{word-break:break-word;line-height:1.4;font-size:13px}
 </style>
 <script>if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
 </head>
 <body>
+<!-- Ambient background -->
+<div class="ambient-bg" id="ambientBg"></div>
+
 <div class="page">
   <div class="scroll-area">
     <div class="app">
@@ -503,7 +362,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l3-4h8l3 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M7.5 15h9"/></svg>
           </button>
           <button class="icon-btn" id="splitBtn" onclick="onSplitClick()" title="Разделить экран">
-            <svg id="splitIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
           </button>
           <div class="split-tooltip" id="splitTooltip">Только для широких экранов</div>
           <button class="icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Чат">
@@ -528,9 +387,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
           Все станции
         </button>
         <button class="shazam-btn" title="AI Radio" onclick="alert('Скоро!')">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>
           AI
         </button>
         <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
@@ -551,57 +408,57 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
         <div class="now-card-bg" id="nowCardBg"></div>
         <div class="now-card-bg-overlay"></div>
         <div class="now-card-content">
-        <div class="now-top">
-          <div class="now-logo" id="nowLogo">🎵</div>
-          <div class="now-info">
-            <div class="now-name" id="nowName">—</div>
-            <div class="now-genre" id="nowGenre">—</div>
-            <div class="now-track" id="nowTrack"><span class="now-track-inner" id="nowTrackInner"></span></div>
-          </div>
-          <div class="now-top-right">
+          <div class="now-top">
+            <div class="now-logo" id="nowLogo">🎵</div>
+            <div class="now-info">
+              <div class="now-name" id="nowName">—</div>
+              <div class="now-genre" id="nowGenre">—</div>
+              <div class="now-track" id="nowTrack"><span class="now-track-inner" id="nowTrackInner"></span></div>
+            </div>
             <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
           </div>
-          <div class="now-listeners" id="nowListeners"></div>
-        </div>
-        <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
-        <div class="viz" id="viz"></div>
-        <div class="controls">
-          <button class="ctrl" onclick="prev()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-          </button>
-          <button class="play-btn" id="playBtn" onclick="togglePlay()">
-            <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </button>
-          <button class="ctrl" onclick="next()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-          </button>
-          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
-            <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-          </button>
-        </div>
-        <div class="vol-row">
-          <span class="vol-emoji" id="volEmoji">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path id="volWave1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path id="volWave2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-          </span>
-          <div class="vol-wrap">
-            <div class="vol-track-bg"></div>
-            <div class="vol-fill" id="volFill"></div>
-            <input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80"
-              oninput="onVolChange(this.value)"
-              onmousedown="this.classList.add('dragging')" onmouseup="this.classList.remove('dragging')"
-              ontouchstart="this.classList.add('dragging')" ontouchend="this.classList.remove('dragging')">
+          <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
+          <div class="viz" id="viz"></div>
+          <div class="controls">
+            <button class="ctrl" onclick="prev()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+            </button>
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">
+              <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+            <button class="ctrl" onclick="next()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+            </button>
+            <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+              <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
           </div>
-          <span class="vol-val" id="volVal">80%</span>
+          <!-- VOLUME — адаптивный -->
+          <div class="vol-row">
+            <span class="vol-icon-svg" id="volIconWrap">
+              <svg id="volIconSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path id="volWave1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path id="volWave2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <line id="volMuteLine1" x1="23" y1="9" x2="17" y2="15" style="display:none"/>
+                <line id="volMuteLine2" x1="17" y1="9" x2="23" y2="15" style="display:none"/>
+              </svg>
+            </span>
+            <div class="vol-wrap" id="volWrap">
+              <div class="vol-track-bg"></div>
+              <div class="vol-fill" id="volFill"></div>
+              <input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80"
+                oninput="onVolChange(this.value)"
+                onmousedown="this.classList.add('dragging')" onmouseup="this.classList.remove('dragging')"
+                ontouchstart="this.classList.add('dragging')" ontouchend="this.classList.remove('dragging')">
+            </div>
+            <span class="vol-val" id="volVal">80%</span>
+          </div>
         </div>
-        </div><!-- /now-card-content -->
       </div>
 
       <!-- LIST -->
@@ -611,23 +468,25 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
       </div><!-- /app-left -->
       <div class="app-right">
 
-      <!-- CHAT SECTION -->
-      <div class="chat-section" id="chatSection">
-        <div class="chat-section-header">
-          <span class="chat-section-title">💬 Чат радио</span>
-          <button class="chat-open-btn" onclick="openChat()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Открыть в Telegram
-          </button>
-        </div>
-        <div class="chat-msgs" id="chatMessages">
-          <div style="text-align:center;color:var(--muted);padding:40px 16px;font-size:14px">Загрузка сообщений…</div>
+        <!-- Динамический спейсер — высота задаётся JS чтобы выровнять чат с плеером -->
+        <div class="split-spacer" id="splitSpacer"></div>
+
+        <!-- CHAT -->
+        <div class="chat-section" id="chatSection">
+          <div class="chat-section-header">
+            <span class="chat-section-title">💬 Чат радио</span>
+            <button class="chat-open-btn" onclick="openChat()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Открыть в Telegram
+            </button>
+          </div>
+          <div class="chat-msgs" id="chatMessages">
+            <div style="text-align:center;color:var(--muted);padding:40px 16px;font-size:14px">Загрузка сообщений…</div>
+          </div>
         </div>
 
-      </div>
-
-      <!-- RECOMMENDATIONS (car mode) -->
-      <div class="car-recs" id="carRecs"></div>
+        <!-- RECOMMENDATIONS -->
+        <div class="car-recs" id="carRecs"></div>
 
       </div><!-- /app-right -->
       </div><!-- /app-inner -->
@@ -637,91 +496,34 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
 
 <audio id="audio"></audio>
 
+<!-- Станции и жанры из внешнего файла -->
 <script src="stations.js"></script>
+
 <script>
-// ══════════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════════
 const CHAT_API_BASE = "https://radio-chat.deadked2011.workers.dev";
 
-// ── Split mode ─────────────────────────────────────────
-let splitMode = localStorage.getItem("splitMode") === "1";
-function applySplit(on){
-  document.body.classList.toggle("split", on);
-  const btn = document.getElementById("splitBtn");
-  if(btn) btn.classList.toggle("on", on);
-  if(on){
-    loadChatMessages();
-    if(typeof curIdx!=="undefined" && curIdx>=0) renderCarRecs(curIdx);
-  }
-  localStorage.setItem("splitMode", on?"1":"0");
-}
-function toggleSplit(){
-  splitMode = !splitMode;
-  applySplit(splitMode);
-  if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred("light");
-}
-function onSplitClick(){
-  if(window.innerWidth < 900){
-    // show tooltip
-    const tt = document.getElementById("splitTooltip");
-    tt.classList.add("show");
-    setTimeout(()=>tt.classList.remove("show"), 2200);
-    if(tg) tg.HapticFeedback?.notificationOccurred("warning");
-    return;
-  }
-  toggleSplit();
-}
-function updateSplitBtn(){
-  const btn = document.getElementById("splitBtn");
-  if(!btn) return;
-  if(window.innerWidth < 900){
-    btn.classList.add("disabled");
-  } else {
-    btn.classList.remove("disabled");
-  }
-}
-window.addEventListener("resize", updateSplitBtn);
-// Auto-enable split on wide screens
-function checkAutoSplit(){
-  if(window.innerWidth >= 900 && localStorage.getItem("splitMode") === null){
-    splitMode = true; applySplit(true);
-  } else if(splitMode){
-    applySplit(true);
-  }
-}
-window.addEventListener("resize", ()=>{ if(window.innerWidth < 767 && splitMode){ splitMode=false; applySplit(false); } });
-
-// ── Platform detection ─────────────────────────────────
+// ── Platform detection ────────────────────────────────
 (function(){
-  const ua = navigator.userAgent;
-  const pl = navigator.platform || '';
-  let cls = 'plt-other';
-  if (/iPhone|iPad|iPod/.test(ua) || (/Mac/.test(pl) && navigator.maxTouchPoints > 1)) cls = 'plt-ios';
-  else if (/Macintosh/.test(ua)) cls = 'plt-mac';
-  else if (/Android/.test(ua)) cls = 'plt-android';
-  else if (/Win/.test(pl) || /Windows/.test(ua)) cls = 'plt-windows';
-  document.documentElement.classList.add(cls);
+  const ua=navigator.userAgent,pl=navigator.platform||'';
+  let c='plt-other';
+  if(/iPhone|iPad|iPod/.test(ua)||(/Mac/.test(pl)&&navigator.maxTouchPoints>1))c='plt-ios';
+  else if(/Macintosh/.test(ua))c='plt-mac';
+  else if(/Android/.test(ua))c='plt-android';
+  else if(/Win/.test(pl)||/Windows/.test(ua))c='plt-windows';
+  document.documentElement.classList.add(c);
 })();
-const tg = window.Telegram?.WebApp;
+
+const tg=window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
 
-// ══════════════════════════════════════════════════════
-// STATIONS (дубли убраны, жанры исправлены)
-// ══════════════════════════════════════════════════════
-// станции загружаются из stations.js
-
-
-// ══════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════
-let curIdx=0, playing=false, activeGenre="all", activeTab="all";
+// ── STATE ─────────────────────────────────────────────
+let curIdx=0,playing=false,activeGenre="all",activeTab="all";
 let darkMode=localStorage.getItem("rDark")==="1";
 let carMode=localStorage.getItem("rCar")==="1";
+let splitMode=localStorage.getItem("splitMode")==="1";
 let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
-let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
-let hlsInstance=null;
-let chatVisible=false;
+let userPaused=false,wasInterrupted=false,resumeTimer=null,lastAudioTime=0;
+let hlsInstance=null,chatVisible=false,isMuted=false,nowPlayingTimer=null;
 const audio=document.getElementById("audio");
 audio.volume=0.8;
 
@@ -730,9 +532,78 @@ document.getElementById("darkBtn").classList.toggle("on",darkMode);
 if(carMode){document.body.classList.add("car");applyCarMode(true);}
 document.getElementById("carBtn").classList.toggle("on",carMode);
 
-// ══════════════════════════════════════════════════════
-// THEME & CAR MODE
-// ══════════════════════════════════════════════════════
+// ── SPLIT MODE ────────────────────────────────────────
+function applySplit(on){
+  document.body.classList.toggle("split",on);
+  const btn=document.getElementById("splitBtn");
+  if(btn)btn.classList.toggle("on",on);
+  if(on){loadChatMessages();if(typeof curIdx!=="undefined"&&curIdx>=0)renderCarRecs(curIdx);}
+  localStorage.setItem("splitMode",on?"1":"0");
+  requestAnimationFrame(syncSplitLayout);
+}
+function toggleSplit(){splitMode=!splitMode;applySplit(splitMode);if(tg)tg.HapticFeedback?.impactOccurred("light");}
+function onSplitClick(){
+  if(window.innerWidth<900){
+    const tt=document.getElementById("splitTooltip");
+    tt.classList.add("show");setTimeout(()=>tt.classList.remove("show"),2200);
+    if(tg)tg.HapticFeedback?.notificationOccurred("warning");
+    return;
+  }
+  toggleSplit();
+}
+function updateSplitBtn(){
+  const btn=document.getElementById("splitBtn");
+  if(btn)btn.classList.toggle("disabled",window.innerWidth<900);
+}
+window.addEventListener("resize",()=>{
+  updateSplitBtn();
+  if(window.innerWidth<767&&splitMode){splitMode=false;applySplit(false);}
+  syncSplitLayout();
+  recalcVolFill(Number(document.getElementById("volSlider").value));
+});
+
+// ── СИНХРОНИЗАЦИЯ ЧАТА И ПЛЕЕРА в split-режиме ───────
+// Спейсер получает высоту = расстояние от верха .app-right до верха .now-card
+// Чат получает ту же высоту, что и .now-card → они на одном уровне и одной высоты
+function syncSplitLayout(){
+  const spacer=document.getElementById("splitSpacer");
+  const nowCard=document.getElementById("nowCard");
+  const chatSection=document.getElementById("chatSection");
+  const appRight=document.querySelector(".app-right");
+  if(!spacer||!nowCard||!appRight) return;
+
+  if(!document.body.classList.contains("split")||window.innerWidth<900){
+    spacer.style.height="0";
+    if(chatSection){chatSection.style.height="";chatSection.style.minHeight="";}
+    return;
+  }
+  requestAnimationFrame(()=>{
+    const nowRect=nowCard.getBoundingClientRect();
+    const rightRect=appRight.getBoundingClientRect();
+    // Сколько пикселей от верха appRight до верха nowCard
+    const offset=Math.max(0,nowRect.top-rightRect.top);
+    spacer.style.height=offset+"px";
+    // Высота чата = высота плеера
+    if(chatSection&&nowCard.classList.contains("visible")){
+      const h=nowCard.getBoundingClientRect().height;
+      chatSection.style.height=h+"px";
+      chatSection.style.minHeight=h+"px";
+    }
+  });
+}
+
+// Следим за изменениями размера nowCard
+if(window.ResizeObserver){
+  const ro=new ResizeObserver(()=>syncSplitLayout());
+  ro.observe(document.getElementById("nowCard"));
+}
+
+function checkAutoSplit(){
+  if(window.innerWidth>=900&&localStorage.getItem("splitMode")===null){splitMode=true;applySplit(true);}
+  else if(splitMode){applySplit(true);}
+}
+
+// ── THEME & CAR ───────────────────────────────────────
 function toggleDark(){
   darkMode=!darkMode;
   document.documentElement.classList.toggle("dark",darkMode);
@@ -749,43 +620,27 @@ function toggleCar(){
   if(tg)tg.HapticFeedback?.impactOccurred("medium");
 }
 function applyCarMode(on){
-  const hide=el=>{if(el)el.style.display=on?"none":""};
-  hide(document.getElementById("tabs"));
-  hide(document.getElementById("searchWrap"));
-  hide(document.getElementById("genrePills"));
-  hide(document.getElementById("listLabel"));
-  hide(document.getElementById("stationList"));
-  // при включении авторежима показываем рекомендации для текущей станции
-  if(on && curIdx>=0) renderCarRecs(curIdx);
-  if(!on){
-    const recs=document.getElementById("carRecs");
-    if(recs) recs.innerHTML="";
-  }
+  ["tabs","searchWrap","genrePills","listLabel","stationList"].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display=on?"none":"";
+  });
+  if(on&&curIdx>=0)renderCarRecs(curIdx);
+  if(!on){const r=document.getElementById("carRecs");if(r)r.innerHTML="";}
 }
 
-// ══════════════════════════════════════════════════════
-// CLOCK
-// ══════════════════════════════════════════════════════
+// ── CLOCK ─────────────────────────────────────────────
 function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
 setInterval(tick,1000);tick();
 
-// ══════════════════════════════════════════════════════
-// VISUALIZER
-// ══════════════════════════════════════════════════════
+// ── VISUALIZER ────────────────────────────────────────
 const bars=[];const vizEl=document.getElementById("viz");
-// Генерируем волнообразный паттерн высот
 const totalBars=44;
-const halfBars=Math.floor(totalBars/2);
 for(let i=0;i<totalBars;i++){
   const b=document.createElement("div");b.className="bar";
-  const center=totalBars/2;
-  const dist=Math.abs(i-center)/center;
-  const baseH=4+Math.round((1-dist*dist)*22);
-  const mn=Math.max(3,baseH-3+(Math.random()*4|0));
+  const center=totalBars/2,dist=Math.abs(i-center)/center;
+  const base=4+Math.round((1-dist*dist)*22);
+  const mn=Math.max(3,base-3+(Math.random()*4|0));
   const mx=mn+8+Math.random()*14|0;
   const dur=.3+Math.random()*.55;
-  // левая половина — "played" (немного ярче)
-  if(i<halfBars) b.classList.add("played");
   b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${dur}s;animation-delay:${(Math.random()*.4).toFixed(2)}s`;
   vizEl.appendChild(b);bars.push(b);
 }
@@ -794,9 +649,7 @@ function setLoading(on){document.getElementById("loadingBar").classList.toggle("
 function showBadge(t){document.getElementById("resumeText").textContent=t;document.getElementById("resumeBadge").classList.add("show");}
 function hideBadge(){document.getElementById("resumeBadge").classList.remove("show");}
 
-// ══════════════════════════════════════════════════════
-// AUDIO EVENTS
-// ══════════════════════════════════════════════════════
+// ── AUDIO EVENTS ──────────────────────────────────────
 audio.addEventListener("pause",()=>{
   if(userPaused||!playing)return;
   wasInterrupted=true;lastAudioTime=Date.now();
@@ -810,7 +663,6 @@ document.addEventListener("visibilitychange",()=>{
 });
 if(tg)tg.onEvent("activated",()=>{if(wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}});
 setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>3000)attemptResume();},3000);
-
 async function attemptResume(){
   wasInterrupted=false;showBadge("Возвращаю радио…");
   audio.volume=0;playStream(stations[curIdx].stream);
@@ -819,9 +671,7 @@ async function attemptResume(){
   const fade=setInterval(()=>{v+=0.04;if(v>=target){v=target;clearInterval(fade);hideBadge();}audio.volume=v;},60);
 }
 
-// ══════════════════════════════════════════════════════
-// MEDIA SESSION
-// ══════════════════════════════════════════════════════
+// ── MEDIA SESSION ─────────────────────────────────────
 function updateMediaSession(s){
   if(!("mediaSession" in navigator))return;
   navigator.mediaSession.metadata=new MediaMetadata({title:s.name,artist:s.genre,album:"Radio Go",artwork:[{src:s.logo,sizes:"256x256",type:"image/png"}]});
@@ -831,75 +681,48 @@ function updateMediaSession(s){
   navigator.mediaSession.setActionHandler("pause",()=>{userPaused=true;audio.pause();setPlaying(false);});
 }
 
-// ══════════════════════════════════════════════════════
-// STREAM PLAYBACK
-// ══════════════════════════════════════════════════════
+// ── STREAM ────────────────────────────────────────────
 function playStream(url){
   if(!url)return;
   if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
   setLoading(true);vizOn(false);
   if(url.includes(".m3u8")){
     if(audio.canPlayType("application/vnd.apple.mpegurl")){
-      audio.src=url;
-      audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
-      return;
+      audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));return;
     }
     if(typeof Hls!=="undefined"&&Hls.isSupported()){
       hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
       hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);
-      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{
-        audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
-      });
-      hlsInstance.on(Hls.Events.ERROR,(_,d)=>{
-        if(d.fatal){
-          if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();
-          else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();
-          else{setLoading(false);setPlaying(false);}
-        }
-      });
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));});
+      hlsInstance.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hlsInstance.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)hlsInstance.recoverMediaError();else{setLoading(false);setPlaying(false);}}});
       return;
     }
   }
-  audio.src=url;
-  audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
+  audio.src=url;audio.play().then(()=>{setLoading(false);setPlaying(true);hideBadge();}).catch(()=>setLoading(false));
 }
 
-// ══════════════════════════════════════════════════════
-// PLAYER CONTROLS
-// ══════════════════════════════════════════════════════
-function ge(tag){
-  return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",
-         edm:"🎛",chill:"🌊",rap:"🎙️",dnb:"🥁",trance:"✨",techno:"⚙️",
-         jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";
-}
+// ── PLAYER CONTROLS ───────────────────────────────────
+function ge(tag){return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",rap:"🎙️",dnb:"🥁",trance:"✨",techno:"⚙️",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";}
 
 function loadStation(idx,autoplay){
   curIdx=idx;const s=stations[idx];
   document.getElementById("nowLogo").innerHTML=s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag);
   document.getElementById("nowName").textContent=s.name;
   document.getElementById("nowGenre").textContent=s.genre;
-  const lisEl=document.getElementById("nowListeners");
-  if(lisEl && s.listeners){
-    lisEl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners}`;
-    lisEl.classList.add("visible");
-  } else if(lisEl) lisEl.classList.remove("visible");
   const card=document.getElementById("nowCard");
   card.classList.add("visible");
-  // Фон из обложки
   const bg=document.getElementById("nowCardBg");
   const amb=document.getElementById("ambientBg");
   if(s.logo){
-    bg.style.backgroundImage=`url(${s.logo})`;
-    card.classList.add("has-bg");
+    bg.style.backgroundImage=`url(${s.logo})`;card.classList.add("has-bg");
     if(amb){amb.style.backgroundImage=`url(${s.logo})`;amb.classList.add("on");}
   }else{
-    bg.style.backgroundImage="";
-    card.classList.remove("has-bg");
+    bg.style.backgroundImage="";card.classList.remove("has-bg");
     if(amb){amb.style.backgroundImage="";amb.classList.remove("on");}
   }
-  updateFavBtn();updateMediaSession(s);renderList();
-  startNowPlaying(s.stream);
-  renderCarRecs(idx);
+  updateFavBtn();updateMediaSession(s);renderList();startNowPlaying(s.stream);renderCarRecs(idx);
+  // После загрузки станции синхронизируем layout
+  requestAnimationFrame(syncSplitLayout);
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
@@ -913,7 +736,6 @@ function setPlaying(on){
     :'<polygon points="5 3 19 12 5 21 5 3"/>';
   if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
 }
-
 function togglePlay(){
   if(tg)tg.HapticFeedback?.impactOccurred("light");
   if(!playing){userPaused=false;wasInterrupted=false;hideBadge();playStream(stations[curIdx].stream);}
@@ -922,24 +744,74 @@ function togglePlay(){
 function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+stations.length)%stations.length,true);}
 function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%stations.length,true);}
 
-// ══════════════════════════════════════════════════════
-// VOLUME
-// ══════════════════════════════════════════════════════
-function volColor(v){if(v===0)return"transparent";if(v<=50)return"#c8c5c0";if(v<=80)return"#3eb87a";return"#f0a030";}
+function toggleMute(){
+  isMuted=!isMuted;audio.muted=isMuted;
+  document.getElementById("muteBtn").classList.toggle("muted",isMuted);
+  document.getElementById("muteIcon").innerHTML=isMuted
+    ?'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+    :'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+  updateVolIcon(Number(document.getElementById("volSlider").value),isMuted);
+  if(tg)tg.HapticFeedback?.impactOccurred("medium");
+}
+
+// ── VOLUME — адаптивный ────────────────────────────────
+// Рассчитываем ширину заливки с учётом радиуса ползунка,
+// чтобы fill точно совпадал с позицией thumb на любом экране.
+const VOL_THUMB_R=10; // половина ширины thumb (20px)
+
+function recalcVolFill(v){
+  const slider=document.getElementById("volSlider");
+  const fill=document.getElementById("volFill");
+  if(!slider||!fill) return;
+  const w=slider.getBoundingClientRect().width||slider.offsetWidth;
+  if(w<=0) return;
+  const usable=w-VOL_THUMB_R*2;
+  fill.style.left=VOL_THUMB_R+"px";
+  fill.style.width=Math.max(0,(v/100)*usable)+"px";
+}
+
+function volColor(v){
+  if(v===0)return"transparent";
+  if(v<=50)return"#c8c5c0";
+  if(v<=80)return"#3eb87a";
+  return"#f0a030";
+}
+
+function updateVolIcon(v,muted){
+  const w1=document.getElementById("volWave1");
+  const w2=document.getElementById("volWave2");
+  const ml1=document.getElementById("volMuteLine1");
+  const ml2=document.getElementById("volMuteLine2");
+  const svg=document.getElementById("volIconSvg");
+  if(muted){
+    if(w1)w1.style.display="none";
+    if(w2)w2.style.display="none";
+    if(ml1)ml1.style.display="";
+    if(ml2)ml2.style.display="";
+    if(svg)svg.style.color="var(--red)";
+  }else{
+    if(ml1)ml1.style.display="none";
+    if(ml2)ml2.style.display="none";
+    if(w1)w1.style.display=v<30?"none":"";
+    if(w2)w2.style.display=v<70?"none":"";
+    if(svg)svg.style.color="";
+  }
+}
+
 function updateVolUI(v){
   v=Number(v);
-  document.getElementById("volFill").style.width=v+"%";
+  recalcVolFill(v);
   document.getElementById("volFill").style.backgroundColor=volColor(v);
   document.getElementById("volVal").textContent=Math.round(v)+"%";
   document.getElementById("volVal").style.color=v<=50?"var(--muted)":v<=80?"#3eb87a":"#f0a030";
-  document.getElementById("volEmoji").textContent=v===0?"🔇":v<30?"🔈":v<70?"🔉":"🔊";
+  updateVolIcon(v,isMuted);
 }
-function onVolChange(v){audio.volume=v/100;updateVolUI(v);}
-updateVolUI(80);
+function onVolChange(v){audio.volume=v/100;updateVolUI(Number(v));}
 
-// ══════════════════════════════════════════════════════
-// FAVOURITES
-// ══════════════════════════════════════════════════════
+// Пересчёт fill при старте и при изменении размера окна
+window.addEventListener("resize",()=>recalcVolFill(Number(document.getElementById("volSlider").value)));
+
+// ── FAVOURITES ────────────────────────────────────────
 function toggleFav(){
   if(tg)tg.HapticFeedback?.notificationOccurred("success");
   const name=stations[curIdx].name;
@@ -955,16 +827,11 @@ function updateFavBtn(){
   b.textContent=on?"♥":"♡";b.classList.toggle("on",on);
 }
 
-// ══════════════════════════════════════════════════════
-// TABS / GENRES / LIST  (FIX: rap tab fully handled)
-// ══════════════════════════════════════════════════════
+// ── TABS / GENRES / LIST ──────────────────────────────
 function setTab(tab){
   activeTab=tab;
   document.getElementById("tabAll").classList.toggle("active",tab==="all");
   document.getElementById("tabFav").classList.toggle("active",tab==="fav");
-  const tabRap=document.getElementById("tabRap");
-  if(tabRap)tabRap.classList.toggle("active",tab==="rap");
-  // поиск и жанры только на вкладке «Все»
   const showFilters=tab==="all";
   document.getElementById("searchWrap").style.display=showFilters?"":"none";
   document.getElementById("genrePills").style.display=showFilters?"":"none";
@@ -983,61 +850,32 @@ function renderGenres(){
   });
 }
 
-const SHOW_INIT = 10;
-const listExpanded = {};
-
+const SHOW_INIT=10;const listExpanded={};
 function renderList(){
   const q=(document.getElementById("searchInput").value||"").toLowerCase();
   const el=document.getElementById("stationList");el.innerHTML="";
-
   let filtered;
-  if(activeTab==="fav"){
-    filtered=stations.filter(s=>favs.includes(s.name));
-  } else if(activeTab==="rap"){
-    filtered=stations.filter(s=>s.tag==="rap");
-  } else {
-    filtered=stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));
-  }
-
+  if(activeTab==="fav")filtered=stations.filter(s=>favs.includes(s.name));
+  else filtered=stations.filter(s=>(activeGenre==="all"||s.tag===activeGenre)&&(!q||s.name.toLowerCase().includes(q)||s.genre.toLowerCase().includes(q)));
   document.getElementById("listLabel").textContent=
-    activeTab==="fav" ? `Избранное (${filtered.length})` :
-    activeTab==="rap" ? `Рэп / Hip-Hop (${filtered.length})` :
-    activeGenre==="all" ? `Все станции (${filtered.length})` : `${filtered.length} станций`;
-
+    activeTab==="fav"?`Избранное (${filtered.length})`:
+    activeGenre==="all"?`Все станции (${filtered.length})`:`${filtered.length} станций`;
   if(!filtered.length){
-    el.innerHTML=activeTab==="fav"
-      ?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>'
-      :'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';
+    el.innerHTML=activeTab==="fav"?'<div class="empty"><span class="empty-icon">♡</span>Нажмите ♡ на любой станции</div>':'<div class="empty"><span class="empty-icon">🔍</span>Ничего не найдено</div>';
     return;
   }
-
   const key=activeTab+"_"+activeGenre+"_"+q;
   const expanded=!!listExpanded[key];
   const showCount=expanded?filtered.length:Math.min(SHOW_INIT,filtered.length);
-  const visible=filtered.slice(0,showCount);
-
-  visible.forEach(s=>{
+  filtered.slice(0,showCount).forEach(s=>{
     const idx=stations.indexOf(s);
     const row=document.createElement("div");
     row.className="row"+(idx===curIdx?" active":"");
-    row.innerHTML=`
-      <div class="row-cover-bg"${s.logo?` style="background-image:url(${s.logo})"` : ''}></div>
-      <div class="row-img"><img src="${s.logo||''}" onerror="this.style.display='none';this.parentElement.dataset.fallback='1';this.parentElement.innerHTML='${ge(s.tag)}'"></div>
-      <div class="row-info">
-        <div class="row-name">${s.name}</div>
-        <div class="row-sub">${s.genre}</div>
-      </div>
-      <div class="row-right">
-        <div class="row-dot"></div>
-        <div class="row-eq"><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div></div>
-        <div class="row-cnt">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;vertical-align:middle;margin-right:2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(s.listeners||0).toLocaleString("ru")}
-        </div>
-      </div>`;
+    const cnt=s.listeners?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners}`:"";
+    row.innerHTML=`<div class="row-img">${s.logo?`<img src="${s.logo}" onerror="this.parentElement.innerHTML='${ge(s.tag)}'">`:ge(s.tag)}</div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-eq"><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div></div><div class="row-cnt">${cnt}</div></div>`;
     row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};
     el.appendChild(row);
   });
-
   if(filtered.length>SHOW_INIT){
     const hidden=filtered.length-SHOW_INIT;
     const btn=document.createElement("button");
@@ -1045,144 +883,88 @@ function renderList(){
     btn.innerHTML=expanded
       ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg> Свернуть`
       :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg> Ещё ${hidden} станций`;
-    btn.onclick=()=>{
-      if(tg)tg.HapticFeedback?.impactOccurred("light");
-      listExpanded[key]=!expanded;
-      renderList();
-      if(!listExpanded[key])el.scrollIntoView({behavior:"smooth",block:"start"});
-    };
+    btn.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");listExpanded[key]=!expanded;renderList();if(!listExpanded[key])el.scrollIntoView({behavior:"smooth",block:"start"});};
     el.appendChild(btn);
   }
 }
 
-// ══════════════════════════════════════════════════════
-// CHAT (inline section, toggled by header button)
-// ══════════════════════════════════════════════════════
+// ── CAR RECS ──────────────────────────────────────────
+function renderCarRecs(idx){
+  const recs=document.getElementById("carRecs");if(!recs)return;
+  const cur=stations[idx];if(!cur){recs.innerHTML="";return;}
+  const similar=stations.filter(s=>s.tag===cur.tag&&stations.indexOf(s)!==idx).sort((a,b)=>(b.listeners||0)-(a.listeners||0)).slice(0,4);
+  if(!similar.length){recs.innerHTML="";return;}
+  recs.innerHTML='<div class="car-recs-title">🎵 Рекомендации</div>';
+  similar.forEach(s=>{
+    const si=stations.indexOf(s);
+    const lStr=s.listeners?`<div class="car-rec-listeners"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners}</div>`:"";
+    const btn=document.createElement("button");
+    btn.className="car-rec-row";
+    btn.innerHTML=`<div class="car-rec-img">${s.logo?`<img src="${s.logo}" onerror="this.style.display='none'">`:ge(s.tag)}</div><div class="car-rec-info"><div class="car-rec-name">${s.name}</div><div class="car-rec-genre">${s.genre}</div></div>${lStr}`;
+    btn.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(si,true);};
+    recs.appendChild(btn);
+  });
+}
+
+// ── NOW PLAYING TRACK ─────────────────────────────────
+async function fetchNowPlaying(url){
+  const el=document.getElementById("nowTrack"),inner=document.getElementById("nowTrackInner");
+  if(!el||!inner)return;
+  try{
+    const r=await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(url)}`);
+    if(!r.ok)return;
+    const {title}=await r.json();
+    if(title&&title.trim()){
+      const text="♪ "+title.trim(),long=title.length>35;
+      inner.textContent=long?text+"   "+text:text;
+      el.classList.add("visible");el.classList.toggle("marquee",long);
+    }else{inner.textContent="";el.classList.remove("visible","marquee");}
+  }catch(e){el.classList.remove("visible","marquee");}
+}
+function startNowPlaying(url){
+  if(nowPlayingTimer)clearInterval(nowPlayingTimer);
+  const el=document.getElementById("nowTrack"),inner=document.getElementById("nowTrackInner");
+  if(inner)inner.textContent="";if(el)el.classList.remove("visible","marquee");
+  fetchNowPlaying(url);nowPlayingTimer=setInterval(()=>fetchNowPlaying(url),15000);
+}
+
+// ── CHAT ──────────────────────────────────────────────
 function toggleChat(){
   chatVisible=!chatVisible;
   const sec=document.getElementById("chatSection");
   sec.classList.toggle("show",chatVisible);
   document.getElementById("chatToggleBtn").classList.toggle("on",chatVisible);
-  if(chatVisible){
-    loadChatMessages();
-    setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),160);
-  } else {
-    // when chat closes, scroll recs back into view
-    const recs=document.getElementById("carRecs");
-    if(recs && recs.children.length>1) setTimeout(()=>recs.scrollIntoView({behavior:"smooth",block:"nearest"}),160);
-  }
+  if(chatVisible){loadChatMessages();setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"nearest"}),160);}
 }
 function openChat(){
   const url="https://t.me/strmradiochat/2";
   if(tg)tg.openTelegramLink(url);else window.open(url,"_blank");
 }
-let isMuted = false;
-
-function toggleMute(){
-  const audio = document.getElementById("audio");
-  isMuted = !isMuted;
-  audio.muted = isMuted;
-  const btn = document.getElementById("muteBtn");
-  btn.classList.toggle("muted", isMuted);
-  document.getElementById("muteIcon").innerHTML = isMuted
-    ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
-    : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
-  if(tg) tg.HapticFeedback?.impactOccurred("medium");
-}
-
-let nowPlayingTimer = null;
-
-async function fetchNowPlaying(streamUrl){
-  const el=document.getElementById("nowTrack");
-  const inner=document.getElementById("nowTrackInner");
-  if(!el||!inner) return;
-  try{
-    const res=await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(streamUrl)}`);
-    if(!res.ok) return;
-    const {title}=await res.json();
-    if(title&&title.trim()){
-      const text="♪ "+title.trim();
-      const long=title.length>35;
-      inner.textContent=long?text+"   "+text:text;
-      el.classList.add("visible");
-      el.classList.toggle("marquee",long);
-    } else {
-      inner.textContent="";
-      el.classList.remove("visible","marquee");
-    }
-  }catch(e){el.classList.remove("visible","marquee");}
-}
-
-function startNowPlaying(streamUrl){
-  if(nowPlayingTimer) clearInterval(nowPlayingTimer);
-  const el=document.getElementById("nowTrack");
-  const inner=document.getElementById("nowTrackInner");
-  if(inner) inner.textContent="";
-  if(el) el.classList.remove("visible","marquee");
-  fetchNowPlaying(streamUrl);
-  nowPlayingTimer=setInterval(()=>fetchNowPlaying(streamUrl),15000);
-}
-
-function renderCarRecs(idx){
-  const recs = document.getElementById("carRecs");
-  if(!recs) return;
-  const cur = stations[idx];
-  if(!cur){ recs.innerHTML=""; return; }
-  const similar = stations
-    .filter(s => s.tag === cur.tag && stations.indexOf(s) !== idx)
-    .sort((a,b) => (b.listeners||0) - (a.listeners||0))
-    .slice(0, 4);
-  if(!similar.length){ recs.innerHTML=""; return; }
-  recs.innerHTML = '<div class="car-recs-title">🎵 Рекомендации</div>';
-  similar.forEach(s => {
-    const si = stations.indexOf(s);
-    const btn = document.createElement("button");
-    btn.className = "car-rec-row";
-    const listeners = s.listeners
-      ? `<div class="car-rec-listeners"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(s.listeners/1000).toFixed(0)}k</div>`
-      : '';
-    btn.innerHTML = `
-      <div class="car-rec-img">${s.logo ? `<img src="${s.logo}" onerror="this.style.display='none'">` : ge(s.tag)}</div>
-      <div class="car-rec-info">
-        <div class="car-rec-name">${s.name}</div>
-        <div class="car-rec-genre">${s.genre}</div>
-      </div>
-      ${listeners}`;
-    btn.onclick = () => { if(tg) tg.HapticFeedback?.impactOccurred("light"); loadStation(si, true); };
-    recs.appendChild(btn);
-  });
-}
-
 async function loadChatMessages(){
-  const container=document.getElementById("chatMessages");
+  const c=document.getElementById("chatMessages");
   try{
-    const res=await fetch(`${CHAT_API_BASE}/get-messages`);
-    if(!res.ok)return;
-    const msgs=await res.json();
-    const list=Array.isArray(msgs)?msgs:[];
-    container.innerHTML="";
-    if(!list.length){
-      container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';
-      return;
-    }
+    const r=await fetch(`${CHAT_API_BASE}/get-messages`);if(!r.ok)return;
+    const msgs=await r.json();const list=Array.isArray(msgs)?msgs:[];
+    c.innerHTML="";
+    if(!list.length){c.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';return;}
     list.forEach(m=>{
       const div=document.createElement("div");div.className="chat-msg";
       const t=m.time?new Date(m.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}):"";
-      const hue=([...m.name].reduce((a,c)=>a+c.charCodeAt(0),0)*47)%360;
+      const hue=([...m.name].reduce((a,ch)=>a+ch.charCodeAt(0),0)*47)%360;
       div.innerHTML=`<div class="chat-msg-avatar" style="background:hsl(${hue},50%,44%)">${(m.name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t?` <span style="font-weight:400;opacity:.6">${t}</span>`:""}</div><div class="chat-msg-text">${m.text}</div></div>`;
-      container.appendChild(div);
+      c.appendChild(div);
     });
-    container.scrollTop=container.scrollHeight;
+    c.scrollTop=c.scrollHeight;
   }catch(e){}
 }
+setInterval(()=>{if(chatVisible||document.body.classList.contains("split"))loadChatMessages();},3000);
 
-setInterval(()=>{if(chatVisible)loadChatMessages();},3000);
-
-
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
-renderGenres();renderList();loadStation(0,false);
+// ── INIT ──────────────────────────────────────────────
+renderGenres();
+renderList();
+loadStation(0,false);
+// Инициализируем vol fill после рендера
+requestAnimationFrame(()=>updateVolUI(80));
 updateSplitBtn();
 checkAutoSplit();
 </script>
