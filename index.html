@@ -1040,8 +1040,7 @@ async function loadChatMessages(){
       const div=document.createElement("div"); div.className="chat-msg";
       const t=m.time?new Date(m.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}):"";
       const hue=([...m.name].reduce((a,c)=>a+c.charCodeAt(0),0)*47)%360;
-      div.innerHTML=`<div class="chat-msg-avatar" style="background:hsl(${hue},55%,42%)">${(m.name[0]||\"?\").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t?` <span style="font-weight:400;opacity:0.45;margin-left:4px">${t}</span>`:""}</div><div class="chat-msg-text">${m.text}</div></div>`;
-      container.appendChild(div);
+      div.innerHTML = `<div class="chat-msg-avatar" style="background:hsl(${hue},55%,42%)">${(m.name[0] || "?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t ? ' <span style="font-weight:400;opacity:0.45;margin-left:4px">' + t + '</span>' : ''}</div><div class="chat-msg-text">${m.text}</div></div>`;      container.appendChild(div);
     });
     container.scrollTop = container.scrollHeight;
   }catch(e){}
