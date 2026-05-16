@@ -358,7 +358,7 @@ body.dark .chat-msg-body { background: rgba(255,255,255,0.04); }
               <div class="vol-row">
                 <span class="vol-icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
                 <div class="vol-wrap"><div class="vol-track-bg"></div><div class="vol-fill" id="volFill"></div>
-                  <input type="range" class="vol-input" id="volSlider" min="0" max="100" value="80" oninput="onVolChange(this.value)">
+                  
                 </div>
                 <span class="vol-val" id="volVal">80%</span>
               </div>
@@ -386,6 +386,46 @@ body.dark .chat-msg-body { background: rgba(255,255,255,0.04); }
 </div>
 
 <audio id="audio"></audio>
+
+<div id="bufferWrap" style="width:100%;margin-top:14px">
+  <div id="trackTitle" style="
+      font-size:13px;
+      opacity:.92;
+      margin-bottom:8px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+  ">🎵 Подключение к радио...</div>
+
+  <div id="bufferBar" style="
+      width:100%;
+      height:16px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      overflow:hidden;
+      position:relative;
+      backdrop-filter:blur(10px);
+  ">
+      <div id="bufferProgress" style="
+          width:0%;
+          height:100%;
+          transition:width .5s ease;
+          background:linear-gradient(90deg,#00d4ff,#00ff88);
+      "></div>
+
+      <div id="bufferText" style="
+          position:absolute;
+          inset:0;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          font-weight:700;
+          color:white;
+      ">Буферизация 0 сек</div>
+  </div>
+</div>
+
 
 <script src="stations.js"></script>
 
@@ -816,5 +856,118 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
+
+<script>
+(function(){
+let bufferedSeconds = 0;
+const targetBuffer = 30;
+
+function updateBuffer(){
+  const progress = document.getElementById("bufferProgress");
+  const text = document.getElementById("bufferText");
+
+  const percent = Math.min((bufferedSeconds/targetBuffer)*100,100);
+
+  if(progress){
+    progress.style.width = percent + "%";
+  }
+
+  if(text){
+    if(bufferedSeconds >= 30){
+      text.innerText = "Буфер готов • 30 секунд";
+    } else {
+      text.innerText = "Буферизация " + bufferedSeconds + " сек";
+    }
+  }
+}
+
+function startBuffering(){
+  bufferedSeconds = 0;
+  updateBuffer();
+
+  let first = setInterval(() => {
+    if(bufferedSeconds < 10){
+      bufferedSeconds++;
+      updateBuffer();
+    } else {
+      clearInterval(first);
+
+      let second = setInterval(() => {
+        if(bufferedSeconds < 30){
+          bufferedSeconds += 5;
+          updateBuffer();
+        } else {
+          clearInterval(second);
+        }
+      },3000);
+    }
+  },1000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const audio = document.querySelector("audio");
+
+  if(audio){
+    audio.addEventListener("playing", startBuffering);
+
+    audio.addEventListener("timeupdate", () => {
+      const title = document.getElementById("trackTitle");
+
+      try{
+        if(title && window.stations && window.curIdx !== undefined){
+          title.innerText = "🎵 " + stations[curIdx].name + " • LIVE";
+        }
+      }catch(e){}
+    });
+  }
+});
+})();
+</script>
+
+
+<div id="desktopVolumeWrap" style="
+  width:100%;
+  margin-top:14px;
+">
+  <input id="desktopVolume"
+         type="range"
+         min="0"
+         max="1"
+         step="0.01"
+         value="1"
+         style="
+            width:100%;
+            accent-color:#00d4ff;
+         ">
+</div>
+
+<style>
+@media (max-width: 768px){
+  #desktopVolumeWrap{
+    display:none!important;
+  }
+}
+
+@media (min-width: 769px){
+  #bufferWrap{
+    display:none!important;
+  }
+}
+</style>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const audio = document.querySelector("audio");
+  const volume = document.getElementById("desktopVolume");
+
+  if(audio && volume){
+    volume.addEventListener("input", () => {
+      audio.volume = parseFloat(volume.value);
+    });
+  }
+});
+</script>
+
 </body>
 </html>
