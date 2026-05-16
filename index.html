@@ -743,6 +743,78 @@ audio.addEventListener("stalled", () => {
   document.getElementById("loadingBar").classList.add("active");
 });
 
+
+let bufferedSeconds = 0;
+let targetBuffer = 30;
+
+function updateBufferUI(){
+  const percent = Math.min((bufferedSeconds / targetBuffer) * 100, 100);
+
+  const progress = document.getElementById("bufferProgress");
+  const text = document.getElementById("bufferText");
+
+  if(progress) progress.style.width = percent + "%";
+
+  if(text){
+    if(bufferedSeconds >= targetBuffer){
+      text.innerText = "Буфер готов • 30 секунд";
+    } else {
+      text.innerText = "Буферизация " + bufferedSeconds + " сек";
+    }
+  }
+}
+
+function simulateBuffering(){
+  bufferedSeconds = 0;
+  updateBufferUI();
+
+  let stage1 = setInterval(() => {
+    if(bufferedSeconds < 10){
+      bufferedSeconds++;
+      updateBufferUI();
+    } else {
+      clearInterval(stage1);
+
+      let stage2 = setInterval(() => {
+        if(bufferedSeconds < 30){
+          bufferedSeconds += 5;
+          updateBufferUI();
+        } else {
+          clearInterval(stage2);
+        }
+      }, 3000);
+    }
+  }, 1000);
+}
+
+audio.addEventListener("playing", () => {
+  simulateBuffering();
+});
+
+audio.addEventListener("timeupdate", () => {
+  try{
+    const title = document.getElementById("trackTitle");
+
+    if(title && stations && stations[curIdx]){
+      title.innerText = "🎵 " + stations[curIdx].name + " • LIVE";
+    }
+  }catch(e){}
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const bar = document.getElementById("bufferBar");
+
+  if(bar){
+    bar.addEventListener("click", (e) => {
+      const rect = bar.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+
+      bufferedSeconds = Math.floor(targetBuffer * percent);
+      updateBufferUI();
+    });
+  }
+});
+
 </script>
 </body>
 </html>
