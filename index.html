@@ -71,6 +71,11 @@ body.split .app-right{
   position:sticky;top:20px;
   display:flex;flex-direction:column;gap:12px;
 }
+/* align chat top with player — skip tabs+search height (~110px) */
+body.split .app-right::before{
+  content:"";display:block;
+  height:110px;flex-shrink:0;
+}
 /* Chat aligns to player height in split */
 body.split .chat-section{
   background:rgba(255,255,255,.55);
@@ -133,9 +138,9 @@ body.car .icon-btn{width:48px;height:48px;border-radius:14px}
 body.car .icon-btn svg{width:22px;height:22px}
 
 /* ══ TABS ════════════════════════════════════════════ */
-.tabs{display:flex;gap:var(--gap);margin-bottom:var(--sp-sm);align-items:center}
+.tabs{display:flex;gap:var(--gap);margin-bottom:var(--sp-sm);align-items:center;justify-content:space-between}
 .tab-btn{
-  flex:1;padding:10px 0;border-radius:100px;
+  flex:0 0 auto;padding:10px 24px;border-radius:100px;
   font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
   cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);
   transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px;
@@ -143,16 +148,18 @@ body.car .icon-btn svg{width:22px;height:22px}
 .tab-btn svg{width:14px;height:14px;flex-shrink:0}
 .tab-btn.active{background:var(--accent);color:var(--bg)}
 body.car .tab-btn{font-size:16px;padding:14px 0}
-/* Shazam placeholder btn */
+/* AI / Gemini btn */
 .shazam-btn{
-  flex:0 0 44px;height:44px;border-radius:50%;border:none;cursor:pointer;
-  background:var(--brand);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 12px rgba(61,184,122,.35);
-  transition:transform .15s,box-shadow .15s;flex-shrink:0;
+  flex:0 0 auto;height:36px;padding:0 14px;border-radius:100px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#4285f4 0%,#9b59b6 40%,#e91e8c 70%,#f4511e 100%);
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:0 2px 16px rgba(100,80,200,.35);
+  transition:transform .15s,box-shadow .15s,filter .15s;flex-shrink:0;
+  letter-spacing:.3px;
 }
-.shazam-btn:active{transform:scale(.92);box-shadow:0 1px 6px rgba(61,184,122,.2)}
-.shazam-btn svg{width:18px;height:18px}
+.shazam-btn:active{transform:scale(.94);filter:brightness(.9)}
+.shazam-btn svg{width:16px;height:16px;flex-shrink:0}
 
 /* ══ SEARCH ══════════════════════════════════════════ */
 .search-wrap{position:relative;margin-bottom:var(--sp-sm)}
@@ -241,15 +248,16 @@ body.car .genre-pill{font-size:15px;padding:10px 18px}
 .now-card.has-bg .bar.on{background:rgba(255,255,255,.9)}
 .now-top{display:flex;align-items:center;gap:14px;margin-bottom:var(--sp-md)}
 .now-logo{
-  width:64px;height:64px;border-radius:16px;background:var(--pill);
+  width:clamp(64px,10vw,120px);height:clamp(64px,10vw,120px);
+  border-radius:50%;background:var(--pill);
   overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  font-size:26px;transition:all .3s;
-  box-shadow:0 4px 20px rgba(0,0,0,.18);
+  font-size:clamp(26px,4vw,48px);transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 4px 24px rgba(0,0,0,.22);
 }
-.now-logo img{width:100%;height:100%;object-fit:cover;border-radius:16px}
-.now-card.has-bg .now-logo{box-shadow:0 6px 28px rgba(0,0,0,.45)}
-body.car .now-logo{width:84px;height:84px;border-radius:20px;font-size:34px}
-body.car .now-logo img{border-radius:20px}
+.now-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.now-card.has-bg .now-logo{box-shadow:0 8px 36px rgba(0,0,0,.5)}
+body.car .now-logo{width:clamp(72px,12vw,100px);height:clamp(72px,12vw,100px);font-size:34px}
+body.car .now-logo img{border-radius:50%}
 .now-info{flex:1;min-width:0}
 .now-name{
   font-family:'DM Serif Display',serif;font-size:clamp(16px,4vw,22px);
@@ -259,6 +267,15 @@ body.car .now-logo img{border-radius:20px}
 }
 body.car .now-name{font-size:clamp(20px,5vw,30px)}
 .now-genre{font-size:12px;color:var(--text);opacity:.65;text-transform:uppercase;letter-spacing:.5px}
+.now-track{
+  font-size:12px;color:var(--brand);margin-top:5px;
+  white-space:nowrap;overflow:hidden;max-width:100%;display:none;
+}
+.now-track.visible{display:block}
+.now-track-inner{display:inline-block;white-space:nowrap}
+.now-track.marquee .now-track-inner{animation:marquee 14s linear infinite;padding-right:40px}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.now-card.has-bg .now-track{color:rgba(160,230,200,.95)}
 .fav-btn{
   background:none;border:none;cursor:pointer;
   font-size:26px;color:var(--muted);flex-shrink:0;
@@ -510,13 +527,11 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
           Все станции
         </button>
-        <button class="shazam-btn" title="Распознать трек" onclick="alert('Скоро!')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" y1="19" x2="12" y2="23"/>
-            <line x1="8" y1="23" x2="16" y2="23"/>
+        <button class="shazam-btn" title="AI Radio" onclick="alert('Скоро!')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/>
           </svg>
+          AI
         </button>
         <button class="tab-btn" id="tabFav" onclick="setTab('fav')">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -541,6 +556,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.06)}
           <div class="now-info">
             <div class="now-name" id="nowName">—</div>
             <div class="now-genre" id="nowGenre">—</div>
+            <div class="now-track" id="nowTrack"><span class="now-track-inner" id="nowTrackInner"></span></div>
           </div>
           <div class="now-top-right">
             <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
@@ -882,6 +898,8 @@ function loadStation(idx,autoplay){
     if(amb){amb.style.backgroundImage="";amb.classList.remove("on");}
   }
   updateFavBtn();updateMediaSession(s);renderList();
+  startNowPlaying(s.stream);
+  renderCarRecs(idx);
   if(autoplay||playing){userPaused=false;playStream(s.stream);}
   else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
@@ -1003,6 +1021,7 @@ function renderList(){
     const row=document.createElement("div");
     row.className="row"+(idx===curIdx?" active":"");
     row.innerHTML=`
+      <div class="row-cover-bg"${s.logo?` style="background-image:url(${s.logo})"` : ''}></div>
       <div class="row-img"><img src="${s.logo||''}" onerror="this.style.display='none';this.parentElement.dataset.fallback='1';this.parentElement.innerHTML='${ge(s.tag)}'"></div>
       <div class="row-info">
         <div class="row-name">${s.name}</div>
@@ -1069,6 +1088,39 @@ function toggleMute(){
     ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
     : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
   if(tg) tg.HapticFeedback?.impactOccurred("medium");
+}
+
+let nowPlayingTimer = null;
+
+async function fetchNowPlaying(streamUrl){
+  const el=document.getElementById("nowTrack");
+  const inner=document.getElementById("nowTrackInner");
+  if(!el||!inner) return;
+  try{
+    const res=await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(streamUrl)}`);
+    if(!res.ok) return;
+    const {title}=await res.json();
+    if(title&&title.trim()){
+      const text="♪ "+title.trim();
+      const long=title.length>35;
+      inner.textContent=long?text+"   "+text:text;
+      el.classList.add("visible");
+      el.classList.toggle("marquee",long);
+    } else {
+      inner.textContent="";
+      el.classList.remove("visible","marquee");
+    }
+  }catch(e){el.classList.remove("visible","marquee");}
+}
+
+function startNowPlaying(streamUrl){
+  if(nowPlayingTimer) clearInterval(nowPlayingTimer);
+  const el=document.getElementById("nowTrack");
+  const inner=document.getElementById("nowTrackInner");
+  if(inner) inner.textContent="";
+  if(el) el.classList.remove("visible","marquee");
+  fetchNowPlaying(streamUrl);
+  nowPlayingTimer=setInterval(()=>fetchNowPlaying(streamUrl),15000);
 }
 
 function renderCarRecs(idx){
