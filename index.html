@@ -608,9 +608,8 @@ function applySplit(on){
   const btn = document.getElementById("splitBtn");
   if(btn) btn.classList.toggle("on", on);
   if(on){
-    // in split: chat always in right col, load messages
     loadChatMessages();
-    if(curIdx>=0) renderCarRecs(curIdx);
+    if(typeof curIdx!=="undefined" && curIdx>=0) renderCarRecs(curIdx);
   }
   localStorage.setItem("splitMode", on?"1":"0");
 }
@@ -623,6 +622,8 @@ function toggleSplit(){
 function checkAutoSplit(){
   if(window.innerWidth >= 900 && localStorage.getItem("splitMode") === null){
     splitMode = true; applySplit(true);
+  } else if(splitMode){
+    applySplit(true);
   }
 }
 window.addEventListener("resize", ()=>{ if(window.innerWidth < 767 && splitMode){ splitMode=false; applySplit(false); } });
@@ -640,8 +641,6 @@ window.addEventListener("resize", ()=>{ if(window.innerWidth < 767 && splitMode)
 })();
 const tg = window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
-checkAutoSplit();
-if(splitMode) applySplit(true);
 
 // ══════════════════════════════════════════════════════
 // STATIONS (дубли убраны, жанры исправлены)
@@ -909,8 +908,6 @@ function setTab(tab){
 
 function renderGenres(){
   const el=document.getElementById("genrePills");el.innerHTML="";
-  if(typeof genres==="undefined"){console.error("genres not defined - stations.js not loaded?");return;}
-  if(typeof stations==="undefined"){console.error("stations not defined - stations.js not loaded?");return;}
   genres.forEach(g=>{
     const b=document.createElement("button");
     b.className="genre-pill"+(g.id===activeGenre?" active":"");
@@ -1084,12 +1081,8 @@ setInterval(()=>{if(chatVisible)loadChatMessages();},3000);
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
-try{
-  renderGenres();renderList();loadStation(0,false);
-}catch(e){
-  console.error("INIT ERROR:", e);
-  document.body.innerHTML += `<div style="position:fixed;bottom:0;left:0;right:0;background:red;color:#fff;padding:16px;font-size:13px;z-index:9999;font-family:monospace">❌ ${e.message}<br>${e.stack?.split('\n')[1]||''}</div>`;
-}
+renderGenres();renderList();loadStation(0,false);
+checkAutoSplit();
 </script>
 </body>
 </html>
