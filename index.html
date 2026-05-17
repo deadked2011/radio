@@ -263,239 +263,284 @@ input.vol-input:active::-webkit-slider-thumb { transform: scale(1.3); }
 @keyframes eqPulse { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
 
 /* ══ TIKTOK MOBILE VIEW ══════════════════════════════════ */
+/* Prevent white flash on load for mobile */
+@media (max-width: 768px) {
+  html { background: #000 !important; }
+  body { background: #000 !important; }
+}
+
 @media (max-width: 768px) {
   html, body { overflow: hidden !important; }
-  
-  /* Hide desktop layout on mobile */
-  body.tiktok-mode .page { display: none !important; }
-  body.tiktok-mode #bufferWrap { display: none !important; }
+  body.tiktok-mode .page,
+  body.tiktok-mode #bufferWrap,
   body.tiktok-mode #desktopVolumeWrap { display: none !important; }
-  
-  /* TikTok full-screen container */
+
+  /* Main container — black instantly, no flash */
   #tiktokView {
     position: fixed; inset: 0; z-index: 9999;
     background: #000;
     overflow: hidden;
-    touch-action: pan-y;
+    touch-action: none; /* we handle all touch ourselves */
+    -webkit-user-select: none; user-select: none;
   }
-  
-  #tiktokSlider {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Horizontal slider: 3 slides side by side, center is current */
+  #ttTrack3 {
+    position: absolute; top: 0; left: 0;
+    width: 300%; height: 100%;
+    display: flex; flex-direction: row;
     will-change: transform;
+    /* NO transition here — we add it only for snap */
   }
-  
-  .tiktok-slide {
-    width: 100%; height: 100dvh; flex-shrink: 0;
+  #ttTrack3.snapping {
+    transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+
+  /* Each slide is 1/3 of track (= 100vw) */
+  .tt-slide3 {
+    width: 33.3333%; height: 100%;
     position: relative; overflow: hidden;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
+    flex-shrink: 0;
+    /* GPU layer per slide */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
-  
-  /* Background blur art */
+
+  /* BG — simplified filter for low-end phones */
   .tt-bg {
-    position: absolute; inset: -30px; z-index: 0;
+    position: absolute; inset: -20px; z-index: 0;
     background-size: cover; background-position: center;
-    filter: blur(50px) saturate(2) brightness(0.35);
-    transform: scale(1.12);
-    transition: background-image 0.5s ease;
+    filter: blur(40px) brightness(0.3);
+    transform: scale(1.08) translateZ(0);
+    -webkit-transform: scale(1.08) translateZ(0);
   }
   .tt-bg-overlay {
     position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(
-      180deg,
-      rgba(0,0,0,0.25) 0%,
-      rgba(0,0,0,0.0) 30%,
-      rgba(0,0,0,0.0) 55%,
-      rgba(0,0,0,0.55) 100%
-    );
+    background: linear-gradient(180deg,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.65) 100%);
   }
-  
-  /* Station logo — big circle */
+
+  /* Logo */
   .tt-logo {
-    width: clamp(140px, 42vw, 200px);
-    height: clamp(140px, 42vw, 200px);
-    border-radius: 50%;
-    background: #222;
-    overflow: hidden;
-    flex-shrink: 0;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.08);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 56px;
+    width: 44vw; max-width: 190px; min-width: 130px;
+    height: 44vw; max-height: 190px; min-height: 130px;
+    border-radius: 50%; background: #1a1a1a;
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 16px 50px rgba(0,0,0,0.55), 0 0 0 3px rgba(255,255,255,0.07);
     position: relative; z-index: 3;
-    margin-bottom: 24px;
-    transition: transform 0.3s ease;
+    margin-bottom: 20px;
   }
-  .tt-logo.playing { animation: ttSpin 8s linear infinite; }
-  @keyframes ttSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .tt-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  
-  /* Station name & genre */
-  .tt-info { position: relative; z-index: 3; text-align: center; padding: 0 32px; margin-bottom: 8px; }
+  .tt-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+  /* Spin only when playing — CSS custom property avoids JS repaint */
+  .tt-logo.playing { animation: ttLogoSpin 9s linear infinite; }
+  @keyframes ttLogoSpin { to { transform: rotate(360deg); } }
+
+  .tt-info { position: relative; z-index: 3; text-align: center; padding: 0 28px; margin-bottom: 6px; }
   .tt-name {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(26px, 7vw, 36px);
-    color: #fff; font-weight: 400;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-    line-height: 1.15; margin-bottom: 6px;
-    letter-spacing: -0.3px;
+    font-size: clamp(22px, 6.5vw, 34px);
+    color: #fff; line-height: 1.15; margin-bottom: 5px;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.6);
   }
   .tt-genre {
-    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.65);
+    font-size: 11px; font-weight: 700; letter-spacing: 1.8px;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
   }
-  
-  /* Now playing track */
   .tt-track {
     position: relative; z-index: 3;
-    font-size: 13px; font-weight: 600; color: #f0a030;
-    overflow: hidden; max-width: 78vw;
+    font-size: 12px; font-weight: 600; color: #f0a030;
+    max-width: 74vw; overflow: hidden;
     white-space: nowrap; text-overflow: ellipsis;
-    margin-top: 4px; min-height: 20px;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+    margin-top: 6px; min-height: 18px;
   }
-  
-  /* Visualizer bars */
+
+  /* Visualizer — fewer bars for perf */
   .tt-viz {
     position: relative; z-index: 3;
     display: flex; align-items: flex-end; gap: 3px;
-    height: 32px; margin: 18px 0 0;
-    justify-content: center;
+    height: 28px; margin: 16px 0 0; justify-content: center;
   }
   .tt-bar {
-    width: 3.5px; min-width: 3.5px;
-    background: rgba(255,255,255,0.3);
+    width: 3px; background: rgba(255,255,255,0.25);
     border-radius: 99px; height: 4px;
-    transition: background 0.3s;
   }
   .tt-bar.on {
-    background: rgba(255,255,255,0.9);
-    animation: ttWave var(--dur, 0.8s) ease-in-out infinite alternate;
+    background: rgba(255,255,255,0.85);
+    animation: ttWave var(--dur,0.7s) ease-in-out infinite alternate;
   }
-  @keyframes ttWave { from { height: 4px; } to { height: 32px; } }
-  
-  /* Bottom controls bar */
+  @keyframes ttWave { from { height: 4px; } to { height: 28px; } }
+
+  /* Bottom controls */
   .tt-controls {
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
-    padding: 0 24px calc(env(safe-area-inset-bottom, 12px) + 20px) 24px;
-    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    padding: 60px 20px calc(env(safe-area-inset-bottom,0px) + 22px) 20px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
   }
-  
-  /* Station info bottom-left */
-  .tt-bottom-info {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 16px;
-  }
+  .tt-bottom-info { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
   .tt-bottom-left { flex: 1; min-width: 0; }
-  .tt-station-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-    margin-bottom: 2px;
-  }
-  .tt-station-name-sm {
-    font-size: 18px; font-weight: 700; color: #fff;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    text-shadow: 0 1px 12px rgba(0,0,0,0.5);
-  }
-  .tt-genre-sm {
-    font-size: 12px; color: rgba(255,255,255,0.6);
-    margin-top: 2px; font-weight: 500;
-  }
-  
-  /* Right action buttons */
-  .tt-actions {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 20px; padding-bottom: 4px;
-  }
-  .tt-action-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    background: none; border: none; cursor: pointer; color: #fff;
-  }
+  .tt-station-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 2px; }
+  .tt-station-name-sm { font-size: 17px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tt-genre-sm { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+  .tt-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-bottom: 2px; }
+  .tt-action-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .tt-action-icon {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    width: 46px; height: 46px; border-radius: 50%;
+    background: rgba(255,255,255,0.13);
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: transform 0.15s, background 0.2s;
+    font-size: 19px; border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.1s;
   }
-  .tt-action-icon:active { transform: scale(0.88); }
-  .tt-action-icon.fav-on { background: rgba(255,45,85,0.35); }
-  .tt-action-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.75); }
-  
-  /* Big play button */
-  .tt-play-btn {
-    width: 60px; height: 60px; border-radius: 50%;
-    background: #fff;
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    transition: transform 0.18s;
-    flex-shrink: 0;
-  }
-  .tt-play-btn:active { transform: scale(0.91); }
-  .tt-play-btn svg { width: 24px; height: 24px; fill: #121214; margin-left: 3px; }
-  .tt-play-btn.playing svg { margin-left: 0; }
-  
-  /* Header strip */
+  .tt-action-icon:active { transform: scale(0.86); }
+  .tt-action-icon.fav-on { background: rgba(255,45,85,0.32); }
+  .tt-action-icon.play-icon { width: 54px; height: 54px; background: #fff; }
+  .tt-action-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; }
+
+  /* Header */
   .tt-header {
     position: absolute; top: 0; left: 0; right: 0; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
-    padding: calc(env(safe-area-inset-top, 12px) + 10px) 20px 12px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+    padding: calc(env(safe-area-inset-top,0px) + 12px) 18px 12px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 100%);
+    pointer-events: none; /* let swipes through, buttons get pointer-events back */
   }
-  .tt-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px; color: #fff; font-weight: 400;
-  }
+  .tt-header > * { pointer-events: auto; }
+  .tt-title { font-family: 'DM Serif Display', serif; font-size: 19px; color: #fff; }
   .tt-header-btns { display: flex; gap: 8px; }
   .tt-hbtn {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
-  .tt-hbtn svg { width: 18px; height: 18px; }
-  .tt-hbtn.on { background: rgba(255,255,255,0.9); color: #000; }
-  
+  .tt-hbtn svg { width: 17px; height: 17px; }
+  .tt-hbtn.on { background: rgba(255,255,255,0.88); color: #000; }
+
   /* Swipe hint */
   .tt-swipe-hint {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 50; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    animation: hintFade 2.5s ease forwards;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    z-index: 50; flex-direction: column; align-items: center; gap: 8px;
     pointer-events: none;
+    animation: hintFade 2.8s ease forwards;
   }
   @keyframes hintFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    80% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -70%); }
+    0%   { opacity:0; }
+    15%  { opacity:1; }
+    80%  { opacity:1; }
+    100% { opacity:0; }
   }
-  .tt-hint-arrow { font-size: 36px; }
-  .tt-hint-text { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
-  
-  /* Loading indicator */
-  .tt-loading {
-    position: absolute; bottom: 50%; left: 50%; transform: translate(-50%, 50%);
-    z-index: 15; display: none;
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid rgba(255,255,255,0.2);
-    border-top-color: #fff;
-    animation: ttSpin 0.8s linear infinite;
+  .tt-hint-arrow { font-size: 32px; }
+  .tt-hint-text { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); }
+
+  /* Dot pagination */
+  .tt-dots {
+    position: absolute; bottom: calc(env(safe-area-inset-bottom,0px) + 8px);
+    left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; z-index: 25; pointer-events: none;
   }
-  .tt-loading.active { display: block; }
-  
-  /* Volume slider */
-  .tt-vol {
-    position: absolute; right: -60px; top: 50%; transform: translateY(-50%) rotate(-90deg);
-    width: 120px; z-index: 10; display: none;
+  .tt-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.3); transition: background 0.2s, transform 0.2s;
   }
+  .tt-dot.active { background: #fff; transform: scale(1.3); }
+
+  /* Search overlay */
+  #ttSearchOverlay {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+    background: rgba(10,10,12,0.97);
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+    max-height: 80vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+  }
+  #ttSearchOverlay.open { transform: translateY(0); }
+  .tt-search-handle {
+    width: 36px; height: 4px; background: rgba(255,255,255,0.2);
+    border-radius: 99px; margin: 10px auto 0;
+  }
+  .tt-search-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+  }
+  .tt-search-icon { color: rgba(255,255,255,0.4); flex-shrink: 0; }
+  #ttSearchInput {
+    flex: 1; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 10px 14px;
+    font-size: 15px; font-weight: 500; color: #fff;
+    outline: none; font-family: 'DM Sans', sans-serif;
+    -webkit-appearance: none;
+  }
+  #ttSearchInput::placeholder { color: rgba(255,255,255,0.35); }
+  .tt-search-close {
+    background: rgba(255,255,255,0.1); border: none; color: #fff;
+    width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+  }
+  #ttSearchResults {
+    flex: 1; overflow-y: auto; padding: 0 12px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #ttSearchResults::-webkit-scrollbar { display: none; }
+  .tt-search-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 8px; border-radius: 14px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .tt-search-item:active { background: rgba(255,255,255,0.07); }
+  .tt-search-img {
+    width: 44px; height: 44px; min-width: 44px;
+    border-radius: 10px; overflow: hidden; flex-shrink: 0;
+    background: #222;
+  }
+  .tt-search-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tt-search-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .tt-search-genre { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .tt-search-playing { color: #2bbd6e; font-size: 14px; flex-shrink: 0; }
+  .tt-search-empty { text-align: center; color: rgba(255,255,255,0.35); padding: 32px 0; font-size: 14px; }
+
+  /* Station list overlay */
+  #ttListOverlay {
+    position: fixed; inset: 0; z-index: 400;
+    background: rgba(0,0,0,0.94);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: calc(env(safe-area-inset-top,0px)+56px) 14px calc(env(safe-area-inset-bottom,0px)+20px);
+  }
+  #ttListOverlay::-webkit-scrollbar { display: none; }
+  .tt-list-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(env(safe-area-inset-top,0px)+10px) 18px 12px;
+    background: rgba(0,0,0,0.96); z-index: 401;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .tt-list-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #fff; }
+  .tt-list-close {
+    background: rgba(255,255,255,0.1); border: none; color: #fff;
+    width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tt-list-item {
+    display: flex; align-items: center; gap: 13px;
+    padding: 11px 12px; border-radius: 15px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .tt-list-item:active { background: rgba(255,255,255,0.06); }
+  .tt-list-item.active-item { background: rgba(43,189,110,0.15); border: 1px solid rgba(43,189,110,0.3); }
+  .tt-list-img { width: 46px; height: 46px; min-width: 46px; border-radius: 11px; overflow: hidden; flex-shrink: 0; background: #222; }
+  .tt-list-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tt-list-name { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tt-list-genre { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 }
 
-/* Desktop: hide tiktok view */
 @media (min-width: 769px) {
   #tiktokView { display: none !important; }
 }
@@ -541,40 +586,58 @@ body.dark .chat-msg-body { background: rgba(255,255,255,0.04); }
 <body>
 <!-- ══ TIKTOK MOBILE VIEW ══════════════════════════════ -->
 <div id="tiktokView" style="display:none">
+
+  <!-- Fixed header (outside slider) -->
   <div class="tt-header">
     <div class="tt-title">Radio Go</div>
     <div class="tt-header-btns">
+      <button class="tt-hbtn" id="ttSearchBtn" onclick="ttOpenSearch()" title="Поиск">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
       <button class="tt-hbtn" id="ttDarkBtn" onclick="toggleDark()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <button class="tt-hbtn" id="ttListBtn" onclick="ttToggleList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <button class="tt-hbtn" id="ttListBtn" onclick="ttOpenList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
   </div>
 
-  <div id="ttSlide" class="tiktok-slide">
-    <!-- Filled dynamically -->
+  <!-- 3-slide horizontal track: prev | current | next -->
+  <div id="ttTrack3">
+    <div class="tt-slide3" id="ttSlideL"></div>
+    <div class="tt-slide3" id="ttSlideC"></div>
+    <div class="tt-slide3" id="ttSlideR"></div>
   </div>
 
+  <!-- Swipe hint -->
   <div class="tt-swipe-hint" id="ttHint" style="display:none">
-    <div class="tt-hint-arrow">↕</div>
+    <div class="tt-hint-arrow">←→</div>
     <div class="tt-hint-text">Листайте для переключения</div>
   </div>
 
-  <!-- Fullscreen station list overlay -->
-  <div id="ttListOverlay" style="
-    display:none; position:fixed; inset:0; z-index:1000;
-    background:rgba(0,0,0,0.92); backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-    overflow-y:auto; padding:calc(env(safe-area-inset-top,12px) + 60px) 16px calc(env(safe-area-inset-bottom,12px) + 20px);
-  ">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:sticky;top:-40px;background:rgba(0,0,0,0.8);padding:12px 0;backdrop-filter:blur(10px)">
-      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#fff">Все станции</div>
-      <button onclick="ttToggleList()" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+  <!-- Search overlay (slides up from bottom) -->
+  <div id="ttSearchOverlay">
+    <div class="tt-search-handle"></div>
+    <div class="tt-search-bar">
+      <span class="tt-search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </span>
+      <input id="ttSearchInput" type="search" placeholder="Поиск радиостанции..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="ttSearchFilter()">
+      <button class="tt-search-close" onclick="ttCloseSearch()">✕</button>
     </div>
-    <div id="ttStationList" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="ttSearchResults"></div>
   </div>
+
+  <!-- Station list overlay -->
+  <div id="ttListOverlay" style="display:none">
+    <div class="tt-list-header">
+      <div class="tt-list-title">Все станции</div>
+      <button class="tt-list-close" onclick="ttCloseList()">✕</button>
+    </div>
+    <div id="ttStationList"></div>
+  </div>
+
 </div>
 
 <div id="offlineBanner" style="display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 18px;border-radius:16px;background:rgba(255,80,80,.92);backdrop-filter:blur(10px);font-weight:700;color:white;box-shadow:0 10px 40px rgba(0,0,0,.3)">
@@ -1248,253 +1311,409 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <script>
 // ══════════════════════════════════════════════════════
-// TIKTOK MOBILE ENGINE
+// TIKTOK MOBILE ENGINE v2 — horizontal swipe, optimized
 // ══════════════════════════════════════════════════════
 (function(){
-  var isMobile = function(){ return window.innerWidth <= 768; };
-  var ttView = document.getElementById('tiktokView');
-  var ttSlide = document.getElementById('ttSlide');
-  var ttHint = document.getElementById('ttHint');
+'use strict';
 
-  function getFallbackImgLocal(name){
-    return 'https://ui-avatars.com/api/?name='+encodeURIComponent(name||'FM')+'&background=random&color=fff&size=256&font-size=0.4';
+var MOBILE_BREAKPOINT = 768;
+function isMob(){ return window.innerWidth <= MOBILE_BREAKPOINT; }
+
+// ── Fallback avatar ───────────────────────────────────
+function fbImg(name){
+  return 'https://ui-avatars.com/api/?name='+encodeURIComponent(name||'FM')+'&background=random&color=fff&size=128&font-size=0.4';
+}
+
+// ── Get stations safely ───────────────────────────────
+function getSt(){ return (typeof stations!=='undefined' && Array.isArray(stations)) ? stations : []; }
+
+// ── DOM refs ──────────────────────────────────────────
+var view      = document.getElementById('tiktokView');
+var track     = document.getElementById('ttTrack3');
+var slideL    = document.getElementById('ttSlideL');
+var slideC    = document.getElementById('ttSlideC');
+var slideR    = document.getElementById('ttSlideR');
+var hint      = document.getElementById('ttHint');
+var listOverlay = document.getElementById('ttListOverlay');
+var listEl    = document.getElementById('ttStationList');
+var searchOverlay = document.getElementById('ttSearchOverlay');
+var searchInput   = document.getElementById('ttSearchInput');
+var searchResults = document.getElementById('ttSearchResults');
+
+// ── State ─────────────────────────────────────────────
+var initialized = false;
+var animating   = false;
+var touchStartX = 0;
+var touchStartY = 0;
+var touchLiveX  = 0;
+var touching    = false;
+
+// Position slider at center (index 1 of 3)
+function resetTrackPos(){
+  track.style.transition = 'none';
+  track.style.transform  = 'translateX(-33.3333%)';
+}
+
+// ── Build one slide ───────────────────────────────────
+function buildSlide(el, idx){
+  var st = getSt();
+  el.innerHTML = '';
+  if(!st.length || idx < 0 || idx >= st.length){ return; }
+  var s = st[idx];
+  var cover = s.logo || fbImg(s.name);
+  var isPlaying = (typeof playing!=='undefined') && playing && (typeof curIdx!=='undefined') && curIdx===idx;
+  var isFav = (typeof favs!=='undefined') && Array.isArray(favs) && favs.includes(s.id);
+
+  // Background
+  var bg = document.createElement('div'); bg.className='tt-bg';
+  bg.style.backgroundImage='url('+cover+')'; el.appendChild(bg);
+  var ov = document.createElement('div'); ov.className='tt-bg-overlay'; el.appendChild(ov);
+
+  // Center content
+  var cx = document.createElement('div');
+  cx.style.cssText='position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding-bottom:170px;width:100%;padding-left:20px;padding-right:20px;box-sizing:border-box';
+
+  // Logo
+  var logo = document.createElement('div');
+  logo.className='tt-logo'+(isPlaying?' playing':'');
+  if(idx===(typeof curIdx!=='undefined'?curIdx:0)) logo.id='ttLogo';
+  logo.innerHTML='<img src="'+cover+'" onerror="this.src=\''+fbImg(s.name)+'\'" loading="lazy">';
+  cx.appendChild(logo);
+
+  // Info
+  var inf = document.createElement('div'); inf.className='tt-info';
+  inf.innerHTML='<div class="tt-name">'+s.name+'</div><div class="tt-genre">'+(s.genre||'Радио')+'</div>';
+  cx.appendChild(inf);
+
+  // Track
+  var tr = document.createElement('div'); tr.className='tt-track';
+  if(idx===(typeof curIdx!=='undefined'?curIdx:0)){ tr.id='ttTrack'; ttSyncTrackEl(tr); }
+  cx.appendChild(tr);
+
+  // Viz bars — 12 for perf
+  var viz = document.createElement('div'); viz.className='tt-viz';
+  for(var i=0;i<12;i++){
+    var b=document.createElement('div'); b.className='tt-bar'+(isPlaying?' on':'');
+    b.style.setProperty('--dur',(0.35+Math.random()*0.5)+'s');
+    viz.appendChild(b);
   }
+  cx.appendChild(viz);
+  el.appendChild(cx);
 
-  function ttGetStations(){
-    return (typeof stations !== 'undefined') ? stations : [];
+  // Bottom controls
+  var piSvg = isPlaying
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="#111" style="margin-left:2px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+
+  var ctrl = document.createElement('div'); ctrl.className='tt-controls';
+  ctrl.innerHTML=
+    '<div class="tt-bottom-info">'+
+      '<div class="tt-bottom-left">'+
+        '<div class="tt-station-label">Сейчас играет</div>'+
+        '<div class="tt-station-name-sm">'+s.name+'</div>'+
+        '<div class="tt-genre-sm">'+(s.genre||'Радио')+'</div>'+
+      '</div>'+
+      '<div class="tt-actions">'+
+        '<button class="tt-action-btn" ontouchend="ttToggleFav(event)" onclick="ttToggleFav(event)">'+
+          '<div class="tt-action-icon'+(isFav?' fav-on':'')+'"'+(idx===(typeof curIdx!=='undefined'?curIdx:0)?' id="ttFavIcon"':'')+'>'+
+            (isFav?'♥':'♡')+
+          '</div>'+
+          '<div class="tt-action-label">Избранное</div>'+
+        '</button>'+
+        '<button class="tt-action-btn" ontouchend="ttTapPlay(event)" onclick="ttTapPlay(event)">'+
+          '<div class="tt-action-icon play-icon"'+(idx===(typeof curIdx!=='undefined'?curIdx:0)?' id="ttPlayIcon"':'')+'>'+piSvg+'</div>'+
+          '<div class="tt-action-label"'+(idx===(typeof curIdx!=='undefined'?curIdx:0)?' id="ttPlayLabel"':'')+'>'+
+            (isPlaying?'Пауза':'Играть')+
+          '</div>'+
+        '</button>'+
+        '<button class="tt-action-btn" ontouchend="ttOpenSearch()" onclick="ttOpenSearch()">'+
+          '<div class="tt-action-icon">'+
+            '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>'+
+          '</div>'+
+          '<div class="tt-action-label">Поиск</div>'+
+        '</button>'+
+      '</div>'+
+    '</div>';
+  el.appendChild(ctrl);
+}
+
+// ── Render all 3 slides around curIdx ─────────────────
+function renderAll(){
+  var st = getSt(); if(!st.length) return;
+  var ci = (typeof curIdx!=='undefined') ? curIdx : 0;
+  var n  = st.length;
+  var li = (ci-1+n)%n;
+  var ri = (ci+1)%n;
+  buildSlide(slideL, li);
+  buildSlide(slideC, ci);
+  buildSlide(slideR, ri);
+  resetTrackPos();
+}
+
+// ── Swipe to next/prev ────────────────────────────────
+function goNext(){
+  if(animating) return; animating=true;
+  track.classList.add('snapping');
+  track.style.transform='translateX(-66.6666%)';
+  track.addEventListener('transitionend', function onEnd(){
+    track.removeEventListener('transitionend', onEnd);
+    track.classList.remove('snapping');
+    if(typeof next==='function') next();
+    renderAll();
+    animating=false;
+  });
+}
+
+function goPrev(){
+  if(animating) return; animating=true;
+  track.classList.add('snapping');
+  track.style.transform='translateX(0%)';
+  track.addEventListener('transitionend', function onEnd(){
+    track.removeEventListener('transitionend', onEnd);
+    track.classList.remove('snapping');
+    if(typeof prev==='function') prev();
+    renderAll();
+    animating=false;
+  });
+}
+
+// ── Touch handling ────────────────────────────────────
+function onTouchStart(e){
+  if(!overlaysClosed()) return;
+  touching=true;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchLiveX  = touchStartX;
+  track.style.transition='none';
+}
+
+function onTouchMove(e){
+  if(!touching || animating) return;
+  touchLiveX = e.touches[0].clientX;
+  var dx = touchLiveX - touchStartX;
+  var dy = e.touches[0].clientY - touchStartY;
+  // If more vertical than horizontal, ignore swipe
+  if(Math.abs(dy) > Math.abs(dx) * 1.5 && Math.abs(dx) < 20) return;
+  e.preventDefault();
+  // Move track with finger, starting from -33.3333%
+  var baseX = -window.innerWidth; // -33.3333% of 300vw = -1vw * vw
+  var pct = ((baseX + dx) / (window.innerWidth*3)) * 100;
+  track.style.transform = 'translateX('+pct+'%)';
+}
+
+function onTouchEnd(e){
+  if(!touching) return; touching=false;
+  var dx = touchLiveX - touchStartX;
+  var thresh = window.innerWidth * 0.22; // 22% of screen width
+  if(dx < -thresh)      goNext();
+  else if(dx > thresh)  goPrev();
+  else {
+    // snap back
+    track.classList.add('snapping');
+    resetTrackPos();
+    setTimeout(function(){ track.classList.remove('snapping'); }, 350);
   }
+}
 
-  function ttRenderSlide(idx){
-    var st = ttGetStations();
-    if(!st.length) return;
-    var s = st[idx];
-    if(!s) return;
-    var coverUrl = s.logo || getFallbackImgLocal(s.name);
-    var isFav = (typeof favs !== 'undefined') && favs.includes(s.id);
-    var isPlaying = (typeof playing !== 'undefined') && playing && (typeof curIdx !== 'undefined') && curIdx === idx;
+function overlaysClosed(){
+  return listOverlay.style.display==='none' &&
+         !searchOverlay.classList.contains('open');
+}
 
-    ttSlide.innerHTML = '';
-
-    var bg = document.createElement('div'); bg.className='tt-bg';
-    bg.style.backgroundImage='url('+coverUrl+')'; ttSlide.appendChild(bg);
-    var overlay = document.createElement('div'); overlay.className='tt-bg-overlay'; ttSlide.appendChild(overlay);
-
-    var center = document.createElement('div');
-    center.style.cssText='position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding-bottom:180px';
-
-    var logo = document.createElement('div'); logo.className='tt-logo'+(isPlaying?' playing':'');
-    logo.id='ttLogo';
-    logo.innerHTML='<img src="'+coverUrl+'" onerror="this.src=\''+getFallbackImgLocal(s.name)+'\'">';
-    center.appendChild(logo);
-
-    var info = document.createElement('div'); info.className='tt-info';
-    info.innerHTML='<div class="tt-name">'+s.name+'</div><div class="tt-genre">'+(s.genre||'Радио')+'</div>';
-    center.appendChild(info);
-
-    var track = document.createElement('div'); track.className='tt-track'; track.id='ttTrack';
-    center.appendChild(track);
-
-    var viz = document.createElement('div'); viz.className='tt-viz'; viz.id='ttViz';
-    for(var i=0;i<20;i++){
-      var b=document.createElement('div'); b.className='tt-bar'+(isPlaying?' on':'');
-      b.style.setProperty('--dur',(0.4+Math.random()*0.6)+'s');
-      viz.appendChild(b);
-    }
-    center.appendChild(viz);
-
-    ttSlide.appendChild(center);
-
-    var playIconSvg = isPlaying
-      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="#121214"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
-      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="#121214" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-
-    var ctrl = document.createElement('div'); ctrl.className='tt-controls';
-    ctrl.innerHTML =
-      '<div class="tt-bottom-info">'+
-        '<div class="tt-bottom-left">'+
-          '<div class="tt-station-label">Сейчас играет</div>'+
-          '<div class="tt-station-name-sm">'+s.name+'</div>'+
-          '<div class="tt-genre-sm">'+(s.genre||'Радио')+'</div>'+
-        '</div>'+
-        '<div class="tt-actions">'+
-          '<button class="tt-action-btn" onclick="ttToggleFav()">'+
-            '<div class="tt-action-icon'+(isFav?' fav-on':'')+'" id="ttFavIcon">'+(isFav?'♥':'♡')+'</div>'+
-            '<div class="tt-action-label">Избранное</div>'+
-          '</button>'+
-          '<button class="tt-action-btn" id="ttPlayBtnWrap" onclick="togglePlay();setTimeout(ttSyncPlay,100)">'+
-            '<div class="tt-action-icon" style="width:56px;height:56px;background:#fff" id="ttPlayIcon">'+playIconSvg+'</div>'+
-            '<div class="tt-action-label" id="ttPlayLabel">'+(isPlaying?'Пауза':'Играть')+'</div>'+
-          '</button>'+
-          '<button class="tt-action-btn" onclick="ttToggleList()">'+
-            '<div class="tt-action-icon">'+
-              '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'+
-            '</div>'+
-            '<div class="tt-action-label">Станции</div>'+
-          '</button>'+
-        '</div>'+
-      '</div>';
-    ttSlide.appendChild(ctrl);
-
-    ttSyncTrack();
+// ── Sync play state on current slide ─────────────────
+window.ttSyncPlay = function(){
+  var isP = (typeof playing!=='undefined') && playing;
+  var logo = document.getElementById('ttLogo');
+  var pi   = document.getElementById('ttPlayIcon');
+  var pl   = document.getElementById('ttPlayLabel');
+  if(logo){ if(isP) logo.classList.add('playing'); else logo.classList.remove('playing'); }
+  if(pi){
+    pi.innerHTML = isP
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="#111" style="margin-left:2px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
   }
+  if(pl) pl.textContent = isP?'Пауза':'Играть';
+  document.querySelectorAll('.tt-bar').forEach(function(b){
+    if(isP) b.classList.add('on'); else b.classList.remove('on');
+  });
+};
 
-  window.ttSyncPlay = function(){
-    var isP = (typeof playing!=='undefined') && playing;
-    var logo = document.getElementById('ttLogo');
-    var pi = document.getElementById('ttPlayIcon');
-    var pl = document.getElementById('ttPlayLabel');
-    if(logo){ if(isP) logo.classList.add('playing'); else logo.classList.remove('playing'); }
-    if(pi){
-      pi.innerHTML = isP
-        ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="#121214"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
-        : '<svg width="22" height="22" viewBox="0 0 24 24" fill="#121214" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-    }
-    if(pl) pl.textContent = isP ? 'Пауза' : 'Играть';
-    var bars = document.querySelectorAll('.tt-bar');
-    bars.forEach(function(b){ if(isP) b.classList.add('on'); else b.classList.remove('on'); });
-  };
+// ── Sync track text ───────────────────────────────────
+function ttSyncTrackEl(el){
+  var src = document.getElementById('nowTrackInner');
+  if(src && el) el.textContent = src.textContent.replace(/\s{3,}.*/,'').trim();
+}
+function ttSyncTrack(){
+  var el = document.getElementById('ttTrack');
+  ttSyncTrackEl(el);
+}
 
-  function ttSyncTrack(){
-    var el = document.getElementById('ttTrack');
-    var src = document.getElementById('nowTrackInner');
-    if(el && src){
-      var txt = src.textContent.replace(/\s{3,}.*/,'').trim();
-      el.textContent = txt;
-    }
+// ── Fav & Play buttons ─────────────────────────────────
+window.ttToggleFav = function(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(typeof toggleFav==='function') toggleFav();
+  setTimeout(function(){
+    var fi = document.getElementById('ttFavIcon');
+    var st = getSt(); var ci = typeof curIdx!=='undefined'?curIdx:0;
+    var isFav = (typeof favs!=='undefined') && st[ci] && favs.includes(st[ci].id);
+    if(fi){ fi.textContent=isFav?'♥':'♡'; if(isFav) fi.classList.add('fav-on'); else fi.classList.remove('fav-on'); }
+  }, 60);
+};
+
+window.ttTapPlay = function(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(typeof togglePlay==='function') togglePlay();
+  setTimeout(window.ttSyncPlay, 120);
+};
+
+// ── Search ────────────────────────────────────────────
+window.ttOpenSearch = function(){
+  searchInput.value='';
+  ttSearchFilter();
+  searchOverlay.classList.add('open');
+  setTimeout(function(){ searchInput.focus(); }, 350);
+};
+window.ttCloseSearch = function(){
+  searchOverlay.classList.remove('open');
+  searchInput.blur();
+};
+
+window.ttSearchFilter = function(){
+  var q = (searchInput.value||'').toLowerCase().trim();
+  var st = getSt();
+  var res = q ? st.filter(function(s){ return s.name.toLowerCase().includes(q)||(s.genre&&s.genre.toLowerCase().includes(q)); }) : st.slice(0,20);
+  renderSearchResults(res);
+};
+
+function renderSearchResults(list){
+  searchResults.innerHTML='';
+  if(!list.length){
+    searchResults.innerHTML='<div class="tt-search-empty">Ничего не найдено</div>';
+    return;
   }
+  list.slice(0,30).forEach(function(s){
+    var ci = typeof curIdx!=='undefined'?curIdx:0;
+    var idx = getSt().indexOf(s);
+    var isActive = idx===ci;
+    var cover = s.logo || fbImg(s.name);
+    var item = document.createElement('div'); item.className='tt-search-item';
+    item.innerHTML=
+      '<div class="tt-search-img"><img src="'+cover+'" onerror="this.src=\''+fbImg(s.name)+'\'" loading="lazy"></div>'+
+      '<div style="flex:1;min-width:0"><div class="tt-search-name">'+s.name+'</div><div class="tt-search-genre">'+(s.genre||'Радио')+'</div></div>'+
+      (isActive?'<div class="tt-search-playing">▶</div>':'');
+    (function(i){
+      item.onclick=function(){
+        if(typeof loadStation==='function') loadStation(i,true);
+        ttCloseSearch();
+        setTimeout(function(){ renderAll(); setTimeout(window.ttSyncPlay,150); },100);
+      };
+    })(idx);
+    searchResults.appendChild(item);
+  });
+}
 
-  window.ttToggleFav = function(){
-    if(typeof toggleFav === 'function') toggleFav();
-    setTimeout(function(){
-      var fi = document.getElementById('ttFavIcon');
-      var isFav = (typeof favs!=='undefined') && (typeof curIdx!=='undefined') && (typeof stations!=='undefined') && favs.includes(stations[curIdx].id);
-      if(fi){ fi.textContent = isFav?'♥':'♡'; if(isFav) fi.classList.add('fav-on'); else fi.classList.remove('fav-on'); }
-    },50);
-  };
+// ── Station list ──────────────────────────────────────
+window.ttOpenList = function(){
+  listOverlay.style.display='block';
+  buildListDOM();
+};
+window.ttCloseList = function(){
+  listOverlay.style.display='none';
+};
 
-  window.ttToggleList = function(){
-    var ol = document.getElementById('ttListOverlay');
-    if(!ol) return;
-    var isOpen = ol.style.display !== 'none';
-    ol.style.display = isOpen ? 'none' : 'block';
-    if(!isOpen) ttBuildList();
-  };
+function buildListDOM(){
+  listEl.innerHTML='';
+  var st = getSt(); var ci = typeof curIdx!=='undefined'?curIdx:0;
+  st.forEach(function(s,idx){
+    var isActive = idx===ci;
+    var cover = s.logo || fbImg(s.name);
+    var row = document.createElement('div');
+    row.className='tt-list-item'+(isActive?' active-item':'');
+    row.innerHTML=
+      '<div class="tt-list-img"><img src="'+cover+'" onerror="this.src=\''+fbImg(s.name)+'\'" loading="lazy"></div>'+
+      '<div style="flex:1;min-width:0"><div class="tt-list-name">'+s.name+'</div><div class="tt-list-genre">'+(s.genre||'Радио')+'</div></div>'+
+      (isActive?'<div style="color:#2bbd6e;font-size:16px;flex-shrink:0">▶</div>':'');
+    (function(i){
+      row.onclick=function(){
+        if(typeof loadStation==='function') loadStation(i,true);
+        ttCloseList();
+        setTimeout(function(){ renderAll(); setTimeout(window.ttSyncPlay,150); },100);
+      };
+    })(idx);
+    listEl.appendChild(row);
+  });
+}
 
-  function ttBuildList(){
-    var el = document.getElementById('ttStationList');
-    if(!el) return;
-    var st = ttGetStations();
-    el.innerHTML='';
-    st.forEach(function(s, idx){
-      var isActive = (typeof curIdx!=='undefined') && curIdx===idx;
-      var coverUrl = s.logo || getFallbackImgLocal(s.name);
-      var row = document.createElement('div');
-      row.style.cssText='display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:16px;cursor:pointer;'+(isActive?'background:rgba(43,189,110,0.2);border:1px solid rgba(43,189,110,0.4);':'background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.05);');
-      row.innerHTML=
-        '<div style="width:48px;height:48px;min-width:48px;border-radius:12px;overflow:hidden;flex-shrink:0">'+
-          '<img src="'+coverUrl+'" onerror="this.src=\''+getFallbackImgLocal(s.name)+'\'" style="width:100%;height:100%;object-fit:cover">'+
-        '</div>'+
-        '<div style="flex:1;min-width:0">'+
-          '<div style="font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name+'</div>'+
-          '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px">'+(s.genre||'Радио')+'</div>'+
-        '</div>'+
-        (isActive?'<div style="color:#2bbd6e;font-size:18px">▶</div>':'');
-      (function(i){ row.onclick=function(){
-        if(typeof loadStation==='function') loadStation(i, true);
-        document.getElementById('ttListOverlay').style.display='none';
-        setTimeout(function(){ ttRenderSlide(i); setTimeout(ttSyncPlay,150); }, 120);
-      }; })(idx);
-      el.appendChild(row);
-    });
-  }
+// ── Init ──────────────────────────────────────────────
+function ttInit(){
+  if(initialized || !isMob()) return;
+  initialized=true;
 
-  var touchStartY = 0;
-  var touchStartTime = 0;
+  view.style.display='block';
+  document.body.classList.add('tiktok-mode');
 
-  function onTouchStart(e){
-    if(document.getElementById('ttListOverlay').style.display!=='none') return;
-    touchStartY = e.touches[0].clientY;
-    touchStartTime = Date.now();
-  }
+  // Wait for stations then render
+  var tries=0;
+  var wait=setInterval(function(){
+    tries++;
+    if(getSt().length || tries>40){
+      clearInterval(wait);
+      renderAll();
 
-  function onTouchEnd(e){
-    if(document.getElementById('ttListOverlay').style.display!=='none') return;
-    var dy = touchStartY - e.changedTouches[0].clientY;
-    var dt = Date.now() - touchStartTime;
-    var speed = Math.abs(dy)/dt;
-    if(Math.abs(dy) > 50 || speed > 0.3){
-      if(dy > 0){
-        if(typeof next==='function') next();
-      } else {
-        if(typeof prev==='function') prev();
+      if(!localStorage.getItem('ttHintSeen2')){
+        hint.style.display='flex';
+        localStorage.setItem('ttHintSeen2','1');
+        setTimeout(function(){ hint.style.display='none'; },3000);
       }
-      setTimeout(function(){
-        ttRenderSlide(typeof curIdx!=='undefined'?curIdx:0);
-        setTimeout(window.ttSyncPlay, 150);
-      }, 80);
     }
-  }
+  },200);
 
-  function ttInit(){
-    if(!isMobile()) return;
-    ttView.style.display='block';
-    document.body.classList.add('tiktok-mode');
+  // Touch events — passive where possible, active for move to prevent scroll
+  view.addEventListener('touchstart', onTouchStart, {passive:true});
+  view.addEventListener('touchmove',  onTouchMove,  {passive:false});
+  view.addEventListener('touchend',   onTouchEnd,   {passive:true});
 
-    var tries = 0;
-    var waitForStations = setInterval(function(){
-      tries++;
-      var st = ttGetStations();
-      if(st.length || tries > 30){
-        clearInterval(waitForStations);
-        ttRenderSlide(typeof curIdx!=='undefined' ? curIdx : 0);
-
-        if(!localStorage.getItem('ttHintSeen')){
-          ttHint.style.display='flex';
-          localStorage.setItem('ttHintSeen','1');
-        }
-
-        ttView.addEventListener('touchstart', onTouchStart, {passive:true});
-        ttView.addEventListener('touchend', onTouchEnd, {passive:true});
-
-        document.addEventListener('keydown', function(e){
-          if(e.key==='ArrowDown'||e.key==='ArrowRight'){
-            if(typeof next==='function') next();
-            setTimeout(function(){ ttRenderSlide(curIdx); setTimeout(window.ttSyncPlay,150); },80);
-          } else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
-            if(typeof prev==='function') prev();
-            setTimeout(function(){ ttRenderSlide(curIdx); setTimeout(window.ttSyncPlay,150); },80);
-          }
-        });
-
-        // Patch setPlaying to sync TikTok UI
-        var origSetPlaying = window.setPlaying;
-        window.setPlaying = function(on){
-          if(origSetPlaying) origSetPlaying(on);
-          if(isMobile()) setTimeout(window.ttSyncPlay, 80);
-        };
-
-        setInterval(function(){
-          if(isMobile()) ttSyncTrack();
-        }, 5000);
-      }
-    }, 300);
-  }
-
-  window.addEventListener('resize', function(){
-    if(isMobile()){
-      ttView.style.display='block';
-      document.body.classList.add('tiktok-mode');
-    } else {
-      ttView.style.display='none';
-      document.body.classList.remove('tiktok-mode');
-    }
+  // Keyboard
+  document.addEventListener('keydown', function(e){
+    if(!isMob()) return;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') goNext();
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp') goPrev();
   });
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(ttInit, 500); });
+  // Patch setPlaying to update TikTok UI
+  var origSP = window.setPlaying;
+  window.setPlaying = function(on){
+    if(origSP) origSP(on);
+    if(isMob()) setTimeout(window.ttSyncPlay, 80);
+  };
+
+  // Track text sync
+  setInterval(function(){ if(isMob()) ttSyncTrack(); }, 6000);
+
+  // Swipe search hint close on outside tap
+  document.addEventListener('touchstart', function(e){
+    if(searchOverlay.classList.contains('open') && !searchOverlay.contains(e.target)){
+      ttCloseSearch();
+    }
+  }, {passive:true});
+}
+
+window.addEventListener('resize', function(){
+  if(isMob()){
+    if(!initialized){ ttInit(); }
+    else { view.style.display='block'; document.body.classList.add('tiktok-mode'); }
   } else {
-    setTimeout(ttInit, 500);
+    view.style.display='none';
+    document.body.classList.remove('tiktok-mode');
   }
+});
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(ttInit,300); });
+} else {
+  setTimeout(ttInit,300);
+}
+
 })();
 </script>
 
