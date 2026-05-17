@@ -583,6 +583,86 @@ body.dark .chat-msg-body { background: rgba(255,255,255,0.04); }
 .chat-msg-text { word-break: break-word; line-height: 1.45; font-size: 13px; color: var(--text); }
 </style>
 <script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));</script>
+
+<style id="responsive-hotfix-v3">
+*{box-sizing:border-box}
+body{overflow-x:hidden!important}
+
+@media (max-width:768px){
+
+#ttSlide,
+.tt-slide3,
+#tiktokView{
+width:100vw!important;
+max-width:100vw!important;
+overflow:hidden!important;
+}
+
+.tt-logo{
+width:clamp(110px,38vw,180px)!important;
+height:clamp(110px,38vw,180px)!important;
+min-width:auto!important;
+min-height:auto!important;
+max-width:none!important;
+max-height:none!important;
+}
+
+.tt-controls{
+position:absolute!important;
+left:0!important;
+right:0!important;
+bottom:38px!important;
+width:100%!important;
+padding:0 18px!important;
+display:flex!important;
+justify-content:center!important;
+align-items:flex-end!important;
+z-index:30!important;
+gap:18px!important;
+}
+
+.tt-bottom-info{
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+width:100%!important;
+text-align:center!important;
+}
+
+.tt-nav-row{
+order:-1!important;
+margin-bottom:16px!important;
+justify-content:center!important;
+}
+
+.tt-actions,
+.tt-side-actions{
+position:absolute!important;
+right:14px!important;
+bottom:118px!important;
+display:flex!important;
+flex-direction:column!important;
+gap:18px!important;
+z-index:40!important;
+}
+
+.tt-action-icon,
+.tt-side-icon{
+width:48px!important;
+height:48px!important;
+}
+
+#searchWrap{
+position:fixed!important;
+right:14px!important;
+bottom:14px!important;
+width:58px!important;
+z-index:100!important;
+}
+}
+</style>
+
 </head>
 <body>
 <!-- ══ MOBILE RADIO VIEW ══════════════════════════════════ -->
@@ -1308,17 +1388,17 @@ function renderSlide(){
           '<div class="tt-station-name-sm">'+s.name+'</div>'+
           '<div class="tt-genre-sm">'+(s.genre||'Радио')+'</div>'+
           '<div class="tt-nav-row">'+
-            '<button class="tt-nav-btn" id="ttPrevBtn" ontouchend="ttPrev(event)" onclick="ttPrev(event)">'+
+            '<button class="tt-nav-btn" id="ttPrevBtn" ontouchend_disabled="ttPrev(event)" onclick="ttPrev(event)">'+
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>'+
             '</button>'+
-            '<button class="tt-play-btn" id="ttPlayBtn" ontouchend="ttTapPlay(event)" onclick="ttTapPlay(event)">'+piSvg+'</button>'+
-            '<button class="tt-nav-btn" id="ttNextBtn" ontouchend="ttNext(event)" onclick="ttNext(event)">'+
+            '<button class="tt-play-btn" id="ttPlayBtn" ontouchend_disabled="ttTapPlay(event)" onclick="ttTapPlay(event)">'+piSvg+'</button>'+
+            '<button class="tt-nav-btn" id="ttNextBtn" ontouchend_disabled="ttNext(event)" onclick="ttNext(event)">'+
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'+
             '</button>'+
           '</div>'+
         '</div>'+
         '<div class="tt-side-actions">'+
-          '<button class="tt-side-btn" ontouchend="ttTapFav(event)" onclick="ttTapFav(event)">'+
+          '<button class="tt-side-btn" ontouchend_disabled="ttTapFav(event)" onclick="ttTapFav(event)">'+
             '<div class="tt-side-icon'+(isFav?' fav-on':'')+'" id="ttFavIcon">'+(isFav?'♥':'♡')+'</div>'+
             '<div class="tt-side-label">Избранное</div>'+
           '</button>'+
@@ -1565,7 +1645,7 @@ function ttInit(){
   setInterval(function(){ if(isMob()) ttSyncTrack(); },5000);
 
   // Close search on outside tap
-  document.addEventListener('touchstart',function(e){
+  document.addEventListener('touchstart_disabled',function(e){
     if(searchOv.classList.contains('open')&&!searchOv.contains(e.target)) ttCloseSearch();
   },{passive:true});
 }
