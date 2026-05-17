@@ -1717,5 +1717,205 @@ if(document.readyState==='loading'){
 })();
 </script>
 
+
+<style>
+.navBtn,.genreBtn{
+border:none;
+border-radius:16px;
+padding:12px 16px;
+background:rgba(255,255,255,.12);
+color:white;
+font-weight:700;
+cursor:pointer;
+backdrop-filter:blur(10px);
+}
+.navBtn.active{
+transform:scale(.95);
+background:rgba(0,212,255,.35);
+}
+#searchWrap{
+position:fixed!important;
+bottom:0!important;
+left:0!important;
+right:0!important;
+z-index:9999!important;
+backdrop-filter:blur(16px);
+background:rgba(10,10,10,.72);
+padding:12px;
+}
+body{padding-bottom:100px!important;}
+</style>
+
+<div id="genrePanel" style="margin:14px 0;">
+<div style="display:flex;gap:10px;overflow:auto;padding-bottom:8px">
+<button class="genreBtn" data-genre="pop">POP</button>
+<button class="genreBtn" data-genre="edm">EDM</button>
+<button class="genreBtn" data-genre="rock">ROCK</button>
+<button class="genreBtn" data-genre="news">NEWS</button>
+</div>
+<div id="genreStations" style="display:none;background:rgba(255,255,255,.06);border-radius:18px;padding:10px;margin-top:10px;max-height:240px;overflow:auto"></div>
+</div>
+
+<div id="advancedControls" style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;">
+<button id="prevBtn" class="navBtn">⏮</button>
+<button id="back15Btn" class="navBtn">↺ 15s</button>
+<button id="forward15Btn" class="navBtn">15s ↻</button>
+<button id="nextBtn" class="navBtn">⏭</button>
+</div>
+
+<div id="chatBox" style="margin-top:16px;background:rgba(255,255,255,.06);border-radius:18px;padding:12px;">
+<div style="font-weight:700;margin-bottom:10px">💬 Radio Chat</div>
+<div id="chatMessages" style="max-height:180px;overflow:auto;margin-bottom:10px;">
+<div style="padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.07);margin-bottom:8px;">Добро пожаловать в чат радио 🎧</div>
+</div>
+<div style="display:flex;gap:8px">
+<input id="chatInput" placeholder="Написать сообщение..." style="flex:1;border:none;border-radius:12px;padding:12px;background:rgba(255,255,255,.08);color:white;">
+<button id="sendChatBtn" class="navBtn">➤</button>
+</div>
+</div>
+
+<script>
+(function(){
+
+function pulse(btn){
+btn.classList.add("active");
+setTimeout(()=>btn.classList.remove("active"),160);
+}
+
+function reconnect(){
+setTimeout(()=>{
+try{
+if(window.stations && typeof curIdx !== "undefined" && window.playStream){
+playStream(stations[curIdx].stream);
+}
+}catch(e){}
+},2200);
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const audio=document.querySelector("audio");
+if(audio){
+audio.preload="auto";
+audio.addEventListener("waiting",reconnect);
+audio.addEventListener("stalled",reconnect);
+audio.addEventListener("error",reconnect);
+}
+
+const prev=document.getElementById("prevBtn");
+const next=document.getElementById("nextBtn");
+
+if(prev){
+prev.onclick=()=>{
+pulse(prev);
+try{
+curIdx--;
+if(curIdx<0) curIdx=stations.length-1;
+if(window.playStation){playStation(curIdx);}
+else if(window.playStream){playStream(stations[curIdx].stream);}
+}catch(e){}
+};
+}
+
+if(next){
+next.onclick=()=>{
+pulse(next);
+try{
+curIdx++;
+if(curIdx>=stations.length) curIdx=0;
+if(window.playStation){playStation(curIdx);}
+else if(window.playStream){playStream(stations[curIdx].stream);}
+}catch(e){}
+};
+}
+
+const b15=document.getElementById("back15Btn");
+const f15=document.getElementById("forward15Btn");
+
+if(b15){
+b15.onclick=()=>{
+pulse(b15);
+const t=document.getElementById("bufferText");
+if(t){t.innerText="↺ Возврат буфера 15 секунд";}
+};
+}
+
+if(f15){
+f15.onclick=()=>{
+pulse(f15);
+const t=document.getElementById("bufferText");
+if(t){t.innerText="↻ Перемотка буфера 15 секунд";}
+};
+}
+
+const genreBtns=document.querySelectorAll(".genreBtn");
+const genreBox=document.getElementById("genreStations");
+
+genreBtns.forEach(btn=>{
+btn.onclick=()=>{
+pulse(btn);
+
+if(!window.stations) return;
+
+genreBox.style.display="block";
+genreBox.innerHTML="";
+
+const genre=btn.dataset.genre;
+
+stations.filter(s=>
+(String(s.genre||"").toLowerCase().includes(genre) ||
+String(s.tag||"").toLowerCase().includes(genre))
+).forEach(s=>{
+
+const el=document.createElement("div");
+
+el.style.cssText="padding:10px;border-radius:12px;margin-bottom:8px;background:rgba(255,255,255,.05);cursor:pointer";
+
+el.innerHTML="🎵 "+s.name+" <span style='opacity:.7'>• "+s.genre+"</span>";
+
+el.onclick=()=>{
+try{
+curIdx=stations.indexOf(s);
+if(window.playStation){playStation(curIdx);}
+else if(window.playStream){playStream(s.stream);}
+}catch(e){}
+};
+
+genreBox.appendChild(el);
+
+});
+};
+});
+
+const send=document.getElementById("sendChatBtn");
+const input=document.getElementById("chatInput");
+const msgs=document.getElementById("chatMessages");
+
+function sendMsg(){
+if(!input.value.trim()) return;
+
+const d=document.createElement("div");
+d.style.cssText="padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.07);margin-bottom:8px;";
+d.textContent=input.value;
+
+msgs.appendChild(d);
+msgs.scrollTop=msgs.scrollHeight;
+
+input.value="";
+}
+
+if(send) send.onclick=sendMsg;
+
+if(input){
+input.addEventListener("keypress",e=>{
+if(e.key==="Enter") sendMsg();
+});
+}
+
+});
+
+})();
+</script>
+
 </body>
 </html>
