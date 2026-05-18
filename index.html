@@ -137,8 +137,6 @@ body.split .list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fav-btn{background:none;border:none;cursor:pointer;font-size:26px;color:var(--muted);flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:transform .15s}
 .fav-btn:active{transform:scale(1.18)}
 .fav-btn.on{color:var(--brand)}
-
-/* VIZ */
 .loading-bar{height:4px;background:var(--border);border-radius:99px;margin-bottom:var(--sp-sm);overflow:hidden;display:none}
 .loading-bar.active{display:block}
 .loading-bar-inner{height:100%;width:30%;background:var(--accent);border-radius:99px;animation:streamLoad 1.2s infinite}
@@ -149,8 +147,6 @@ body.split .list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .now-card.has-bg .bar{background:rgba(255,255,255,.25)}
 .now-card.has-bg .bar.on{background:rgba(255,255,255,.95)}
 @keyframes dynamicWave{from{height:4px}to{height:26px}}
-
-/* CONTROLS */
 .controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--sp-sm)}
 .ctrl{width:50px;height:50px;border-radius:var(--r-btn);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--pill-text);transition:transform .15s;flex-shrink:0}
 .ctrl:active{transform:scale(.94)}
@@ -160,7 +156,7 @@ body.split .list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .play-btn svg{width:24px;height:24px;fill:var(--bg);margin-left:3px}
 .play-btn.playing svg{margin-left:0}
 
-/* VOLUME — адаптивный с точным позиционированием fill */
+/* VOLUME */
 .vol-row{display:flex;align-items:center;gap:12px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
 .vol-icon-svg{display:flex;align-items:center;flex-shrink:0;color:var(--muted);width:20px;height:20px}
 .vol-icon-svg svg{width:100%;height:100%}
@@ -229,274 +225,106 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
 .chat-msg-name{font-weight:700;font-size:11px;margin-bottom:2px;color:var(--muted)}
 .chat-msg-text{word-break:break-word;line-height:1.45;font-size:13px;color:var(--text)}
 
-/* ══ MOBILE VIEW ══════════════════════════════════════════════ */
+/* ══ MOBILE VIEW ══════════════════════════════════════════════
+   ВАЖНО: здесь нет position:fixed для .controls — они принадлежат
+   только #tiktokView и рендерятся через JS renderSlide()
+   ══════════════════════════════════════════════════════════ */
 @media(max-width:768px){
   html,body{background:#000!important}
 
-  /* Основной контейнер */
+  /* FIX: скрываем десктопный вид когда активен мобильный */
+  body.tt-active .page{display:none!important}
+
   #tiktokView{
     position:fixed;inset:0;z-index:9999;background:#000;
     overflow:hidden;width:100vw;height:100dvh;
     -webkit-user-select:none;user-select:none;display:none
   }
-
-  /* Слайд — весь экран */
-  #ttSlide{
-    position:absolute;inset:0;
-    display:flex;flex-direction:column;align-items:center;
-    justify-content:flex-start;overflow:hidden
-  }
+  #ttSlide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden}
   #ttSlide.fade-in{animation:ttFadeIn .25s ease forwards}
   @keyframes ttFadeIn{from{opacity:0}to{opacity:1}}
+  .tt-bg{position:absolute;inset:-30px;z-index:0;background-size:cover;background-position:center;filter:blur(40px) brightness(.25) saturate(1.4);transform:scale(1.12) translateZ(0)}
+  .tt-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 55%,rgba(0,0,0,.85) 100%)}
 
-  /* Размытый фон */
-  .tt-bg{
-    position:absolute;inset:-30px;z-index:0;
-    background-size:cover;background-position:center;
-    filter:blur(40px) brightness(.25) saturate(1.4);
-    transform:scale(1.12) translateZ(0)
-  }
-  /* Градиенты поверх */
-  .tt-bg-overlay{
-    position:absolute;inset:0;z-index:1;
-    background:linear-gradient(
-      180deg,
-      rgba(0,0,0,.5) 0%,
-      rgba(0,0,0,0) 30%,
-      rgba(0,0,0,0) 55%,
-      rgba(0,0,0,.85) 100%
-    )
-  }
-
-  /* ── HEADER ── */
-  .tt-header{
-    position:absolute;top:0;left:0;right:0;z-index:30;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;
-    background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 100%)
-  }
+  /* HEADER */
+  .tt-header{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 100%)}
   .tt-header-left{display:flex;align-items:center;gap:10px}
   .tt-title{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;letter-spacing:-.2px}
   .tt-header-right{display:flex;gap:8px}
-  .tt-hbtn{
-    width:36px;height:36px;border-radius:50%;
-    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;
-    flex-shrink:0;transition:transform .1s
-  }
+  .tt-hbtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:transform .1s}
   .tt-hbtn:active{transform:scale(.84)}
   .tt-hbtn svg{width:17px;height:17px}
   .tt-hbtn.on{background:rgba(255,255,255,.9);color:#000}
 
-  /* ── ЦЕНТРАЛЬНЫЙ КОНТЕНТ (лого + инфо) ── */
-  .tt-center{
-    position:absolute;z-index:3;
-    top:50%;left:0;right:0;
-    transform:translateY(-58%);
-    display:flex;flex-direction:column;align-items:center;
-    padding:0 80px 0 20px  /* правый отступ = место под боковые кнопки */
-  }
-  .tt-logo{
-    width:clamp(100px,30vw,150px);height:clamp(100px,30vw,150px);
-    border-radius:50%;background:#1a1a1a;overflow:hidden;flex-shrink:0;
-    box-shadow:0 12px 44px rgba(0,0,0,.65),0 0 0 3px rgba(255,255,255,.08);
-    margin-bottom:20px
-  }
+  /* ЦЕНТРАЛЬНЫЙ БЛОК (лого + инфо) */
+  .tt-center{position:absolute;z-index:3;top:50%;left:0;right:0;transform:translateY(-58%);display:flex;flex-direction:column;align-items:center;padding:0 80px 0 20px}
+  .tt-logo{width:clamp(100px,30vw,150px);height:clamp(100px,30vw,150px);border-radius:50%;background:#1a1a1a;overflow:hidden;flex-shrink:0;box-shadow:0 12px 44px rgba(0,0,0,.65),0 0 0 3px rgba(255,255,255,.08);margin-bottom:20px}
   .tt-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
   .tt-logo.playing{animation:ttLogoSpin 12s linear infinite}
   @keyframes ttLogoSpin{to{transform:rotate(360deg)}}
-
   .tt-info{text-align:center;width:100%}
-  .tt-name{
-    font-family:'DM Serif Display',serif;
-    font-size:clamp(20px,5.5vw,28px);
-    color:#fff;line-height:1.2;margin-bottom:5px;
-    text-shadow:0 2px 16px rgba(0,0,0,.5);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-  }
-  .tt-genre{
-    font-size:11px;font-weight:700;letter-spacing:2px;
-    text-transform:uppercase;color:rgba(255,255,255,.5)
-  }
-  .tt-track{
-    font-size:12px;font-weight:600;color:#f0a030;
-    max-width:100%;overflow:hidden;white-space:nowrap;
-    text-overflow:ellipsis;margin-top:8px;min-height:16px
-  }
-  .tt-viz{
-    display:flex;align-items:flex-end;gap:3px;
-    height:22px;margin-top:16px;justify-content:center
-  }
+  .tt-name{font-family:'DM Serif Display',serif;font-size:clamp(20px,5.5vw,28px);color:#fff;line-height:1.2;margin-bottom:5px;text-shadow:0 2px 16px rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tt-genre{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  .tt-track{font-size:12px;font-weight:600;color:#f0a030;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:8px;min-height:16px}
+  .tt-viz{display:flex;align-items:flex-end;gap:3px;height:22px;margin-top:16px;justify-content:center}
   .tt-bar{width:3px;background:rgba(255,255,255,.18);border-radius:99px;height:4px}
-  .tt-bar.on{
-    background:rgba(255,255,255,.9);
-    animation:ttWave var(--dur,.65s) ease-in-out infinite alternate
-  }
+  .tt-bar.on{background:rgba(255,255,255,.9);animation:ttWave var(--dur,.65s) ease-in-out infinite alternate}
   @keyframes ttWave{from{height:4px}to{height:22px}}
 
-  /* ── БОКОВЫЕ КНОПКИ (справа, как в TikTok) ── */
-  .tt-side-actions{
-    position:absolute;right:14px;
-    top:50%;transform:translateY(-50%);
-    display:flex;flex-direction:column;
-    align-items:center;gap:20px;z-index:40
-  }
-  .tt-side-btn{
-    display:flex;flex-direction:column;align-items:center;gap:5px;
-    background:none;border:none;cursor:pointer;
-    -webkit-tap-highlight-color:transparent;padding:0
-  }
-  .tt-side-icon{
-    width:52px;height:52px;border-radius:16px;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.1);
-    display:flex;align-items:center;justify-content:center;
-    font-size:22px;transition:transform .12s
-  }
+  /* БОКОВЫЕ КНОПКИ — справа по центру, как в TikTok */
+  .tt-side-actions{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:20px;z-index:40}
+  .tt-side-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
+  .tt-side-icon{width:52px;height:52px;border-radius:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .12s}
   .tt-side-icon svg{width:22px;height:22px}
   .tt-side-btn:active .tt-side-icon{transform:scale(.84)}
   .tt-side-icon.fav-on{background:rgba(255,45,85,.3);border-color:rgba(255,45,85,.35)}
   .tt-side-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.3px}
 
-  /* ── НИЖНИЕ КОНТРОЛЫ (prev / play / next по центру) ── */
-  .tt-controls{
-    position:absolute;bottom:0;left:0;right:0;z-index:30;
-    padding:0 20px calc(env(safe-area-inset-bottom,0px)+24px);
-    background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.5) 50%,transparent 100%)
-  }
-  /* Название станции снизу */
-  .tt-bottom-info{
-    margin-bottom:18px;padding-left:4px
-  }
-  .tt-station-label{
-    font-size:9px;font-weight:700;letter-spacing:1.4px;
-    text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:3px
-  }
-  .tt-station-name-sm{
-    font-size:16px;font-weight:700;color:#fff;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    max-width:calc(100vw - 100px)
-  }
+  /* НИЖНИЕ КОНТРОЛЫ */
+  .tt-controls{position:absolute;bottom:0;left:0;right:0;z-index:30;padding:0 20px calc(env(safe-area-inset-bottom,0px)+24px);background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.5) 50%,transparent 100%)}
+  .tt-bottom-info{margin-bottom:18px;padding-left:4px}
+  .tt-station-label{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:3px}
+  .tt-station-name-sm{font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 100px)}
   .tt-genre-sm{font-size:10px;color:rgba(255,255,255,.42);margin-top:2px}
-
-  /* Ряд кнопок управления — строго по центру */
-  .tt-nav-row{
-    display:flex;align-items:center;justify-content:center;
-    gap:20px
-  }
-  .tt-nav-btn{
-    width:56px;height:56px;border-radius:50%;
-    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.1);
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;cursor:pointer;flex-shrink:0;
-    -webkit-tap-highlight-color:transparent;
-    transition:transform .1s,background .12s
-  }
+  /* Кнопки prev/play/next — строго по центру */
+  .tt-nav-row{display:flex;align-items:center;justify-content:center;gap:20px}
+  .tt-nav-btn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:transform .1s,background .12s}
   .tt-nav-btn:active{transform:scale(.84);background:rgba(255,255,255,.24)}
   .tt-nav-btn svg{width:22px;height:22px}
-  .tt-play-btn{
-    width:70px;height:70px;border-radius:50%;
-    background:#fff;border:none;cursor:pointer;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 6px 28px rgba(0,0,0,.45);
-    -webkit-tap-highlight-color:transparent;transition:transform .12s
-  }
+  .tt-play-btn{width:70px;height:70px;border-radius:50%;background:#fff;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 28px rgba(0,0,0,.45);-webkit-tap-highlight-color:transparent;transition:transform .12s}
   .tt-play-btn:active{transform:scale(.88)}
   .tt-play-btn svg{fill:#111}
 
-  /* ── ОВЕРЛЕИ ── */
-  /* Chat */
-  #ttChatOverlay{
-    position:fixed;top:0;left:0;bottom:0;z-index:800;
-    width:min(88vw,340px);background:rgba(6,6,8,.97);
-    transform:translateX(-100%);
-    transition:transform .3s cubic-bezier(.25,.46,.45,.94);
-    display:flex;flex-direction:column;
-    box-shadow:6px 0 36px rgba(0,0,0,.7)
-  }
+  /* ОВЕРЛЕИ */
+  #ttChatOverlay{position:fixed;top:0;left:0;bottom:0;z-index:800;width:min(88vw,340px);background:rgba(6,6,8,.97);transform:translateX(-100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column;box-shadow:6px 0 36px rgba(0,0,0,.7)}
   #ttChatOverlay.open{transform:translateX(0)}
   #ttChatBackdrop{position:fixed;inset:0;z-index:799;background:rgba(0,0,0,.4);display:none}
   #ttChatBackdrop.open{display:block}
-  .tt-chat-header{
-    display:flex;align-items:center;gap:10px;justify-content:space-between;
-    padding:calc(env(safe-area-inset-top,0px)+12px) 14px 12px;
-    border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0
-  }
+  .tt-chat-header{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+12px) 14px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
   .tt-chat-title{font-weight:700;font-size:15px;color:#fff;flex:1}
-  .tt-chat-tg-btn{
-    background:rgba(43,189,110,.18);border:1px solid rgba(43,189,110,.28);
-    color:#2bbd6e;padding:6px 12px;font-size:11px;font-weight:700;
-    cursor:pointer;white-space:nowrap;border-radius:100px;
-    -webkit-tap-highlight-color:transparent;font-family:var(--sys-font)
-  }
-  .tt-chat-close{
-    width:30px;height:30px;border-radius:50%;
-    background:rgba(255,255,255,.07);border:none;
-    color:rgba(255,255,255,.6);display:flex;align-items:center;
-    justify-content:center;font-size:15px;cursor:pointer;flex-shrink:0
-  }
-  .tt-chat-msgs{
-    flex:1;overflow-y:auto;padding:10px 12px;
-    display:flex;flex-direction:column;gap:7px;
-    -webkit-overflow-scrolling:touch;scrollbar-width:none
-  }
+  .tt-chat-tg-btn{background:rgba(43,189,110,.18);border:1px solid rgba(43,189,110,.28);color:#2bbd6e;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:100px;-webkit-tap-highlight-color:transparent;font-family:var(--sys-font)}
+  .tt-chat-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;flex-shrink:0}
+  .tt-chat-msgs{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .tt-chat-msgs::-webkit-scrollbar{display:none}
   .tt-chat-msg{display:flex;gap:8px;align-items:flex-start}
-  .tt-chat-avatar{
-    width:26px;height:26px;min-width:26px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:10px;font-weight:700;color:#fff;flex-shrink:0
-  }
+  .tt-chat-avatar{width:26px;height:26px;min-width:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
   .tt-chat-body{background:rgba(255,255,255,.05);padding:6px 10px;border-radius:12px;max-width:82%}
   .tt-chat-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:2px}
   .tt-chat-text{font-size:13px;color:rgba(255,255,255,.88);line-height:1.4;word-break:break-word}
-  .tt-chat-footer{
-    padding:10px 14px calc(env(safe-area-inset-bottom,0px)+10px);
-    border-top:1px solid rgba(255,255,255,.07);flex-shrink:0
-  }
-  .tt-chat-join-btn{
-    width:100%;padding:12px;border-radius:14px;border:none;
-    background:linear-gradient(135deg,#2bbd6e,#20a558);
-    color:#fff;font-size:14px;font-weight:700;cursor:pointer;
-    -webkit-tap-highlight-color:transparent;font-family:var(--sys-font)
-  }
+  .tt-chat-footer{padding:10px 14px calc(env(safe-area-inset-bottom,0px)+10px);border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+  .tt-chat-join-btn{width:100%;padding:12px;border-radius:14px;border:none;background:linear-gradient(135deg,#2bbd6e,#20a558);color:#fff;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--sys-font)}
   .tt-chat-join-text{font-size:11px;color:rgba(255,255,255,.38);text-align:center;margin-top:6px}
-
-  /* Search */
-  #ttSearchOverlay{
-    position:fixed;bottom:0;left:0;right:0;z-index:600;
-    background:rgba(6,6,8,.98);border-radius:22px 22px 0 0;
-    transform:translateY(100%);
-    transition:transform .3s cubic-bezier(.25,.46,.45,.94);
-    max-height:82vh;display:flex;flex-direction:column;
-    box-shadow:0 -6px 40px rgba(0,0,0,.5)
-  }
+  #ttSearchOverlay{position:fixed;bottom:0;left:0;right:0;z-index:600;background:rgba(6,6,8,.98);border-radius:22px 22px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -6px 40px rgba(0,0,0,.5)}
   #ttSearchOverlay.open{transform:translateY(0)}
-  .tt-search-handle{
-    width:36px;height:4px;background:rgba(255,255,255,.15);
-    border-radius:99px;margin:10px auto 0;flex-shrink:0
-  }
+  .tt-search-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:99px;margin:10px auto 0;flex-shrink:0}
   .tt-search-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;flex-shrink:0}
   .tt-search-icon{color:rgba(255,255,255,.32);flex-shrink:0}
-  #ttSearchInput{
-    flex:1;background:rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.1);border-radius:12px;
-    padding:10px 14px;font-size:15px;font-weight:500;
-    color:#fff;outline:none;font-family:inherit;-webkit-appearance:none
-  }
+  #ttSearchInput{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:500;color:#fff;outline:none;font-family:inherit;-webkit-appearance:none}
   #ttSearchInput::placeholder{color:rgba(255,255,255,.28)}
-  .tt-search-close{
-    background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.75);
-    width:32px;height:32px;border-radius:50%;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0
-  }
+  .tt-search-close{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.75);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
   #ttSearchResults{flex:1;overflow-y:auto;padding:4px 12px 28px;-webkit-overflow-scrolling:touch}
   #ttSearchResults::-webkit-scrollbar{display:none}
-  .tt-s-item{
-    display:flex;align-items:center;gap:11px;padding:9px 6px;
-    border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent
-  }
+  .tt-s-item{display:flex;align-items:center;gap:11px;padding:9px 6px;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .tt-s-item:active{background:rgba(255,255,255,.06)}
   .tt-s-img{width:42px;height:42px;min-width:42px;border-radius:10px;overflow:hidden;background:#222;flex-shrink:0}
   .tt-s-img img{width:100%;height:100%;object-fit:cover;display:block}
@@ -504,33 +332,13 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-s-genre{font-size:11px;color:rgba(255,255,255,.38);margin-top:1px}
   .tt-s-play{color:#2bbd6e;font-size:14px;flex-shrink:0;margin-left:auto}
   .tt-s-empty{text-align:center;color:rgba(255,255,255,.28);padding:28px 0;font-size:14px}
-
-  /* List overlay */
-  #ttListOverlay{
-    position:fixed;inset:0;z-index:700;background:rgba(6,6,8,.98);
-    overflow-y:auto;-webkit-overflow-scrolling:touch;
-    padding:calc(env(safe-area-inset-top,0px)+52px) 12px calc(env(safe-area-inset-bottom,0px)+16px)
-  }
+  #ttListOverlay{position:fixed;inset:0;z-index:700;background:rgba(6,6,8,.98);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px)+52px) 12px calc(env(safe-area-inset-bottom,0px)+16px)}
   #ttListOverlay::-webkit-scrollbar{display:none}
-  .tt-list-fixed-hdr{
-    position:fixed;top:0;left:0;right:0;z-index:701;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;
-    background:rgba(6,6,8,.98);border-bottom:1px solid rgba(255,255,255,.06)
-  }
+  .tt-list-fixed-hdr{position:fixed;top:0;left:0;right:0;z-index:701;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;background:rgba(6,6,8,.98);border-bottom:1px solid rgba(255,255,255,.06)}
   .tt-list-title{font-family:'DM Serif Display',serif;font-size:19px;color:#fff}
-  .tt-list-close{
-    background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.65);
-    width:32px;height:32px;border-radius:50%;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;font-size:16px;
-    -webkit-tap-highlight-color:transparent
-  }
+  .tt-list-close{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.65);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;-webkit-tap-highlight-color:transparent}
   .tt-genre-grp{margin-bottom:6px;border-radius:14px;overflow:hidden}
-  .tt-genre-hdr{
-    display:flex;align-items:center;padding:12px 14px;
-    background:rgba(255,255,255,.07);cursor:pointer;gap:6px;
-    -webkit-tap-highlight-color:transparent
-  }
+  .tt-genre-hdr{display:flex;align-items:center;padding:12px 14px;background:rgba(255,255,255,.07);cursor:pointer;gap:6px;-webkit-tap-highlight-color:transparent}
   .tt-genre-hdr:active{background:rgba(255,255,255,.13)}
   .tt-genre-hdr-name{font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.8px;flex:1}
   .tt-genre-cnt{font-size:11px;color:rgba(255,255,255,.36)}
@@ -538,11 +346,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-genre-grp.open .tt-genre-arr{transform:rotate(180deg)}
   .tt-genre-list{display:none}
   .tt-genre-grp.open .tt-genre-list{display:block}
-  .tt-l-item{
-    display:flex;align-items:center;gap:12px;padding:10px 14px;
-    cursor:pointer;-webkit-tap-highlight-color:transparent;
-    border-top:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.025)
-  }
+  .tt-l-item{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-top:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.025)}
   .tt-l-item:active{background:rgba(255,255,255,.07)}
   .tt-l-item.playing{background:rgba(43,189,110,.09)}
   .tt-l-img{width:40px;height:40px;min-width:40px;border-radius:10px;overflow:hidden;background:#222;flex-shrink:0}
@@ -552,101 +356,6 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-l-play{color:#2bbd6e;font-size:14px;flex-shrink:0;margin-left:auto}
 }
 @media(min-width:769px){#tiktokView{display:none!important}}
-
-/* ===== REAL TIKTOK CONTROLS ===== */
-@media(max-width:768px){
-
-  .tabs,
-  .genres,
-  .search-wrap{
-    display:none!important;
-  }
-
-  .page,
-  .app{
-    padding:0!important;
-    max-width:100%!important;
-  }
-
-  .now-card,
-  .station,
-  .station-card{
-    min-height:100dvh!important;
-    border-radius:0!important;
-    margin:0!important;
-    padding:18px!important;
-    padding-bottom:120px!important;
-    display:flex!important;
-    flex-direction:column!important;
-    justify-content:flex-end!important;
-  }
-
-  /* Right side controls like TikTok */
-  .controls,
-  .player-controls{
-    position:fixed!important;
-    right:12px!important;
-    bottom:120px!important;
-    z-index:99999!important;
-    display:flex!important;
-    flex-direction:column!important;
-    gap:18px!important;
-    align-items:center!important;
-  }
-
-  .controls button,
-  .player-controls button{
-    width:56px!important;
-    height:56px!important;
-    border-radius:50%!important;
-    background:rgba(20,20,20,.85)!important;
-    color:#fff!important;
-    border:none!important;
-  }
-
-  /* CENTER NAV BUTTONS */
-  .tt-nav{
-    position:fixed;
-    left:50%;
-    transform:translateX(-50%);
-    top:50%;
-    margin-top:-34px;
-    width:100%;
-    pointer-events:none;
-    z-index:999999;
-  }
-
-  .tt-prev,
-  .tt-next{
-    position:absolute;
-    pointer-events:auto;
-    width:64px;
-    height:64px;
-    border-radius:50%;
-    border:none;
-    background:rgba(0,0,0,.55);
-    color:#fff;
-    font-size:30px;
-    backdrop-filter:blur(6px);
-  }
-
-  .tt-prev{
-    left:18px;
-  }
-
-  .tt-next{
-    right:18px;
-  }
-
-  /* BIG PLAY BUTTON */
-  .play-btn{
-    width:74px!important;
-    height:74px!important;
-    border-radius:50%!important;
-  }
-
-}
-
 </style>
 <script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));</script>
 </head>
@@ -657,7 +366,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   <div id="ttSlide"></div>
   <div class="tt-header">
     <div class="tt-header-left">
-      <button class="tt-hbtn" id="ttChatBtn" onclick="ttOpenChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="tt-hbtn" onclick="ttOpenChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
       <div class="tt-title">Radio Go</div>
     </div>
     <div class="tt-header-right">
@@ -715,7 +424,6 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
       <button class="icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Чат радио"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
     </div>
   </div>
-
   <div class="app">
     <div class="scroll-area">
       <div class="app-inner">
@@ -729,7 +437,6 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
             <input class="search-input" id="searchInput" placeholder="Поиск любимой волны..." oninput="renderList()">
           </div>
           <div class="genres" id="genrePills"></div>
-
           <div class="now-card" id="nowCard">
             <div class="now-card-bg" id="nowCardBg"></div>
             <div class="now-card-bg-overlay"></div>
@@ -751,7 +458,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
                 <button class="ctrl" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
               </div>
               <div class="vol-row">
-                <span class="vol-icon-svg" id="volIconWrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path id="volWave1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path id="volWave2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
+                <span class="vol-icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
                 <div class="vol-wrap" id="volWrap">
                   <div class="vol-track-bg"></div>
                   <div class="vol-fill" id="volFill"></div>
@@ -764,11 +471,9 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
               </div>
             </div>
           </div>
-
           <div class="section-label" id="listLabel">Все станции</div>
           <div class="list" id="stationList"></div>
         </div>
-
         <div class="app-right">
           <div class="chat-section" id="chatSection">
             <div class="chat-section-header">
@@ -785,43 +490,36 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
 </div>
 
 <audio id="audio"></audio>
-
-<!-- СТАНЦИИ из внешнего файла -->
 <script src="stations.js"></script>
-
 <script>
-// ══ CONFIG ═══════════════════════════════════════════
-const CHAT_API_BASE = "https://radio-chat.deadked2011.workers.dev";
-const tg = window.Telegram?.WebApp;
+const CHAT_API_BASE="https://radio-chat.deadked2011.workers.dev";
+const tg=window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
 
-// ── Platform detection ────────────────────────────────
 (function(){
-  const ua=navigator.userAgent, pl=navigator.platform||'';
+  const ua=navigator.userAgent,pl=navigator.platform||'';
   let c='plt-other';
-  if(/iPhone|iPad|iPod/.test(ua)||(/Mac/.test(pl)&&navigator.maxTouchPoints>1)) c='plt-ios';
-  else if(/Macintosh/.test(ua)) c='plt-mac';
-  else if(/Android/.test(ua)) c='plt-android';
-  else if(/Win/.test(pl)||/Windows/.test(ua)) c='plt-windows';
+  if(/iPhone|iPad|iPod/.test(ua)||(/Mac/.test(pl)&&navigator.maxTouchPoints>1))c='plt-ios';
+  else if(/Macintosh/.test(ua))c='plt-mac';
+  else if(/Android/.test(ua))c='plt-android';
+  else if(/Win/.test(pl)||/Windows/.test(ua))c='plt-windows';
   document.documentElement.classList.add(c);
 })();
 
-function fbImg(n){ return `https://ui-avatars.com/api/?name=${encodeURIComponent(n||'FM')}&background=random&color=fff&size=256&font-size=0.4`; }
+function fbImg(n){return`https://ui-avatars.com/api/?name=${encodeURIComponent(n||'FM')}&background=random&color=fff&size=256&font-size=0.4`;}
 
-// ══ STATE ════════════════════════════════════════════
-const audio = document.getElementById("audio");
-audio.volume = 0.8;
+const audio=document.getElementById("audio");
+audio.volume=0.8;
 
-let curIdx=0, playing=false, activeGenre="all", activeTab="all";
-let darkMode  = localStorage.getItem("rDark")==="1";
-let carMode   = localStorage.getItem("rCar")==="1";
-let splitMode = localStorage.getItem("splitMode")==="1";
-let chatVisible = false;
-let favs = JSON.parse(localStorage.getItem("rfavs")||"[]");
-let hlsInstance=null, nowPlayingTimer=null;
-let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
+let curIdx=0,playing=false,activeGenre="all",activeTab="all";
+let darkMode=localStorage.getItem("rDark")==="1";
+let carMode=localStorage.getItem("rCar")==="1";
+let splitMode=localStorage.getItem("splitMode")==="1";
+let chatVisible=false;
+let favs=JSON.parse(localStorage.getItem("rfavs")||"[]");
+let hlsInstance=null,nowPlayingTimer=null;
+let userPaused=false,wasInterrupted=false,resumeTimer=null,lastAudioTime=0;
 
-// ══ THEME ═════════════════════════════════════════════
 function toggleDark(){
   darkMode=!darkMode;
   document.body.classList.toggle("dark",darkMode);
@@ -831,14 +529,12 @@ function toggleDark(){
   if(tg)tg.HapticFeedback?.impactOccurred("light");
 }
 
-// ══ CAR MODE ══════════════════════════════════════════
-// ИСПРАВЛЕНО: была не определена, крашила скрипт при carMode=1
 function applyCarMode(on){
   ["tabs","searchWrap","genrePills","listLabel","stationList"].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.style.display=on?"none":"";
+    const el=document.getElementById(id);if(el)el.style.display=on?"none":"";
   });
-  if(on && curIdx>=0) renderCarRecs(curIdx);
-  else { const r=document.getElementById("carRecs"); if(r) r.innerHTML=""; }
+  if(on&&curIdx>=0)renderCarRecs(curIdx);
+  else{const r=document.getElementById("carRecs");if(r)r.innerHTML="";}
 }
 function toggleCar(){
   carMode=!carMode;
@@ -849,200 +545,172 @@ function toggleCar(){
   if(tg)tg.HapticFeedback?.impactOccurred("medium");
 }
 
-// ══ SPLIT MODE ════════════════════════════════════════
 function applySplit(on){
   document.body.classList.toggle("split",on);
-  const btn=document.getElementById("splitBtn"); if(btn) btn.classList.toggle("on",on);
-  if(on){ loadChatMessages(); if(curIdx>=0) renderCarRecs(curIdx); }
+  const btn=document.getElementById("splitBtn");if(btn)btn.classList.toggle("on",on);
+  if(on){loadChatMessages();if(curIdx>=0)renderCarRecs(curIdx);}
   localStorage.setItem("splitMode",on?"1":"0");
 }
 function onSplitClick(){
-  if(window.innerWidth<960){ if(tg)tg.HapticFeedback?.notificationOccurred("warning"); return; }
-  splitMode=!splitMode; applySplit(splitMode);
+  if(window.innerWidth<960){if(tg)tg.HapticFeedback?.notificationOccurred("warning");return;}
+  splitMode=!splitMode;applySplit(splitMode);
   if(tg)tg.HapticFeedback?.impactOccurred("light");
 }
 window.addEventListener("resize",()=>{
-  if(window.innerWidth<960 && splitMode && document.body.classList.contains("split")) applySplit(false);
+  if(window.innerWidth<960&&splitMode&&document.body.classList.contains("split"))applySplit(false);
 });
 
-// ══ CHAT ══════════════════════════════════════════════
 function toggleChat(){
   chatVisible=!chatVisible;
   document.getElementById("chatSection").classList.toggle("show",chatVisible);
   document.getElementById("chatToggleBtn").classList.toggle("on",chatVisible);
-  if(chatVisible) loadChatMessages();
+  if(chatVisible)loadChatMessages();
 }
 
-// ══ CLOCK ════════════════════════════════════════════
 function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
-setInterval(tick,1000); tick();
+setInterval(tick,1000);tick();
 
-// ══ VISUALIZER ════════════════════════════════════════
-const bars=[], vizEl=document.getElementById("viz");
+const bars=[],vizEl=document.getElementById("viz");
 for(let i=0;i<24;i++){
-  const b=document.createElement("div"); b.className="bar";
-  const mn=4, mx=4+Math.floor(Math.random()*18);
+  const b=document.createElement("div");b.className="bar";
+  const mn=4,mx=4+Math.floor(Math.random()*18);
   b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${(0.45+Math.random()*0.55).toFixed(2)}s;animation-delay:${(Math.random()*0.4).toFixed(2)}s`;
-  vizEl.appendChild(b); bars.push(b);
+  vizEl.appendChild(b);bars.push(b);
 }
-function vizOn(on){ bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on")); }
-function setLoading(on){ document.getElementById("loadingBar").classList.toggle("active",on); }
+function vizOn(on){bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on"));}
+function setLoading(on){document.getElementById("loadingBar").classList.toggle("active",on);}
 
-// ══ AUDIO — AUTO RESUME ═══════════════════════════════
 audio.addEventListener("pause",()=>{
-  if(userPaused||!playing) return;
-  wasInterrupted=true; lastAudioTime=Date.now();
+  if(userPaused||!playing)return;
+  wasInterrupted=true;lastAudioTime=Date.now();
   clearTimeout(resumeTimer);
-  resumeTimer=setTimeout(()=>{ if(wasInterrupted&&!userPaused&&!document.hidden) attemptResume(); },1500);
+  resumeTimer=setTimeout(()=>{if(wasInterrupted&&!userPaused&&!document.hidden)attemptResume();},1500);
 });
-audio.addEventListener("ended",()=>{ if(!userPaused&&playing){ wasInterrupted=true; attemptResume(); } });
+audio.addEventListener("ended",()=>{if(!userPaused&&playing){wasInterrupted=true;attemptResume();}});
 audio.addEventListener("waiting",()=>setLoading(true));
-audio.addEventListener("playing",()=>{ setLoading(false); simulateBuffering(); });
+audio.addEventListener("playing",()=>{setLoading(false);simulateBuffering();});
 audio.addEventListener("stalled",()=>setLoading(true));
-audio.addEventListener("timeupdate",()=>{
-  const t=document.getElementById("trackTitle");
-  if(t&&window.stations&&window.stations[curIdx]) t.innerText="🎵 "+window.stations[curIdx].name+" • LIVE";
-});
 document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden&&wasInterrupted&&!userPaused){ clearTimeout(resumeTimer); resumeTimer=setTimeout(attemptResume,600); }
+  if(!document.hidden&&wasInterrupted&&!userPaused){clearTimeout(resumeTimer);resumeTimer=setTimeout(attemptResume,600);}
 });
-setInterval(()=>{ if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>4000) attemptResume(); },4000);
+setInterval(()=>{if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>4000)attemptResume();},4000);
 
 async function attemptResume(){
-  wasInterrupted=false;
-  audio.volume=0;
-  if(window.stations&&window.stations[curIdx]) playStream(window.stations[curIdx].stream);
+  wasInterrupted=false;audio.volume=0;
+  if(window.stations&&window.stations[curIdx])playStream(window.stations[curIdx].stream);
   const target=Number(document.getElementById("volSlider").value)/100;
   let v=0;
-  const fade=setInterval(()=>{ v+=0.04; if(v>=target){v=target;clearInterval(fade);} audio.volume=v; },60);
+  const fade=setInterval(()=>{v+=0.04;if(v>=target){v=target;clearInterval(fade);}audio.volume=v;},60);
 }
 
-// ══ MEDIA SESSION ══════════════════════════════════════
 function updateMediaSession(s){
-  if(!("mediaSession" in navigator)) return;
+  if(!("mediaSession" in navigator))return;
   const cover=s.logo||fbImg(s.name);
   navigator.mediaSession.metadata=new MediaMetadata({title:s.name,artist:s.genre||"",album:"Radio Go",artwork:[{src:cover,sizes:"256x256",type:"image/png"}]});
   navigator.mediaSession.setActionHandler("previoustrack",prev);
   navigator.mediaSession.setActionHandler("nexttrack",next);
-  navigator.mediaSession.setActionHandler("play",()=>{ userPaused=false; playStream(window.stations[curIdx].stream); });
-  navigator.mediaSession.setActionHandler("pause",()=>{ userPaused=true; audio.pause(); setPlaying(false); });
+  navigator.mediaSession.setActionHandler("play",()=>{userPaused=false;playStream(window.stations[curIdx].stream);});
+  navigator.mediaSession.setActionHandler("pause",()=>{userPaused=true;audio.pause();setPlaying(false);});
 }
 
-// ══ STREAM ════════════════════════════════════════════
 function playStream(url){
-  if(!url) return;
-  if(hlsInstance){ hlsInstance.destroy(); hlsInstance=null; }
-  setLoading(true); vizOn(false);
-
+  if(!url)return;
+  if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}
+  setLoading(true);vizOn(false);
   if(url.includes(".m3u8")){
     if(audio.canPlayType("application/vnd.apple.mpegurl")){
-      audio.src=url;
-      audio.play().then(()=>setPlaying(true)).catch(onPlayError);
-      return;
+      audio.src=url;audio.play().then(()=>setPlaying(true)).catch(onPlayError);return;
     }
     if(typeof Hls!=="undefined"&&Hls.isSupported()){
       hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
-      hlsInstance.loadSource(url); hlsInstance.attachMedia(audio);
-      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{
-        audio.play().then(()=>setPlaying(true)).catch(onPlayError);
-      });
+      hlsInstance.loadSource(url);hlsInstance.attachMedia(audio);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{audio.play().then(()=>setPlaying(true)).catch(onPlayError);});
       hlsInstance.on(Hls.Events.ERROR,(_,d)=>{
-        if(!navigator.onLine){ showOfflineState(true); return; }
+        if(!navigator.onLine){showOfflineState(true);return;}
         if(d.fatal){
-          if(d.type===Hls.ErrorTypes.NETWORK_ERROR){
-            setTimeout(()=>{ try{ hlsInstance&&hlsInstance.startLoad(); }catch(e){} },1500);
-          } else if(d.type===Hls.ErrorTypes.MEDIA_ERROR){
-            try{ hlsInstance&&hlsInstance.recoverMediaError(); }catch(e){}
-          } else {
-            if(hlsInstance){ hlsInstance.destroy(); hlsInstance=null; }
-            onPlayError();
-          }
+          if(d.type===Hls.ErrorTypes.NETWORK_ERROR)setTimeout(()=>{try{hlsInstance&&hlsInstance.startLoad();}catch(e){}},1500);
+          else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)try{hlsInstance&&hlsInstance.recoverMediaError();}catch(e){}
+          else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}onPlayError();}
         }
       });
       return;
     }
   }
-  audio.src=url;
-  audio.play().then(()=>setPlaying(true)).catch(onPlayError);
+  audio.src=url;audio.play().then(()=>setPlaying(true)).catch(onPlayError);
 }
 
 function setPlaying(on){
-  playing=on; setLoading(false); vizOn(on);
+  playing=on;setLoading(false);vizOn(on);
   document.getElementById("liveDot").classList.toggle("on",on);
   document.getElementById("playBtn").classList.toggle("playing",on);
   document.getElementById("playIcon").innerHTML=on
     ?'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>'
     :'<polygon points="5 3 19 12 5 21 5 3"/>';
-  if("mediaSession" in navigator) navigator.mediaSession.playbackState=on?"playing":"paused";
-  if(window.ttSyncPlay) window.ttSyncPlay();
+  if("mediaSession" in navigator)navigator.mediaSession.playbackState=on?"playing":"paused";
+  if(window.ttSyncPlay)window.ttSyncPlay();
 }
 
 function onPlayError(){
-  playing=false; setPlaying(false); setLoading(false);
-  const inner=document.getElementById("nowTrackInner"), el=document.getElementById("nowTrack");
-  if(inner&&el){ inner.textContent="⚠️ Поток недоступен. Переключаем..."; el.classList.add("visible"); }
-  setTimeout(()=>{ if(!playing) next(); },3000);
+  playing=false;setPlaying(false);setLoading(false);
+  const inner=document.getElementById("nowTrackInner"),el=document.getElementById("nowTrack");
+  if(inner&&el){inner.textContent="⚠️ Поток недоступен. Переключаем...";el.classList.add("visible");}
+  setTimeout(()=>{if(!playing)next();},3000);
 }
 
 function togglePlay(){
   if(tg)tg.HapticFeedback?.impactOccurred("light");
-  if(!playing){ userPaused=false; wasInterrupted=false; playStream(window.stations[curIdx].stream); }
-  else{ userPaused=true; wasInterrupted=false; clearTimeout(resumeTimer); if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); setPlaying(false); }
+  if(!playing){userPaused=false;wasInterrupted=false;playStream(window.stations[curIdx].stream);}
+  else{userPaused=true;wasInterrupted=false;clearTimeout(resumeTimer);if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();setPlaying(false);}
 }
-function prev(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx-1+window.stations.length)%window.stations.length,true); }
-function next(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx+1)%window.stations.length,true); }
+function prev(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx-1+window.stations.length)%window.stations.length,true);}
+function next(){if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation((curIdx+1)%window.stations.length,true);}
 
-// ══ VOLUME — пиксельно-точный fill ════════════════════
-const VOL_THUMB_R = 9; // половина ширины thumb (18px)
+const VOL_THUMB_R=9;
 function recalcVolFill(v){
-  const fill=document.getElementById("volFill");
-  const slider=document.getElementById("volSlider");
-  if(!fill||!slider) return;
+  const fill=document.getElementById("volFill"),slider=document.getElementById("volSlider");
+  if(!fill||!slider)return;
   const w=slider.getBoundingClientRect().width||slider.offsetWidth;
-  if(!w) return;
-  const usable=w-VOL_THUMB_R*2;
+  if(!w)return;
   fill.style.left=VOL_THUMB_R+"px";
-  fill.style.width=Math.max(0,(v/100)*usable)+"px";
+  fill.style.width=Math.max(0,(v/100)*(w-VOL_THUMB_R*2))+"px";
 }
 function onVolChange(v){
-  v=Number(v); audio.volume=v/100;
+  v=Number(v);audio.volume=v/100;
   recalcVolFill(v);
   document.getElementById("volVal").textContent=Math.round(v)+"%";
 }
-window.addEventListener("resize",()=>recalcVolFill(Number(document.getElementById("volSlider")?.value||80)));
+window.addEventListener("resize",()=>requestAnimationFrame(()=>recalcVolFill(Number(document.getElementById("volSlider")?.value||80))));
 
-// ══ STATION LOADING ════════════════════════════════════
-function ge(tag){ return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",rap:"🎙️",dnb:"🥁",trance:"✨",techno:"⚙️",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵"; }
+function ge(tag){return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",rap:"🎙️",dnb:"🥁",trance:"✨",techno:"⚙️",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵";}
 
 function loadStation(idx,autoplay){
-  if(!window.stations||!window.stations.length) return;
-  curIdx=idx; const s=window.stations[idx];
+  if(!window.stations||!window.stations.length)return;
+  curIdx=idx;const s=window.stations[idx];
   const cover=s.logo||fbImg(s.name);
   document.getElementById("nowLogo").innerHTML=`<img src="${cover}" onerror="this.src='${fbImg(s.name)}'">`;
   document.getElementById("nowName").textContent=s.name;
   document.getElementById("nowGenre").textContent=s.genre||"";
-  const card=document.getElementById("nowCard"); card.classList.add("visible");
-  const bg=document.getElementById("nowCardBg"), amb=document.getElementById("ambientBg");
+  const card=document.getElementById("nowCard");card.classList.add("visible");
+  const bg=document.getElementById("nowCardBg"),amb=document.getElementById("ambientBg");
   if(s.logo){
-    bg.style.backgroundImage=`url(${s.logo})`; card.classList.add("has-bg");
-    if(amb){ amb.style.backgroundImage=`url(${s.logo})`; amb.classList.add("on"); }
-  } else {
-    bg.style.backgroundImage=""; card.classList.remove("has-bg");
-    if(amb){ amb.style.backgroundImage=""; amb.classList.remove("on"); }
+    bg.style.backgroundImage=`url(${s.logo})`;card.classList.add("has-bg");
+    if(amb){amb.style.backgroundImage=`url(${s.logo})`;amb.classList.add("on");}
+  }else{
+    bg.style.backgroundImage="";card.classList.remove("has-bg");
+    if(amb){amb.style.backgroundImage="";amb.classList.remove("on");}
   }
-  updateFavBtn(); updateMediaSession(s); renderList(); startNowPlaying(s.stream); renderCarRecs(idx);
-  if(autoplay||playing){ userPaused=false; playStream(s.stream); }
-  else{ if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); audio.src=""; setPlaying(false); }
+  updateFavBtn();updateMediaSession(s);renderList();startNowPlaying(s.stream);renderCarRecs(idx);
+  if(autoplay||playing){userPaused=false;playStream(s.stream);}
+  else{if(hlsInstance){hlsInstance.destroy();hlsInstance=null;}audio.pause();audio.src="";setPlaying(false);}
 }
 
-// ══ FAVORITES — используем name, не id (в stations.js нет поля id) ══
 function toggleFav(){
   if(tg)tg.HapticFeedback?.notificationOccurred("success");
   const key=window.stations[curIdx].name;
   const i=favs.indexOf(key);
-  if(i===-1) favs.push(key); else favs.splice(i,1);
+  if(i===-1)favs.push(key);else favs.splice(i,1);
   localStorage.setItem("rfavs",JSON.stringify(favs));
-  updateFavBtn(); if(activeTab==="fav") renderList();
+  updateFavBtn();if(activeTab==="fav")renderList();
 }
 function updateFavBtn(){
   const on=favs.includes(window.stations[curIdx].name);
@@ -1050,117 +718,109 @@ function updateFavBtn(){
   document.getElementById("favBtn").classList.toggle("on",on);
 }
 
-// ══ TABS ══════════════════════════════════════════════
 function setTab(tab){
   activeTab=tab;
   document.getElementById("tabAll").classList.toggle("active",tab==="all");
   document.getElementById("tabFav").classList.toggle("active",tab==="fav");
   document.getElementById("searchWrap").style.display=tab==="all"?"":"none";
   document.getElementById("genrePills").style.display=tab==="all"?"":"none";
-  if(tab==="all") renderGenres();
+  if(tab==="all")renderGenres();
   renderList();
 }
 
-// ══ GENRES — используем массив genres из stations.js ════
 function renderGenres(){
-  const el=document.getElementById("genrePills"); el.innerHTML="";
-  if(!window.stations||!window.stations.length) return;
-  // Используем genres[] из stations.js если есть, иначе строим из тегов
+  const el=document.getElementById("genrePills");el.innerHTML="";
+  if(!window.stations||!window.stations.length)return;
   const list=(window.genres&&Array.isArray(window.genres)&&window.genres.length)
-    ? window.genres
-    : [{id:"all",label:"Все"},...Array.from(new Set(window.stations.map(s=>s.tag).filter(Boolean))).map(t=>({id:t,label:t}))];
+    ?window.genres
+    :[{id:"all",label:"Все"},...Array.from(new Set(window.stations.map(s=>s.tag).filter(Boolean))).map(t=>({id:t,label:t}))];
   list.forEach(g=>{
     const b=document.createElement("button");
     b.className="genre-pill"+(g.id===activeGenre?" active":"");
     b.textContent=g.label||g.id;
-    b.onclick=()=>{ activeGenre=g.id; renderGenres(); renderList(); };
+    b.onclick=()=>{activeGenre=g.id;renderGenres();renderList();};
     el.appendChild(b);
   });
 }
 
-// ══ STATION LIST — expanded per context ════════════════
-const SHOW_INIT=8, listExpanded={};
+const SHOW_INIT=8,listExpanded={};
 function renderList(){
-  if(!window.stations||!window.stations.length) return;
+  if(!window.stations||!window.stations.length)return;
   const q=(document.getElementById("searchInput").value||"").toLowerCase();
-  const el=document.getElementById("stationList"); el.innerHTML="";
+  const el=document.getElementById("stationList");el.innerHTML="";
   let filtered=window.stations.filter(s=>{
-    if(activeTab==="fav"&&!favs.includes(s.name)) return false;
-    if(activeTab==="all"&&activeGenre!=="all"&&s.tag!==activeGenre) return false;
-    if(q&&!s.name.toLowerCase().includes(q)&&!(s.genre&&s.genre.toLowerCase().includes(q))) return false;
+    if(activeTab==="fav"&&!favs.includes(s.name))return false;
+    if(activeTab==="all"&&activeGenre!=="all"&&s.tag!==activeGenre)return false;
+    if(q&&!s.name.toLowerCase().includes(q)&&!(s.genre&&s.genre.toLowerCase().includes(q)))return false;
     return true;
   });
   document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${filtered.length})`:`Все станции (${filtered.length})`;
-  if(!filtered.length){ el.innerHTML=activeTab==="fav"?'<div class="empty">♡ Нажмите ♡ на любой станции</div>':'<div class="empty">Ничего не найдено</div>'; return; }
+  if(!filtered.length){el.innerHTML=activeTab==="fav"?'<div class="empty">♡ Нажмите ♡ на любой станции</div>':'<div class="empty">Ничего не найдено</div>';return;}
   const key=activeTab+"_"+activeGenre+"_"+q;
   const expanded=!!listExpanded[key];
   filtered.slice(0,expanded?filtered.length:Math.min(SHOW_INIT,filtered.length)).forEach(s=>{
-    const idx=window.stations.indexOf(s), row=document.createElement("div");
+    const idx=window.stations.indexOf(s),row=document.createElement("div");
     row.className="row"+(idx===curIdx?" active":"");
     const img=s.logo||fbImg(s.name);
     row.innerHTML=`<div class="row-img"><img src="${img}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre||"Радио"}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-eq"><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div></div></div>`;
-    row.onclick=()=>{ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation(idx,true); };
+    row.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(idx,true);};
     el.appendChild(row);
   });
   if(filtered.length>SHOW_INIT){
-    const hidden=filtered.length-SHOW_INIT, btn=document.createElement("button");
-    btn.className="show-more-btn"+(expanded?" expanded":"");
+    const hidden=filtered.length-SHOW_INIT,btn=document.createElement("button");
+    btn.className="show-more-btn";
     btn.textContent=expanded?"Свернуть":`Ещё ${hidden} станций`;
-    btn.onclick=()=>{ if(tg)tg.HapticFeedback?.impactOccurred("light"); listExpanded[key]=!expanded; renderList(); if(!listExpanded[key]) el.scrollIntoView({behavior:"smooth",block:"start"}); };
+    btn.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");listExpanded[key]=!expanded;renderList();if(!listExpanded[key])el.scrollIntoView({behavior:"smooth",block:"start"});};
     el.appendChild(btn);
   }
 }
 
-// ══ RECOMMENDATIONS ════════════════════════════════════
 function renderCarRecs(idx){
-  const recs=document.getElementById("carRecs"); if(!recs||!window.stations||!window.stations.length) return;
-  const cur=window.stations[idx]; if(!cur){ recs.innerHTML=""; return; }
+  const recs=document.getElementById("carRecs");if(!recs||!window.stations||!window.stations.length)return;
+  const cur=window.stations[idx];if(!cur){recs.innerHTML="";return;}
   const similar=window.stations.filter(s=>s.tag===cur.tag&&window.stations.indexOf(s)!==idx).sort((a,b)=>(b.listeners||0)-(a.listeners||0)).slice(0,4);
-  if(!similar.length){ recs.innerHTML=""; return; }
+  if(!similar.length){recs.innerHTML="";return;}
   recs.innerHTML='<div class="car-recs-title">🎵 Рекомендации</div>';
   similar.forEach(s=>{
-    const si=window.stations.indexOf(s), btn=document.createElement("button"); btn.className="car-rec-row";
+    const si=window.stations.indexOf(s),btn=document.createElement("button");btn.className="car-rec-row";
     const img=s.logo||fbImg(s.name);
     const cnt=s.listeners?(s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners):"";
     btn.innerHTML=`<div class="car-rec-img"><img src="${img}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div class="car-rec-info"><div class="car-rec-name">${s.name}</div><div class="car-rec-genre">${s.genre||"Радио"}</div></div>${cnt?`<div style="font-size:11px;color:var(--muted);flex-shrink:0">${cnt}</div>`:""}`;
-    btn.onclick=()=>{ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation(si,true); };
+    btn.onclick=()=>{if(tg)tg.HapticFeedback?.impactOccurred("light");loadStation(si,true);};
     recs.appendChild(btn);
   });
 }
 
-// ══ NOW PLAYING TRACK ══════════════════════════════════
 async function fetchNowPlaying(url){
-  const el=document.getElementById("nowTrack"), inner=document.getElementById("nowTrackInner");
-  if(!el||!inner) return;
+  const el=document.getElementById("nowTrack"),inner=document.getElementById("nowTrackInner");
+  if(!el||!inner)return;
   try{
     const r=await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(url)}`);
-    if(!r.ok) return;
+    if(!r.ok)return;
     const{title}=await r.json();
     if(title&&title.trim()){
-      const text="♪ "+title.trim(), long=title.length>35;
+      const text="♪ "+title.trim(),long=title.length>35;
       inner.textContent=long?text+"   "+text:text;
-      el.classList.add("visible"); el.classList.toggle("marquee",long);
-    }else{ inner.textContent=""; el.classList.remove("visible","marquee"); }
-  }catch(e){ el.classList.remove("visible","marquee"); }
+      el.classList.add("visible");el.classList.toggle("marquee",long);
+    }else{inner.textContent="";el.classList.remove("visible","marquee");}
+  }catch(e){el.classList.remove("visible","marquee");}
 }
 function startNowPlaying(url){
-  if(nowPlayingTimer) clearInterval(nowPlayingTimer);
+  if(nowPlayingTimer)clearInterval(nowPlayingTimer);
   document.getElementById("nowTrackInner").textContent="";
   document.getElementById("nowTrack").classList.remove("visible","marquee");
-  fetchNowPlaying(url);
-  nowPlayingTimer=setInterval(()=>fetchNowPlaying(url),15000);
+  fetchNowPlaying(url);nowPlayingTimer=setInterval(()=>fetchNowPlaying(url),15000);
 }
 
-// ══ CHAT ══════════════════════════════════════════════
 async function loadChatMessages(){
-  const c=document.getElementById("chatMessages"); if(!c) return;
+  const c=document.getElementById("chatMessages");if(!c)return;
   try{
-    const r=await fetch(`${CHAT_API_BASE}/get-messages`); if(!r.ok) return;
-    const msgs=await r.json(), list=Array.isArray(msgs)?msgs:[];
+    const r=await fetch(`${CHAT_API_BASE}/get-messages`);if(!r.ok)return;
+    const msgs=await r.json(),list=Array.isArray(msgs)?msgs:[];
     c.innerHTML="";
-    if(!list.length){ c.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>'; return; }
+    if(!list.length){c.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>';return;}
     list.forEach(m=>{
-      const div=document.createElement("div"); div.className="chat-msg";
+      const div=document.createElement("div");div.className="chat-msg";
       const t=m.time?new Date(m.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}):"";
       const hue=([...m.name].reduce((a,ch)=>a+ch.charCodeAt(0),0)*47)%360;
       div.innerHTML=`<div class="chat-msg-avatar" style="background:hsl(${hue},50%,44%)">${(m.name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t?` <span style="font-weight:400;opacity:.6">${t}</span>`:""}</div><div class="chat-msg-text">${m.text}</div></div>`;
@@ -1169,60 +829,41 @@ async function loadChatMessages(){
     c.scrollTop=c.scrollHeight;
   }catch(e){}
 }
-function openChat(){ const url="https://t.me/strmradiochat/2"; if(tg)tg.openTelegramLink(url); else window.open(url,"_blank"); }
-setInterval(()=>{ if(chatVisible||splitMode) loadChatMessages(); },3000);
+function openChat(){const url="https://t.me/strmradiochat/2";if(tg)tg.openTelegramLink(url);else window.open(url,"_blank");}
+setInterval(()=>{if(chatVisible||splitMode)loadChatMessages();},3000);
 
-// ══ NETWORK ═══════════════════════════════════════════
-function showOfflineState(v){ const b=document.getElementById("offlineBanner"); if(b) b.style.display=v?"flex":"none"; }
+function showOfflineState(v){const b=document.getElementById("offlineBanner");if(b)b.style.display=v?"flex":"none";}
 window.addEventListener("offline",()=>showOfflineState(true));
-window.addEventListener("online",()=>{ showOfflineState(false); if(window.stations&&window.stations[curIdx]&&!playing) setTimeout(()=>{ try{ playStream(window.stations[curIdx].stream); }catch(e){} },1200); });
+window.addEventListener("online",()=>{showOfflineState(false);if(window.stations&&window.stations[curIdx]&&!playing)setTimeout(()=>{try{playStream(window.stations[curIdx].stream);}catch(e){}},1200);});
 
-// ══ BUFFER SIMULATION ══════════════════════════════════
-let bufferedSec=0; const targetBuf=30; let bufT1,bufT2;
+let bufferedSec=0;const targetBuf=30;let bufT1,bufT2;
 function updateBufferUI(){
-  const p=document.getElementById("bufferProgress"), t=document.getElementById("bufferText");
+  const p=document.getElementById("bufferProgress"),t=document.getElementById("bufferText");
   const pct=Math.min((bufferedSec/targetBuf)*100,100);
-  if(p) p.style.width=pct+"%";
-  if(t) t.innerText=bufferedSec>=targetBuf?"Буфер готов • 30 секунд":"Буферизация "+bufferedSec+" сек";
+  if(p)p.style.width=pct+"%";
+  if(t)t.innerText=bufferedSec>=targetBuf?"Буфер готов • 30 секунд":"Буферизация "+bufferedSec+" сек";
 }
 function simulateBuffering(){
-  clearInterval(bufT1); clearInterval(bufT2); bufferedSec=0; updateBufferUI();
-  bufT1=setInterval(()=>{ if(bufferedSec<10){bufferedSec++;updateBufferUI();}else{clearInterval(bufT1);bufT2=setInterval(()=>{ if(bufferedSec<30){bufferedSec+=5;updateBufferUI();}else clearInterval(bufT2); },3000);} },1000);
+  clearInterval(bufT1);clearInterval(bufT2);bufferedSec=0;updateBufferUI();
+  bufT1=setInterval(()=>{if(bufferedSec<10){bufferedSec++;updateBufferUI();}else{clearInterval(bufT1);bufT2=setInterval(()=>{if(bufferedSec<30){bufferedSec+=5;updateBufferUI();}else clearInterval(bufT2);},3000);}},1000);
 }
 
-// ══ INIT ══════════════════════════════════════════════
 window.addEventListener("DOMContentLoaded",()=>{
-  // Применяем тему
-  if(darkMode||tg?.colorScheme==="dark"){ darkMode=true; document.body.classList.add("dark"); document.documentElement.classList.add("dark"); }
+  if(darkMode||tg?.colorScheme==="dark"){darkMode=true;document.body.classList.add("dark");document.documentElement.classList.add("dark");}
   document.getElementById("darkBtn").classList.toggle("on",darkMode);
-
-  // Применяем авторежим через applyCarMode (теперь она определена)
-  if(carMode){ document.body.classList.add("car"); applyCarMode(true); }
+  if(carMode){document.body.classList.add("car");applyCarMode(true);}
   document.getElementById("carBtn").classList.toggle("on",carMode);
-
-  // Split mode
-  if(window.innerWidth>=960 && localStorage.getItem("splitMode")===null){ splitMode=true; applySplit(true); }
-  else if(splitMode && window.innerWidth>=960) applySplit(true);
-
-  // Инициализация volume
-  requestAnimationFrame(()=>{ onVolChange(80); });
-
-  // Загружаем станции
-  if(window.stations && window.stations.length>0){
-    renderGenres(); renderList(); loadStation(0,false);
-  } else {
-    document.getElementById("stationList").innerHTML='<div class="empty">Не удалось загрузить stations.js</div>';
-  }
+  if(window.innerWidth>=960&&localStorage.getItem("splitMode")===null){splitMode=true;applySplit(true);}
+  else if(splitMode&&window.innerWidth>=960)applySplit(true);
+  requestAnimationFrame(()=>onVolChange(80));
+  if(window.stations&&window.stations.length>0){renderGenres();renderList();loadStation(0,false);}
+  else document.getElementById("stationList").innerHTML='<div class="empty">Не удалось загрузить stations.js</div>';
 });
 
-// Пересчёт vol fill при изменении размера — дополнительный обработчик
-window.addEventListener("resize",()=>{ requestAnimationFrame(()=>recalcVolFill(Number(document.getElementById("volSlider")?.value||80))); });
-
-// ══ MOBILE TikTok VIEW ════════════════════════════════
+/* ══ MOBILE TikTok VIEW ════════════════════════════════════ */
 (function(){
 'use strict';
-const MOB=768; function isMob(){ return window.innerWidth<=MOB; }
-
+const MOB=768;function isMob(){return window.innerWidth<=MOB;}
 const view=document.getElementById('tiktokView');
 const slide=document.getElementById('ttSlide');
 const chatOv=document.getElementById('ttChatOverlay');
@@ -1233,25 +874,21 @@ const searchIn=document.getElementById('ttSearchInput');
 const searchRes=document.getElementById('ttSearchResults');
 const listOv=document.getElementById('ttListOverlay');
 const listBody=document.getElementById('ttListBody');
-let initialized=false, chatPollId=null;
+let initialized=false,chatPollId=null;
 
 function renderSlide(){
-  const st=window.stations; if(!st||!st.length){ slide.innerHTML=''; return; }
-  const s=st[curIdx], cover=s.logo||fbImg(s.name);
-  const isP=playing;
-  const isFav=favs.includes(s.name);
+  const st=window.stations;if(!st||!st.length){slide.innerHTML='';return;}
+  const s=st[curIdx],cover=s.logo||fbImg(s.name);
+  const isP=playing,isFav=favs.includes(s.name);
   const piSvg=isP
     ?'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
     :'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
   let barsHtml='';
-  for(let i=0;i<14;i++) barsHtml+=`<div class="tt-bar${isP?' on':''}" style="--dur:${(0.35+Math.random()*0.5).toFixed(2)}s"></div>`;
+  for(let i=0;i<14;i++)barsHtml+=`<div class="tt-bar${isP?' on':''}" style="--dur:${(0.35+Math.random()*0.5).toFixed(2)}s"></div>`;
 
   slide.innerHTML=
-    // Фон
     `<div class="tt-bg" style="background-image:url(${cover})"></div>`+
     `<div class="tt-bg-overlay"></div>`+
-
-    // Центральный блок: лого + инфо
     `<div class="tt-center">`+
       `<div class="tt-logo${isP?' playing':''}" id="ttLogo"><img src="${cover}" onerror="this.src='${fbImg(s.name)}'" loading="eager"></div>`+
       `<div class="tt-info">`+
@@ -1261,36 +898,20 @@ function renderSlide(){
       `</div>`+
       `<div class="tt-viz" id="ttVizEl">${barsHtml}</div>`+
     `</div>`+
-
-    // Боковые кнопки — справа по середине (play, fav, search)
     `<div class="tt-side-actions">`+
       `<button class="tt-side-btn" onclick="ttTapPlay(event)">`+
-        `<div class="tt-side-icon" id="ttSidePlayIcon">`+
-          (isP
-            ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-            :'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
-          )+
-        `</div>`+
+        `<div class="tt-side-icon" id="ttSidePlayIcon">${isP?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>':'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>'}</div>`+
         `<div class="tt-side-label">${isP?'Пауза':'Играть'}</div>`+
       `</button>`+
       `<button class="tt-side-btn" onclick="ttTapFav(event)">`+
-        `<div class="tt-side-icon${isFav?' fav-on':''}" id="ttFavIcon">`+
-          (isFav
-            ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff2d55"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-            :'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-          )+
-        `</div>`+
+        `<div class="tt-side-icon${isFav?' fav-on':''}" id="ttFavIcon">${isFav?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff2d55"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'}</div>`+
         `<div class="tt-side-label">${isFav?'В избр.':'Избранное'}</div>`+
       `</button>`+
       `<button class="tt-side-btn" onclick="ttOpenSearch()">`+
-        `<div class="tt-side-icon">`+
-          `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`+
-        `</div>`+
+        `<div class="tt-side-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>`+
         `<div class="tt-side-label">Поиск</div>`+
       `</button>`+
     `</div>`+
-
-    // Нижние контролы: инфо о станции + prev/play/next по центру
     `<div class="tt-controls">`+
       `<div class="tt-bottom-info">`+
         `<div class="tt-station-label">Сейчас играет</div>`+
@@ -1298,24 +919,19 @@ function renderSlide(){
         `<div class="tt-genre-sm">${s.genre||'Радио'}</div>`+
       `</div>`+
       `<div class="tt-nav-row">`+
-        `<button class="tt-nav-btn" id="ttPrevBtn" onclick="ttPrev(event)">`+
-          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>`+
-        `</button>`+
+        `<button class="tt-nav-btn" id="ttPrevBtn" onclick="ttPrev(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>`+
         `<button class="tt-play-btn" id="ttPlayBtn" onclick="ttTapPlay(event)">${piSvg}</button>`+
-        `<button class="tt-nav-btn" id="ttNextBtn" onclick="ttNext(event)">`+
-          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>`+
-        `</button>`+
+        `<button class="tt-nav-btn" id="ttNextBtn" onclick="ttNext(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>`+
       `</div>`+
     `</div>`;
-
   ttSyncTrack();
 }
 
-function btnFlash(id){ const el=document.getElementById(id); if(el){el.style.transform='scale(0.84)';setTimeout(()=>{el.style.transform='';},180);} }
+function btnFlash(id){const el=document.getElementById(id);if(el){el.style.transform='scale(0.84)';setTimeout(()=>{el.style.transform='';},180);}}
 
-window.ttPrev=function(e){ if(e){e.preventDefault();e.stopPropagation();} btnFlash('ttPrevBtn'); prev(); setTimeout(renderSlide,60); };
-window.ttNext=function(e){ if(e){e.preventDefault();e.stopPropagation();} btnFlash('ttNextBtn'); next(); setTimeout(renderSlide,60); };
-window.ttTapPlay=function(e){ if(e){e.preventDefault();e.stopPropagation();} togglePlay(); setTimeout(ttSyncPlay,100); };
+window.ttPrev=function(e){if(e){e.preventDefault();e.stopPropagation();}btnFlash('ttPrevBtn');prev();setTimeout(renderSlide,60);};
+window.ttNext=function(e){if(e){e.preventDefault();e.stopPropagation();}btnFlash('ttNextBtn');next();setTimeout(renderSlide,60);};
+window.ttTapPlay=function(e){if(e){e.preventDefault();e.stopPropagation();}togglePlay();setTimeout(ttSyncPlay,100);};
 window.ttTapFav=function(e){
   if(e){e.preventDefault();e.stopPropagation();}
   toggleFav();
@@ -1327,48 +943,38 @@ window.ttTapFav=function(e){
         ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff2d55"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
         :'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
       on?fi.classList.add('fav-on'):fi.classList.remove('fav-on');
-      const label=fi.parentElement?.querySelector('.tt-side-label');
-      if(label) label.textContent=on?'В избр.':'Избранное';
+      const lbl=fi.parentElement?.querySelector('.tt-side-label');
+      if(lbl)lbl.textContent=on?'В избр.':'Избранное';
     }
   },80);
 };
 
 window.ttSyncPlay=function(){
   const isP=playing;
-  const logo=document.getElementById('ttLogo'), pb=document.getElementById('ttPlayBtn');
-  const sideIcon=document.getElementById('ttSidePlayIcon');
-  const sideBtn=sideIcon?.parentElement?.parentElement;
-  if(logo){ isP?logo.classList.add('playing'):logo.classList.remove('playing'); }
-  if(pb){ pb.innerHTML=isP
-    ?'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-    :'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  }
-  if(sideIcon){ sideIcon.innerHTML=isP
-    ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-    :'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  }
-  // Обновляем лейбл
-  const label=sideIcon?.parentElement?.querySelector('.tt-side-label');
-  if(label) label.textContent=isP?'Пауза':'Играть';
-  document.querySelectorAll('.tt-bar').forEach(b=>{ isP?b.classList.add('on'):b.classList.remove('on'); });
+  const logo=document.getElementById('ttLogo'),pb=document.getElementById('ttPlayBtn'),si=document.getElementById('ttSidePlayIcon');
+  if(logo){isP?logo.classList.add('playing'):logo.classList.remove('playing');}
+  if(pb)pb.innerHTML=isP?'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>':'<svg width="24" height="24" viewBox="0 0 24 24" fill="#111" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  if(si)si.innerHTML=isP?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>':'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  const lbl=si?.parentElement?.querySelector('.tt-side-label');if(lbl)lbl.textContent=isP?'Пауза':'Играть';
+  document.querySelectorAll('.tt-bar').forEach(b=>{isP?b.classList.add('on'):b.classList.remove('on');});
 };
 
 function ttSyncTrack(){
-  const el=document.getElementById('ttTrackEl'), src=document.getElementById('nowTrackInner');
-  if(el&&src) el.textContent=(src.textContent||'').replace(/\s{3,}.*/,'').trim();
+  const el=document.getElementById('ttTrackEl'),src=document.getElementById('nowTrackInner');
+  if(el&&src)el.textContent=(src.textContent||'').replace(/\s{3,}.*/,'').trim();
 }
 
-window.ttOpenChat=function(){ chatOv.classList.add('open'); chatBk.classList.add('open'); ttLoadChat(); if(!chatPollId) chatPollId=setInterval(ttLoadChat,4000); };
-window.ttCloseChat=function(){ chatOv.classList.remove('open'); chatBk.classList.remove('open'); if(chatPollId){clearInterval(chatPollId);chatPollId=null;} };
+window.ttOpenChat=function(){chatOv.classList.add('open');chatBk.classList.add('open');ttLoadChat();if(!chatPollId)chatPollId=setInterval(ttLoadChat,4000);};
+window.ttCloseChat=function(){chatOv.classList.remove('open');chatBk.classList.remove('open');if(chatPollId){clearInterval(chatPollId);chatPollId=null;}};
 
 function ttLoadChat(){
   fetch(`${CHAT_API_BASE}/get-messages`).then(r=>r.json()).then(msgs=>{
-    if(!Array.isArray(msgs)||!msgs.length){ chatMs.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px 0;font-size:13px">Пока нет сообщений</div>'; return; }
+    if(!Array.isArray(msgs)||!msgs.length){chatMs.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px 0;font-size:13px">Пока нет сообщений</div>';return;}
     chatMs.innerHTML='';
     msgs.forEach(m=>{
       const hue=([].reduce.call(m.name||'?',(a,c)=>a+c.charCodeAt(0),0)*47)%360;
       const t=m.time?new Date(m.time).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}):'';
-      const d=document.createElement('div'); d.className='tt-chat-msg';
+      const d=document.createElement('div');d.className='tt-chat-msg';
       d.innerHTML=`<div class="tt-chat-avatar" style="background:hsl(${hue},48%,42%)">${(m.name[0]||'?').toUpperCase()}</div><div class="tt-chat-body"><div class="tt-chat-name">${m.name||'Аноним'}${t?' <span style="font-weight:400;opacity:.5">'+t+'</span>':''}</div><div class="tt-chat-text">${m.text||''}</div></div>`;
       chatMs.appendChild(d);
     });
@@ -1376,38 +982,38 @@ function ttLoadChat(){
   }).catch(()=>{});
 }
 
-window.ttOpenSearch=function(){ searchIn.value=''; ttSearchFilter(); searchOv.classList.add('open'); setTimeout(()=>searchIn.focus(),300); };
-window.ttCloseSearch=function(){ searchOv.classList.remove('open'); searchIn.blur(); };
+window.ttOpenSearch=function(){searchIn.value='';ttSearchFilter();searchOv.classList.add('open');setTimeout(()=>searchIn.focus(),300);};
+window.ttCloseSearch=function(){searchOv.classList.remove('open');searchIn.blur();};
 window.ttSearchFilter=function(){
-  const q=(searchIn.value||'').toLowerCase().trim(), st=window.stations||[];
+  const q=(searchIn.value||'').toLowerCase().trim(),st=window.stations||[];
   const res=q?st.filter(s=>s.name.toLowerCase().includes(q)||(s.genre&&s.genre.toLowerCase().includes(q))):st.slice(0,24);
   searchRes.innerHTML='';
-  if(!res.length){ searchRes.innerHTML='<div class="tt-s-empty">Ничего не найдено</div>'; return; }
+  if(!res.length){searchRes.innerHTML='<div class="tt-s-empty">Ничего не найдено</div>';return;}
   res.slice(0,30).forEach(s=>{
-    const idx=st.indexOf(s), isAct=idx===curIdx, cover=s.logo||fbImg(s.name);
-    const item=document.createElement('div'); item.className='tt-s-item';
+    const idx=st.indexOf(s),isAct=idx===curIdx,cover=s.logo||fbImg(s.name);
+    const item=document.createElement('div');item.className='tt-s-item';
     item.innerHTML=`<div class="tt-s-img"><img src="${cover}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div style="flex:1;min-width:0"><div class="tt-s-name">${s.name}</div><div class="tt-s-genre">${s.genre||'Радио'}</div></div>${isAct?'<div class="tt-s-play">▶</div>':''}`;
-    item.onclick=function(){ loadStation(idx,true); ttCloseSearch(); setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80); };
+    item.onclick=function(){loadStation(idx,true);ttCloseSearch();setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80);};
     searchRes.appendChild(item);
   });
 };
 
-window.ttOpenList=function(){ listOv.style.display='block'; ttBuildList(); };
-window.ttCloseList=function(){ listOv.style.display='none'; };
+window.ttOpenList=function(){listOv.style.display='block';ttBuildList();};
+window.ttCloseList=function(){listOv.style.display='none';};
 function ttBuildList(){
-  listBody.innerHTML=''; const st=window.stations||[]; const groups={};
-  st.forEach((s,idx)=>{ const g=s.tag||s.genre||'Другое'; if(!groups[g]) groups[g]=[]; groups[g].push({s,idx}); });
+  listBody.innerHTML='';const st=window.stations||[];const groups={};
+  st.forEach((s,idx)=>{const g=s.tag||s.genre||'Другое';if(!groups[g])groups[g]=[];groups[g].push({s,idx});});
   Object.keys(groups).sort().forEach(g=>{
-    const arr=groups[g], grp=document.createElement('div'); grp.className='tt-genre-grp';
-    if(arr.some(x=>x.idx===curIdx)) grp.classList.add('open');
+    const arr=groups[g],grp=document.createElement('div');grp.className='tt-genre-grp';
+    if(arr.some(x=>x.idx===curIdx))grp.classList.add('open');
     grp.innerHTML=`<div class="tt-genre-hdr"><div class="tt-genre-hdr-name">${g}</div><div class="tt-genre-cnt">${arr.length}</div><div class="tt-genre-arr">▼</div></div><div class="tt-genre-list"></div>`;
     grp.querySelector('.tt-genre-hdr').onclick=()=>grp.classList.toggle('open');
     const gList=grp.querySelector('.tt-genre-list');
     arr.forEach(x=>{
-      const isAct=x.idx===curIdx, cover=x.s.logo||fbImg(x.s.name);
-      const row=document.createElement('div'); row.className='tt-l-item'+(isAct?' playing':'');
+      const isAct=x.idx===curIdx,cover=x.s.logo||fbImg(x.s.name);
+      const row=document.createElement('div');row.className='tt-l-item'+(isAct?' playing':'');
       row.innerHTML=`<div class="tt-l-img"><img src="${cover}" onerror="this.src='${fbImg(x.s.name)}'" loading="lazy"></div><div style="flex:1;min-width:0"><div class="tt-l-name">${x.s.name}</div><div class="tt-l-genre">${x.s.genre||'Радио'}</div></div>${isAct?'<div class="tt-l-play">▶</div>':''}`;
-      row.onclick=function(){ loadStation(x.idx,true); ttCloseList(); setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80); };
+      row.onclick=function(){loadStation(x.idx,true);ttCloseList();setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80);};
       gList.appendChild(row);
     });
     listBody.appendChild(grp);
@@ -1416,65 +1022,41 @@ function ttBuildList(){
 
 function patchStream(){
   let reconnTimer=null;
-  function schedReconn(){ if(reconnTimer) clearTimeout(reconnTimer); reconnTimer=setTimeout(()=>{ if(playing&&window.stations&&window.stations[curIdx]) try{ playStream(window.stations[curIdx].stream); }catch(e){} },2500); }
+  function schedReconn(){if(reconnTimer)clearTimeout(reconnTimer);reconnTimer=setTimeout(()=>{if(playing&&window.stations&&window.stations[curIdx])try{playStream(window.stations[curIdx].stream);}catch(e){}},2500);}
   audio.addEventListener('waiting',schedReconn);
   audio.addEventListener('stalled',schedReconn);
   audio.addEventListener('error',schedReconn);
-  audio.addEventListener('playing',()=>{ if(reconnTimer){clearTimeout(reconnTimer);reconnTimer=null;} });
+  audio.addEventListener('playing',()=>{if(reconnTimer){clearTimeout(reconnTimer);reconnTimer=null;}});
 }
 
 function ttInit(){
-  if(initialized||!isMob()) return; initialized=true;
+  if(initialized||!isMob())return;
+  initialized=true;
   view.style.display='block';
+  // FIX: скрываем десктопный вид — предотвращаем наложение элементов
+  document.body.classList.add('tt-active');
   patchStream();
-  // Ждём загрузки станций
   let tries=0;
   const wait=setInterval(()=>{
     tries++;
-    if((window.stations&&window.stations.length)||tries>60){ clearInterval(wait); renderSlide(); }
+    if((window.stations&&window.stations.length)||tries>60){clearInterval(wait);renderSlide();}
   },150);
-  setInterval(()=>{ if(isMob()) ttSyncTrack(); },5000);
-  document.addEventListener('touchstart',e=>{ if(searchOv.classList.contains('open')&&!searchOv.contains(e.target)) ttCloseSearch(); },{passive:true});
+  setInterval(()=>{if(isMob())ttSyncTrack();},5000);
+  document.addEventListener('touchstart',e=>{if(searchOv.classList.contains('open')&&!searchOv.contains(e.target))ttCloseSearch();},{passive:true});
 }
 
 window.addEventListener('resize',()=>{
-  if(isMob()){ if(!initialized) ttInit(); else view.style.display='block'; }
-  else view.style.display='none';
+  if(isMob()){
+    if(!initialized)ttInit();
+    else{view.style.display='block';document.body.classList.add('tt-active');}
+  }else{
+    view.style.display='none';
+    document.body.classList.remove('tt-active');
+  }
 });
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ttInit,300));
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(ttInit,300));
 else setTimeout(ttInit,300);
 })();
 </script>
-
-<div class="tt-nav">
-  <button class="tt-prev" onclick="prevStation()">❮</button>
-  <button class="tt-next" onclick="nextStation()">❯</button>
-</div>
-
-
-<script>
-try{
-  localStorage.clear();
-  sessionStorage.clear();
-}catch(e){}
-
-if(window.caches){
-  caches.keys().then(keys=>{
-    keys.forEach(k=>caches.delete(k));
-  });
-}
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations()
-    .then(r=>r.forEach(x=>x.unregister()));
-}
-
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden && window.audio){
-    audio.pause();
-  }
-});
-</script>
-
 </body>
 </html>
