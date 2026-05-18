@@ -30,7 +30,7 @@ html,body{position:fixed;width:100%;height:100%;height:100dvh;overflow:hidden;ov
   --accent:#f5f5f7;--brand:#2bbd6e;--border:rgba(255,255,255,.06);
   --pill:#222227;--pill-text:#a1a1aa;--shadow:0 12px 40px rgba(0,0,0,.4);
 }
-.ambient-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center;filter:blur(100px) saturate(1.8) brightness(.4);opacity:0;transition:opacity 1.5s ease,background-image 1s ease;transform:scale(1.15)}
+.ambient-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center;filter:blur(40px) saturate(1.2) brightness(.5);opacity:0;transition:opacity 1.5s ease,background-image 1s ease;transform:scale(1.15)}
 .ambient-bg.on{opacity:.32}
 body.dark .ambient-bg.on{opacity:.45}
 html.plt-ios body,html.plt-mac body{--sys-font:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif}
@@ -53,7 +53,7 @@ body.split .app-inner{flex:1;min-height:0;display:grid;grid-template-columns:1fr
 body.split .app-left,body.split .app-right{height:100%;overflow-y:auto;padding-right:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 body.split .app-left::-webkit-scrollbar,body.split .app-right::-webkit-scrollbar{display:none}
 body.split .app-right{display:flex;flex-direction:column;gap:16px}
-body.split .chat-section{display:flex!important;margin:0;flex:1;min-height:350px;background:rgba(255,255,255,.4);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(0,0,0,.04);box-shadow:var(--shadow)}
+body.split .chat-section{display:flex!important;margin:0;flex:1;min-height:350px;background:rgba(255,255,255,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.04);box-shadow:var(--shadow)}
 body.dark.split .chat-section{background:rgba(22,22,26,.4);border-color:rgba(255,255,255,.05)}
 body.split #chatToggleBtn{display:none}
 body.split .car-recs{display:flex!important;padding:0;flex-direction:column;gap:10px;flex-shrink:0}
@@ -212,7 +212,7 @@ body.car .car-recs{display:flex}
 .car-rec-genre{font-size:12px;color:var(--muted);margin-top:2px}
 
 /* CHAT */
-.chat-section{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(0,0,0,.04);border-radius:var(--r-card);box-shadow:var(--shadow);margin-top:var(--gap);display:none;flex-direction:column;height:260px;transition:background .3s;flex-shrink:0}
+.chat-section{background:rgba(255,255,255,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.04);border-radius:var(--r-card);box-shadow:var(--shadow);margin-top:var(--gap);display:none;flex-direction:column;height:260px;transition:background .3s;flex-shrink:0}
 body.dark .chat-section{background:rgba(22,22,26,.45);border-color:rgba(255,255,255,.05)}
 .chat-section.show{display:flex;margin-bottom:16px}
 .chat-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(128,128,128,.1);flex-shrink:0}
@@ -552,6 +552,129 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-l-play{color:#2bbd6e;font-size:14px;flex-shrink:0;margin-left:auto}
 }
 @media(min-width:769px){#tiktokView{display:none!important}}
+
+/* ───────── TIKTOK MOBILE MODE ───────── */
+@media(max-width:768px){
+
+  .page{
+    padding:0!important;
+  }
+
+  .app{
+    max-width:100%!important;
+  }
+
+  .header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:50;
+    padding:14px 16px;
+    background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);
+    margin:0!important;
+  }
+
+  .header-title{
+    color:#fff!important;
+    font-size:28px!important;
+  }
+
+  .header-right{
+    color:#fff!important;
+  }
+
+  .scroll-area{
+    padding-top:72px!important;
+    scroll-snap-type:y mandatory;
+  }
+
+  .list{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:0!important;
+  }
+
+  .station-card,
+  .card,
+  .station{
+    scroll-snap-align:start;
+    min-height:100dvh!important;
+    border-radius:0!important;
+    margin:0!important;
+    padding:18px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-end!important;
+    background:#000!important;
+    border:none!important;
+  }
+
+  .now-card{
+    border-radius:0!important;
+    min-height:100dvh!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-end!important;
+    padding-bottom:120px!important;
+  }
+
+  .tabs,
+  .search-wrap,
+  .genres{
+    display:none!important;
+  }
+
+  .player-controls,
+  .controls{
+    position:absolute!important;
+    right:16px!important;
+    bottom:140px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:16px!important;
+    z-index:10;
+  }
+
+  .prev-btn,
+  .next-btn{
+    position:fixed!important;
+    bottom:38px!important;
+    z-index:20!important;
+  }
+
+  .prev-btn{
+    left:calc(50% - 80px)!important;
+  }
+
+  .next-btn{
+    right:calc(50% - 80px)!important;
+  }
+
+  .play-btn{
+    position:fixed!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    bottom:28px!important;
+    z-index:20!important;
+    width:72px!important;
+    height:72px!important;
+    border-radius:50%!important;
+  }
+
+  .station-title,
+  .station-name{
+    color:#fff!important;
+    font-size:34px!important;
+    line-height:1.05!important;
+  }
+
+  .station-genre{
+    color:rgba(255,255,255,.7)!important;
+  }
+
+}
+
 </style>
 <script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));</script>
 </head>
@@ -689,7 +812,7 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   </div>
 </div>
 
-<audio id="audio"></audio>
+<audio preload="none" id="audio"></audio>
 
 <!-- СТАНЦИИ из внешнего файла -->
 <script src="stations.js"></script>
@@ -1349,6 +1472,68 @@ window.addEventListener('resize',()=>{
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ttInit,300));
 else setTimeout(ttInit,300);
 })();
+
+// ───────── PERFORMANCE OPTIMIZATION ─────────
+window.addEventListener(
+  'touchstart',
+  ()=>{},
+  {passive:true}
+);
+
+document.addEventListener('visibilitychange',()=>{
+
+  if(document.hidden){
+
+    if(window.audio){
+      audio.pause();
+    }
+
+  }
+
+});
+
+if('serviceWorker' in navigator){
+
+  navigator.serviceWorker.getRegistrations()
+    .then(regs=>{
+
+      regs.forEach(r=>r.unregister());
+
+    });
+
+}
+
+try{
+
+  if(window.caches){
+
+    caches.keys().then(keys=>{
+
+      keys.forEach(k=>{
+
+        if(k.includes('audio') || k.includes('stream')){
+          caches.delete(k);
+        }
+
+      });
+
+    });
+
+  }
+
+}catch(e){}
+
+const lowEndPhone =
+  navigator.deviceMemory &&
+  navigator.deviceMemory <= 2;
+
+if(lowEndPhone){
+
+  document.documentElement.classList.add('low-end');
+
+}
+
+
 </script>
 </body>
 </html>
