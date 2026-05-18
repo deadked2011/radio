@@ -6,7 +6,7 @@
 // Доступные теги (tag): deep, pop, rock, retro, shanson, news, edm, chill, rap, dnb, trance, techno, jazz, classic, foreign
 // ══════════════════════════════════════════════════════
 
-const stations = [
+window.stations = [
   // DEEP HOUSE
   {name:"SOUNDPARK DEEP",        genre:"Deep House",          tag:"deep",    logo:"https://radiopotok.ru/f/station/256/1260.png",stream:"https://h.getradio.me/spdeep/hls.m3u8",listeners:3317},
   {name:"Record Deep",           genre:"Deep House",          tag:"deep",    logo:"https://radiorecord.ru/images/logos/deep.png",stream:"https://radiorecord.hostingradio.ru/deep96.aacp",listeners:2100},
@@ -202,7 +202,7 @@ const stations = [
 
 ];
 
-const genres = [
+window.genres = [
   {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
   {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
   {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},
