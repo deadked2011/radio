@@ -215,13 +215,11 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-side-btn:active .tt-side-icon{transform:scale(.84)}
   .tt-side-icon.fav-on{background:rgba(255,45,85,.3);border-color:rgba(255,45,85,.35)}
   .tt-side-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.3px}
-  .tt-nav-side{position:absolute;top:50%;transform:translateY(-50%);z-index:40;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .1s,background .12s}
-  .tt-nav-side:active{background:rgba(255,255,255,.22)}
-  .tt-nav-side.prev{left:12px}
-  .tt-nav-side.prev:active{transform:translateY(-50%) scale(.84)}
-  .tt-nav-side.next{right:12px}
-  .tt-nav-side.next:active{transform:translateY(-50%) scale(.84)}
-  .tt-nav-side svg{width:18px;height:18px}
+  .tt-left-actions{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px)+90px);display:flex;flex-direction:column;align-items:center;gap:20px;z-index:40}
+  .tt-left-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer}
+  .tt-left-btn:active .tt-side-icon{transform:scale(.84)}
+  .tt-left-btn svg{width:22px;height:22px}
+  .tt-ai-label{font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px}
 
   /* Чат (выезжает слева) */
   #ttChatOverlay{position:fixed;top:0;left:0;bottom:0;z-index:800;width:min(88vw,340px);background:rgba(6,6,8,.97);transform:translateX(-100%);transition:transform .3s;display:flex;flex-direction:column;box-shadow:6px 0 36px rgba(0,0,0,.7)}
@@ -853,8 +851,20 @@ window.addEventListener("online",()=>{ showOfflineState(false); if(window.statio
         `</button>`+
       `</div>`+
 
-      `<button class="tt-nav-side prev" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>`+
-      `<button class="tt-nav-side next" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>`;
+      `<div class="tt-left-actions">`+
+        `<button class="tt-left-btn" onclick="prev()">`+
+          `<div class="tt-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></div>`+
+          `<div class="tt-side-label">Назад</div>`+
+        `</button>`+
+        `<button class="tt-left-btn" onclick="next()">`+
+          `<div class="tt-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></div>`+
+          `<div class="tt-side-label">Вперёд</div>`+
+        `</button>`+
+        `<button class="tt-left-btn" onclick="">`+
+          `<div class="tt-side-icon" style="background:linear-gradient(135deg,rgba(43,189,110,.25),rgba(80,120,255,.25));border-color:rgba(255,255,255,.15)"><span class="tt-ai-label">AI</span></div>`+
+          `<div class="tt-side-label">AI</div>`+
+        `</button>`+
+      `</div>`;
     ttSyncTrack();
   }
 
