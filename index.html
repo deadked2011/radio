@@ -215,18 +215,13 @@ body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
   .tt-side-btn:active .tt-side-icon{transform:scale(.84)}
   .tt-side-icon.fav-on{background:rgba(255,45,85,.3);border-color:rgba(255,45,85,.35)}
   .tt-side-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.3px}
-  .tt-controls{position:absolute;bottom:0;left:0;right:0;z-index:30;padding:0 20px calc(env(safe-area-inset-bottom,0px)+24px);background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.5) 50%,transparent 100%)}
-  .tt-bottom-info{margin-bottom:18px;padding-left:4px}
-  .tt-station-label{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:3px}
-  .tt-station-name-sm{font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tt-genre-sm{font-size:10px;color:rgba(255,255,255,.42);margin-top:2px}
-  .tt-nav-row{display:flex;align-items:center;justify-content:center;gap:20px}
-  .tt-nav-btn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s}
-  .tt-nav-btn:active{transform:scale(.84);background:rgba(255,255,255,.24)}
-  .tt-nav-btn svg{width:22px;height:22px}
-  .tt-play-btn{width:70px;height:70px;border-radius:50%;background:#fff;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 28px rgba(0,0,0,.45);transition:transform .12s}
-  .tt-play-btn:active{transform:scale(.88)}
-  .tt-play-btn svg{fill:#111}
+  .tt-nav-side{position:absolute;top:50%;transform:translateY(-50%);z-index:40;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .1s,background .12s}
+  .tt-nav-side:active{background:rgba(255,255,255,.22)}
+  .tt-nav-side.prev{left:12px}
+  .tt-nav-side.prev:active{transform:translateY(-50%) scale(.84)}
+  .tt-nav-side.next{right:12px}
+  .tt-nav-side.next:active{transform:translateY(-50%) scale(.84)}
+  .tt-nav-side svg{width:18px;height:18px}
 
   /* Чат (выезжает слева) */
   #ttChatOverlay{position:fixed;top:0;left:0;bottom:0;z-index:800;width:min(88vw,340px);background:rgba(6,6,8,.97);transform:translateX(-100%);transition:transform .3s;display:flex;flex-direction:column;box-shadow:6px 0 36px rgba(0,0,0,.7)}
@@ -562,7 +557,7 @@ function playStream(url){
       return;
     }
     if(typeof Hls!=="undefined"&&Hls.isSupported()){
-      hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:30});
+      hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:0,maxBufferLength:2,maxMaxBufferLength:4,liveSyncDurationCount:1,liveMaxLatencyDurationCount:3});
       hlsInstance.loadSource(url); hlsInstance.attachMedia(audio);
       hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{ audio.play().then(()=>setPlaying(true)).catch(()=>onPlayError()); });
       hlsInstance.on(Hls.Events.ERROR,(_,d)=>{
@@ -858,18 +853,8 @@ window.addEventListener("online",()=>{ showOfflineState(false); if(window.statio
         `</button>`+
       `</div>`+
 
-      `<div class="tt-controls">`+
-        `<div class="tt-bottom-info">`+
-          `<div class="tt-station-label">Сейчас играет</div>`+
-          `<div class="tt-station-name-sm">${s.name}</div>`+
-          `<div class="tt-genre-sm">${s.genre||'Радио'}</div>`+
-        `</div>`+
-        `<div class="tt-nav-row">`+
-          `<button class="tt-nav-btn" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>`+
-          `<button class="tt-play-btn" onclick="togglePlay()">${piSvg}</button>`+
-          `<button class="tt-nav-btn" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>`+
-        `</div>`+
-      `</div>`;
+      `<button class="tt-nav-side prev" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>`+
+      `<button class="tt-nav-side next" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>`;
     ttSyncTrack();
   }
 
