@@ -194,24 +194,27 @@ window.stations = [
   {name:"Proton Radio",          genre:"Progressive / DnB",   tag:"dnb",     logo:"https://cdn-radiotime-logos.tunein.com/s143852q.png",   stream:"https://protonradio.com/stream/high",listeners:4600},
 
 
-  // NEW STATIONS
-  {name:"Radio Go EDM", genre:"EDM / Festival", tag:"edm", logo:"https://upload.wikimedia.org/wikipedia/commons/2/26/Electronic-music-icon.png", stream:"https://radiorecord.hostingradio.ru/club96.aacp", listeners:5420},
-  {name:"Love Radio", genre:"Pop", tag:"pop", logo:"https://onlineradiobox.com/img/l/1880.v22.png", stream:"https://love.hostingradio.ru/love128.aacp", listeners:4900},
-  {name:"Pioneer FM", genre:"Indie / Pop", tag:"pop", logo:"https://onlineradiobox.com/img/l/11454.v8.png", stream:"https://pioneer.hostingradio.ru/pioneer96.aacp", listeners:2100},
-  {name:"Echo FM", genre:"News", tag:"news", logo:"https://upload.wikimedia.org/wikipedia/commons/5/51/Echo_logo.png", stream:"https://icecast.echo.msk.ru/echo.ogg", listeners:1800},
-
+  {name:"Radio Go EDM",  genre:"EDM / Festival", tag:"edm",  logo:"https://upload.wikimedia.org/wikipedia/commons/2/26/Electronic-music-icon.png", stream:"https://radiorecord.hostingradio.ru/club96.aacp",     listeners:5420},
+  {name:"Love Radio",    genre:"Pop",            tag:"pop",  logo:"https://onlineradiobox.com/img/l/1880.v22.png",                                        stream:"https://love.hostingradio.ru/love128.aacp",        listeners:4900},
+  {name:"Pioneer FM",    genre:"Indie / Pop",    tag:"pop",  logo:"https://onlineradiobox.com/img/l/11454.v8.png",                                        stream:"https://pioneer.hostingradio.ru/pioneer96.aacp",   listeners:2100},
+  {name:"Echo FM",       genre:"News",           tag:"news", logo:"https://upload.wikimedia.org/wikipedia/commons/5/51/Echo_logo.png",                    stream:"https://icecast.echo.msk.ru/echo.ogg",             listeners:1800},
 ];
 
 window.genres = [
-  {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
-  {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
-  {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"},
-  {id:"rap",label:"Рэп"},{id:"trance",label:"Транс"},{id:"techno",label:"Техно"},{id:"dnb",label:"DnB"},
-
-  // NEW STATIONS
-  {name:"Radio Go EDM", genre:"EDM / Festival", tag:"edm", logo:"https://upload.wikimedia.org/wikipedia/commons/2/26/Electronic-music-icon.png", stream:"https://radiorecord.hostingradio.ru/club96.aacp", listeners:5420},
-  {name:"Love Radio", genre:"Pop", tag:"pop", logo:"https://onlineradiobox.com/img/l/1880.v22.png", stream:"https://love.hostingradio.ru/love128.aacp", listeners:4900},
-  {name:"Pioneer FM", genre:"Indie / Pop", tag:"pop", logo:"https://onlineradiobox.com/img/l/11454.v8.png", stream:"https://pioneer.hostingradio.ru/pioneer96.aacp", listeners:2100},
-  {name:"Echo FM", genre:"News", tag:"news", logo:"https://upload.wikimedia.org/wikipedia/commons/5/51/Echo_logo.png", stream:"https://icecast.echo.msk.ru/echo.ogg", listeners:1800},
-
+  {id:"all",     label:"Все"},
+  {id:"deep",    label:"Deep House"},
+  {id:"pop",     label:"Поп"},
+  {id:"rock",    label:"Рок"},
+  {id:"retro",   label:"Ретро"},
+  {id:"shanson", label:"Шансон"},
+  {id:"news",    label:"Новости"},
+  {id:"edm",     label:"Электро"},
+  {id:"chill",   label:"Чилаут"},
+  {id:"rap",     label:"Рэп"},
+  {id:"trance",  label:"Транс"},
+  {id:"techno",  label:"Техно"},
+  {id:"dnb",     label:"DnB"},
+  {id:"jazz",    label:"Джаз"},
+  {id:"classic", label:"Классика"},
+  {id:"foreign", label:"Зарубежное"},
 ];
