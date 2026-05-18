@@ -679,8 +679,8 @@ function togglePlay(){
   if(!playing){ userPaused=false; wasInterrupted=false; playStream(window.stations[curIdx].stream); }
   else{ userPaused=true; wasInterrupted=false; clearTimeout(resumeTimer); if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); setPlaying(false); }
 }
-function prev(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx-1+stations.length)%stations.length,true); }
-function next(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx+1)%stations.length,true); }
+function prev(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx-1+window.stations.length)%window.stations.length,true); }
+function next(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx+1)%window.stations.length,true); }
 
 // ══ VOLUME — пиксельно-точный fill ════════════════════
 const VOL_THUMB_R = 9; // половина ширины thumb (18px)
@@ -756,8 +756,8 @@ function renderGenres(){
   const el=document.getElementById("genrePills"); el.innerHTML="";
   if(!window.stations||!window.stations.length) return;
   // Используем genres[] из stations.js если есть, иначе строим из тегов
-  const list=(typeof genres!=="undefined"&&Array.isArray(genres)&&genres.length)
-    ? genres
+  const list=(window.genres&&Array.isArray(window.genres)&&window.genres.length)
+    ? window.genres
     : [{id:"all",label:"Все"},...Array.from(new Set(window.stations.map(s=>s.tag).filter(Boolean))).map(t=>({id:t,label:t}))];
   list.forEach(g=>{
     const b=document.createElement("button");
