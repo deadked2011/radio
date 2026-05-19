@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Radio Go</title>
+<title>Radio Go Premium</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ffffff" id="themeColorMeta">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="stations.js"></script>
+
 <style>
   :root {
     --bg: #ffffff;
@@ -16,183 +18,318 @@
     --text-sec: #8e8e93;
     --surface: #f2f2f7;
     --surface-hover: #e5e5ea;
-    --accent: #fc3c44; /* Apple Music Red */
+    --accent: #fc3c44; /* Premium Apple Red */
     --player-bg: rgba(255, 255, 255, 0.85);
     --border: rgba(0, 0, 0, 0.08);
+    --card-shadow: 0 12px 30px rgba(0,0,0,0.06);
     --safe-top: env(safe-area-inset-top, 20px);
     --safe-bottom: env(safe-area-inset-bottom, 20px);
   }
 
   body.dark {
-    --bg: #000000;
+    --bg: #0b0b0c;
     --text: #ffffff;
-    --text-sec: #ebebf599;
-    --surface: #1c1c1e;
-    --surface-hover: #2c2c2e;
-    --player-bg: rgba(28, 28, 30, 0.85);
-    --border: rgba(255, 255, 255, 0.1);
+    --text-sec: #a1a1aa;
+    --surface: #18181b;
+    --surface-hover: #27272a;
+    --player-bg: rgba(24, 24, 27, 0.85);
+    --border: rgba(255, 255, 255, 0.08);
+    --card-shadow: 0 12px 40px rgba(0,0,0,0.5);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s; }
+  body { background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s cubic-bezier(0.33, 1, 0.68, 1); height: 100dvh; }
 
-  /* ─── MAIN LAYOUT ─── */
-  .app-container { height: 100dvh; display: flex; flex-direction: column; }
+  /* ─── ГЛАВНЫЙ СЕТОЧНЫЙ ШАБЛОН (ЭФФЕКТ SPOTIFY DESKTOP) ─── */
+  .app-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr 340px;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* ЛЕВАЯ ПАНЕЛЬ: СПИСОК И ПОИСК */
+  .sidebar-panel {
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 10;
+  }
+  .header { padding: calc(var(--safe-top) + 16px) 20px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; }
+  .theme-toggle-btn { background: var(--surface); border: none; width: 38px; height: 38px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
+  .theme-toggle-btn:hover { background: var(--surface-hover); }
+
+  .search-wrapper { padding: 0 20px 10px; }
+  .search-box { background: var(--surface); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
+  .search-box:focus-within { border-color: var(--accent); background: var(--bg); }
+  .search-box input { border: none; background: transparent; width: 100%; font-size: 15px; color: var(--text); outline: none; }
   
-  .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; }
-
-  .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 100px); scrollbar-width: none; }
-  .content-scroll::-webkit-scrollbar { display: none; }
-
-  /* ─── SEARCH & TABS ─── */
-  .search-box { margin: 16px 0; background: var(--surface); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
-  .search-box input { border: none; background: transparent; width: 100%; font-size: 16px; color: var(--text); outline: none; }
-  .search-box input::placeholder { color: var(--text-sec); }
-
-  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .tabs-container { padding: 6px 20px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 8px 16px; border-radius: 20px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; transition: 0.2s; }
+  .tab { padding: 8px 16px; border-radius: 30px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; transition: 0.2s; }
   .tab.active { background: var(--text); color: var(--bg); }
 
-  /* ─── STATION LIST ─── */
-  .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); transition: opacity 0.2s; }
-  .station-row:active { opacity: 0.6; }
-  .station-img { width: 52px; height: 52px; border-radius: 10px; background: var(--surface); object-fit: cover; }
+  .station-list-scroll { flex: 1; overflow-y: auto; padding: 10px 20px calc(var(--safe-bottom) + 20px); scrollbar-width: none; }
+  .station-list-scroll::-webkit-scrollbar { display: none; }
+  
+  .station-row { display: flex; align-items: center; gap: 14px; padding: 10px; margin-bottom: 4px; border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; will-change: transform; }
+  .station-row:hover { background: var(--surface); }
+  .station-row:active { transform: scale(0.98); }
+  .station-img { width: 48px; height: 48px; border-radius: 10px; background: var(--surface); object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
   .station-info { flex: 1; min-width: 0; }
-  .station-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-  .station-genre { font-size: 13px; color: var(--text-sec); }
-  .playing-icon { display: none; color: var(--accent); font-size: 12px; }
-  .station-row.active .playing-icon { display: block; }
+  .station-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+  .station-genre { font-size: 12px; color: var(--text-sec); }
+  .playing-pulse { display: none; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 12px var(--accent); }
+  .station-row.active .playing-pulse { display: block; }
   .station-row.active .station-name { color: var(--accent); }
 
-  /* ─── MINI PLAYER (BOTTOM BAR) ─── */
-  .mini-player { position: fixed; bottom: var(--safe-bottom); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.3s; }
-  .mini-player.hidden { transform: translateY(150%); }
-  .mini-art { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--surface); }
+  /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ВЕЛИКОЛЕПНЫЙ ДЕСКТОПНЫЙ ПЛЕЕР */
+  .main-player-panel {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    border-right: 1px solid var(--border);
+  }
+  .desktop-ambient-glow {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    background-size: cover;
+    background-position: center;
+    filter: blur(100px);
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
+    transition: background-image 0.6s ease;
+  }
+  .desktop-player-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .dk-art-card { width: 300px; height: 300px; border-radius: 20px; box-shadow: var(--card-shadow); margin-bottom: 32px; object-fit: cover; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform; }
+  .dk-art-card.playing { transform: scale(1.04); }
+  .dk-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .dk-track { font-size: 15px; color: var(--accent); font-weight: 500; margin-bottom: 28px; min-height: 20px; padding: 0 10px; }
+  
+  .dk-controls { display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 32px; }
+  .control-btn { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, color 0.2s; }
+  .control-btn:hover { color: var(--accent); transform: scale(1.08); }
+  .control-btn:active { transform: scale(0.95); }
+  .main-play-btn { width: 68px; height: 68px; border-radius: 50%; background: var(--text); color: var(--bg); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+  .main-play-btn:hover { background: var(--accent); color: #fff; transform: scale(1.05); }
+
+  /* ПРАВАЯ ПАНЕЛЬ: ЖИВОЙ СТИЛЬНЫЙ ЧАТ */
+  .chat-panel {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .chat-header { padding: calc(var(--safe-top) + 18px) 20px 12px; font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .chat-header-pulse { width: 6px; height: 6px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
+  .chat-messages::-webkit-scrollbar { display: none; }
+  
+  .chat-msg { background: var(--surface); padding: 10px 14px; border-radius: 14px; max-width: 90%; align-self: flex-start; animation: msgSlide 0.3s cubic-bezier(0.33, 1, 0.68, 1) forwards; }
+  .chat-msg.my-msg { background: var(--accent); color: #white; align-self: flex-end; color: white; }
+  .msg-user { font-size: 11px; font-weight: 700; color: var(--text-sec); margin-bottom: 2px; }
+  .chat-msg.my-msg .msg-user { color: rgba(255,255,255,0.7); }
+  .msg-text { font-size: 13.5px; line-height: 1.4; word-break: break-word; }
+  
+  .chat-footer { padding: 14px 20px calc(var(--safe-bottom) + 14px); border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .chat-input { flex: 1; background: var(--surface); border: 1px solid transparent; border-radius: 20px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; transition: 0.2s; }
+  .chat-input:focus { border-color: var(--border); background: var(--bg); }
+  .chat-send-btn { background: var(--text); color: var(--bg); border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+  .chat-send-btn:hover { background: var(--accent); color: white; }
+
+  /* ГРОМКОСТЬ (ТОЛЬКО ДЛЯ ПК) */
+  .vol-bar { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 40px; color: var(--text-sec); }
+  .vol-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: var(--border); outline: none; cursor: pointer; }
+  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: transform 0.1s; }
+  .vol-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  /* ─── МОБИЛЬНЫЙ ПЛИНТ ПЛЕЕРА (MINI-PLAYER) ─── */
+  .mini-player { display: none; position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 14px 8px 8px; align-items: center; gap: 12px; z-index: 90; box-shadow: 0 8px 32px rgba(0,0,0,0.12); cursor: pointer; animation: miniUp 0.4s cubic-bezier(0.33, 1, 0.68, 1); }
+  .mini-art { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; }
   .mini-info { flex: 1; min-width: 0; }
-  .mini-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mini-sub { font-size: 13px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mini-controls { display: flex; align-items: center; gap: 16px; }
-  .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .btn-icon svg { width: 24px; height: 24px; fill: currentColor; }
+  .mini-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini-sub { font-size: 12px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .mini-controls { display: flex; align-items: center; gap: 14px; }
 
-  /* ─── FULL SCREEN PLAYER ─── */
-  .full-player { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--bg); z-index: 200; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); overflow: hidden; }
-  .full-player.open { transform: translateY(0); }
-  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; }
-  body.dark .fp-bg { opacity: 0.3; }
-  .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; padding: var(--safe-top) 24px calc(var(--safe-bottom) + 24px); }
+  /* ─── МОБИЛЬНЫЙ ПОЛНОЭКРАННЫЙ ПЛЕЕР (APPLE MUSIC STYLE) ─── */
+  .full-player { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--bg); z-index: 200; flex-direction: column; transform: translate3d(0, 100%, 0); transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
+  .full-player.open { transform: translate3d(0, 0, 0); }
+  .fp-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(50px) brightness(0.6); opacity: 0.4; z-index: 1; pointer-events: none; }
+  .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; padding: calc(var(--safe-top) + 10px) 24px calc(var(--safe-bottom) + 30px); }
+  .fp-close-btn { align-self: center; background: rgba(255,255,255,0.1); border: none; width: 44px; height: 6px; border-radius: 3px; margin-bottom: 30px; cursor: pointer; }
+  body:not(.dark) .fp-close-btn { background: rgba(0,0,0,0.1); }
+  .fp-art-wrap { flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .fp-art { width: 85vw; height: 85vw; max-width: 310px; max-height: 310px; border-radius: 20px; object-fit: cover; box-shadow: 0 20px 45px rgba(0,0,0,0.35); transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1); }
+  .fp-art:not(.playing) { transform: scale(0.86); opacity: 0.8; }
   
-  .fp-header { display: flex; justify-content: space-between; padding: 16px 0 32px; }
-  .fp-down { background: none; border: none; color: var(--text); cursor: pointer; }
-  .fp-down svg { width: 32px; height: 32px; }
-
-  .fp-art-wrap { width: 100%; aspect-ratio: 1; margin-bottom: 40px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; flex-shrink: 0; }
-  .fp-art { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-  .fp-art:not(.playing) { transform: scale(0.85); border-radius: 24px; }
-
-  .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .fp-titles { flex: 1; min-width: 0; }
-  .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .fp-track { font-size: 16px; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
-
-  .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 40px; padding: 0 20px; }
-  .fp-main-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-  .fp-main-btn svg { width: 32px; height: 32px; fill: currentColor; }
-  .fp-sec-btn { background: none; border: none; color: var(--text); cursor: pointer; }
-  .fp-sec-btn svg { width: 32px; height: 32px; fill: currentColor; }
+  /* Поднимаем элементы управления повыше для удобства пальца */
+  .fp-meta { margin-bottom: 25px; padding: 0 6px; display: flex; justify-content: space-between; align-items: center; }
+  .fp-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .fp-track { font-size: 15px; color: var(--accent); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
-  .fav-btn.active { color: var(--accent); }
+  .fp-controls { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; margin-bottom: 40px; } /* Значительный отступ снизу */
+  .fp-main-play { width: 76px; height: 76px; border-radius: 50%; background: var(--text); color: var(--bg); display: flex; justify-content: center; align-items: center; border: none; }
+  
+  .fp-bottom-actions { display: flex; justify-content: center; gap: 40px; margin-top: auto; padding-top: 10px; }
+  .fp-action-btn { background: var(--surface); border: none; color: var(--text); padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
 
-  /* Volume */
-  .vol-bar { display: flex; align-items: center; gap: 12px; color: var(--text-sec); }
-  .vol-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; }
-  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  /* НАСТРОЙКА ДЛЯ МОБИЛЬНЫХ ЭКРАНОВ */
+  @media (max-width: 960px) {
+    .app-layout { grid-template-columns: 1fr; }
+    .main-player-panel, .chat-panel { display: none; }
+    .sidebar-panel { border-right: none; }
+    .station-list-scroll { padding-bottom: calc(var(--safe-bottom) + 90px); }
+    .mini-player { display: flex; }
+    .full-player { display: flex; }
+    /* На мобильных скрываем ползунок звука, так как он не нужен */
+    .vol-bar { display: none !important; }
+  }
+
+  /* АНИМАЦИИ */
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  @keyframes msgSlide { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes miniUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 </head>
 <body>
 
-<div class="app-container">
-  <div class="header">
-    <h1>Radio</h1>
-    <div class="header-actions">
-      <button onclick="toggleTheme()" id="themeBtn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+<div class="app-layout">
+  <div class="sidebar-panel">
+    <div class="header">
+      <h1>Радиостанция</h1>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+
+    <div class="search-wrapper">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-sec)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Поиск станции..." oninput="renderList()">
+      </div>
+    </div>
+
+    <div class="tabs-container">
+      <div class="tabs" id="genreTabs"></div>
+    </div>
+
+    <div class="station-list-scroll" id="stationList"></div>
+  </div>
+
+  <div class="main-player-panel">
+    <div class="desktop-ambient-glow" id="dkGlow"></div>
+    <div class="desktop-player-content">
+      <img src="" class="dk-art-card" id="dkArt">
+      <div class="dk-title" id="dkTitle">Выберите волну</div>
+      <div class="dk-track" id="dkTrack">Нажмите Play для старта</div>
+      
+      <div class="dk-controls">
+        <button class="control-btn" onclick="prevStation()">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="control-btn main-play-btn" onclick="togglePlay()">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" id="dkPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="control-btn" onclick="nextStation()">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+      <div class="vol-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
+        <input type="range" class="vol-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" id="vSlider">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-pulse"></div>
+      <span>Живой чат эфира</span>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-footer">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Написать в чат..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+      <button class="chat-send-btn" onclick="sendChatMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
   </div>
-
-  <div class="content-scroll">
-    <div class="search-box">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-sec)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Найти станцию..." oninput="renderList()">
-    </div>
-    
-    <div class="tabs" id="genreTabs">
-      </div>
-
-    <div id="stationList">
-      </div>
-  </div>
 </div>
 
-<div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
+<div class="mini-player" id="miniPlayer" onclick="openFullPlayer()">
   <img src="" class="mini-art" id="mArt">
   <div class="mini-info">
-    <div class="mini-title" id="mTitle">Station Name</div>
-    <div class="mini-sub" id="mSub">Artist - Track</div>
+    <div class="mini-title" id="mTitle">Не выбрано</div>
+    <div class="mini-sub" id="mSub">В эфире</div>
   </div>
   <div class="mini-controls">
-    <button class="btn-icon" onclick="event.stopPropagation(); togglePlay()">
-      <svg id="mPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <button class="control-btn" onclick="event.stopPropagation(); togglePlay()">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" id="mPlayIcon"><path d="M8 5v14l11-7z"/></svg>
     </button>
-    <button class="btn-icon" onclick="event.stopPropagation(); nextStation()">
-      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    <button class="control-btn" onclick="event.stopPropagation(); nextStation()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
     </button>
   </div>
 </div>
 
 <div class="full-player" id="fullPlayer">
-  <div class="fp-bg" id="fBg"></div>
+  <div class="fp-bg" id="fpBg"></div>
   <div class="fp-content">
-    <div class="fp-header">
-      <button class="fp-down" onclick="closeFullPlayer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-    </div>
+    <button class="fp-close-btn" onclick="closeFullPlayer()"></button>
     
     <div class="fp-art-wrap">
       <img src="" class="fp-art" id="fArt">
     </div>
 
-    <div class="fp-info-row">
-      <div class="fp-titles">
-        <div class="fp-title" id="fTitle">Station Name</div>
-        <div class="fp-track" id="fTrack">Loading track...</div>
+    <div class="fp-meta">
+      <div style="flex: 1; min-width: 0;">
+        <div class="fp-title" id="fTitle">Станция</div>
+        <div class="fp-track" id="fTrack">Загрузка...</div>
       </div>
-      <button class="btn-icon fav-btn" id="fFavBtn" onclick="toggleFav()">
-        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <button class="control-btn" onclick="toggleFav()" id="fFavBtn" style="padding-left: 10px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>
 
     <div class="fp-controls">
-      <button class="fp-sec-btn" onclick="prevStation()">
-        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      <button class="control-btn" onclick="prevStation()">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
       </button>
-      <button class="fp-main-btn" onclick="togglePlay()">
-        <svg id="fPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <button class="fp-main-play" onclick="togglePlay()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" id="fPlayIcon"><path d="M8 5v14l11-7z"/></svg>
       </button>
-      <button class="fp-sec-btn" onclick="nextStation()">
-        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      <button class="control-btn" onclick="nextStation()">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </button>
     </div>
 
-    <div class="vol-bar">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
-      <input type="range" class="vol-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" id="vSlider">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    <div class="fp-bottom-actions">
+      <button class="fp-action-btn" onclick="closeFullPlayer(); toggleChatModal(true);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Чат эфира
+      </button>
     </div>
   </div>
 </div>
@@ -200,52 +337,51 @@
 <audio id="audio"></audio>
 
 <script>
-// --- БАЗА ДАННЫХ ---
-const stations = [
-  {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8"},
-  {name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", stream:"https://h.getradio.me/rp85/hls.m3u8"},
-  {name:"Маруся ФМ", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8"},
-  {name:"Европа Плюс", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8"},
-  {name:"Ретро Хит", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8"},
-  {name:"Вести FM", genre:"Новости", tag:"news", logo:"https://radiopotok.ru/f/station/256/644.png", stream:"https://h.getradio.me/rp644/hls.m3u8"}
+// --- ПРОВЕРКА НАЛИЧИЯ ДАННЫХ ИЗ STATIONS.JS ---
+const radioStations = window.stations || [
+  {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8"}
+];
+const radioGenres = window.genres || [
+  {id:"all", label:"Все"},
+  {id:"fav", label:"Избранное"}
 ];
 
-// --- СОСТОЯНИЕ ---
+// Убедимся, что вкладка "Избранное" есть в начале списка
+if (!radioGenres.some(g => g.id === 'fav')) {
+  radioGenres.splice(1, 0, {id: 'fav', label: 'Избранное'});
+}
+
+// --- СОСТОЯНИЕ ПЛЕЕРА ---
 let curIdx = -1;
 let isPlaying = false;
 let activeTab = "all";
-let hls = null;
+let hlsInstance = null;
 const audio = document.getElementById('audio');
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
-let trackPoll = null;
+let trackInterval = null;
 
-// Инициализация Telegram (если открыто внутри ТГ)
 const tg = window.Telegram?.WebApp;
-if(tg) { tg.ready(); tg.expand(); }
+if (tg) { tg.ready(); tg.expand(); }
 
-// --- ТЕМА ---
-let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark');
+// --- ТЕМЫ ОФОРМЛЕНИЯ ---
+let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark') || true;
 function applyTheme() {
   document.body.classList.toggle('dark', isDark);
-  document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#000000' : '#ffffff');
+  document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#0b0b0c' : '#ffffff');
 }
 function toggleTheme() {
   isDark = !isDark;
   localStorage.setItem('radio_dark', isDark ? '1' : '0');
   applyTheme();
-  if(tg) tg.HapticFeedback?.impactOccurred('light');
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
 }
 applyTheme();
 
-// --- РЕНДЕР ИНТЕРФЕЙСА ---
+// --- СБОРКА ТАБОВ И СПИСКА ---
 function renderTabs() {
   const tabsEl = document.getElementById('genreTabs');
-  const genres = [{id: 'all', name: 'Все'}, {id: 'fav', name: 'Избранное'}];
-  const uniqueTags = [...new Set(stations.map(s => s.tag))];
-  uniqueTags.forEach(t => genres.push({id: t, name: t.toUpperCase()}));
-
-  tabsEl.innerHTML = genres.map(g => 
-    `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.name}</button>`
+  tabsEl.innerHTML = radioGenres.map(g => 
+    `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>`
   ).join('');
 }
 
@@ -253,175 +389,275 @@ function setTab(id) {
   activeTab = id;
   renderTabs();
   renderList();
-  if(tg) tg.HapticFeedback?.selectionChanged();
+  if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
 function renderList() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  const query = document.getElementById('searchInput').value.toLowerCase();
   const listEl = document.getElementById('stationList');
   
-  const filtered = stations.filter(s => {
+  const filtered = radioStations.filter(s => {
     if (activeTab === 'fav' && !favs.includes(s.name)) return false;
     if (activeTab !== 'all' && activeTab !== 'fav' && s.tag !== activeTab) return false;
-    if (q && !s.name.toLowerCase().includes(q)) return false;
+    if (query && !s.name.toLowerCase().includes(query) && !s.genre.toLowerCase().includes(query)) return false;
     return true;
   });
 
   if (!filtered.length) {
-    listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-sec)">Ничего не найдено</div>`;
+    listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-sec); font-size: 14px;">Ничего не найдено</div>`;
     return;
   }
 
-  listEl.innerHTML = filtered.map((s) => {
-    const origIdx = stations.indexOf(s);
-    const isActive = origIdx === curIdx;
+  listEl.innerHTML = filtered.map(s => {
+    const originalIndex = radioStations.indexOf(s);
+    const isActive = originalIndex === curIdx;
     return `
-      <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
+      <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${originalIndex})">
         <img src="${s.logo}" class="station-img" loading="lazy">
         <div class="station-info">
           <div class="station-name">${s.name}</div>
           <div class="station-genre">${s.genre}</div>
         </div>
-        <div class="playing-icon">АУДИО ▶</div>
+        <div class="playing-pulse"></div>
       </div>
     `;
   }).join('');
 }
 
-// --- ПЛЕЕР ---
+// --- ЛОГИКА ВОСПРОИЗВЕДЕНИЯ ---
 function playStation(idx) {
-  if (curIdx === idx && isPlaying) return openFullPlayer(); // Если уже играет, просто открываем
+  if (curIdx === idx) {
+    if (window.innerWidth <= 960) openFullPlayer();
+    return;
+  }
   
   if (tg) tg.HapticFeedback?.impactOccurred('medium');
   curIdx = idx;
-  const s = stations[idx];
+  const station = radioStations[idx];
   
-  updateUI();
-  document.getElementById('miniPlayer').classList.remove('hidden');
-  
-  // Очистка HLS
-  if (hls) { hls.destroy(); hls = null; }
+  // КРИТИЧЕСКАЯ ОПТИМИЗАЦИЯ КЭША: Полное уничтожение старого буфера HLS
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
   audio.pause();
   audio.src = '';
-  
-  // Запуск
-  if (s.stream.includes('.m3u8') && Hls.isSupported()) {
-    hls = new Hls({ lowLatencyMode: true });
-    hls.loadSource(s.stream);
-    hls.attachMedia(audio);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
+  audio.load();
+
+  // Запуск нового потока
+  if (station.stream.includes('.m3u8') && Hls.isSupported()) {
+    hlsInstance = new Hls({
+      lowLatencyMode: true,
+      maxBufferLength: 10,
+      maxMaxBufferLength: 20,
+      enableWorker: true
+    });
+    hlsInstance.loadSource(station.stream);
+    hlsInstance.attachMedia(audio);
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+      audio.play().catch(() => {});
+    });
   } else {
-    audio.src = s.stream;
-    audio.play().catch(()=>{});
+    audio.src = station.stream;
+    audio.play().catch(() => {});
   }
   
   isPlaying = true;
-  updatePlayButtons();
-  renderList();
-  fetchTrack(s.stream);
+  updateUI();
   
-  if (trackPoll) clearInterval(trackPoll);
-  trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
+  // Опрос названия текущего трека
+  if (trackInterval) clearInterval(trackInterval);
+  fetchTrackInfo(station.stream);
+  trackInterval = setInterval(() => fetchTrackInfo(station.stream), 15000);
 }
 
 function togglePlay() {
   if (curIdx === -1) return playStation(0);
   if (tg) tg.HapticFeedback?.impactOccurred('light');
   
-  if (isPlaying) { audio.pause(); isPlaying = false; }
-  else { audio.play(); isPlaying = true; }
-  
-  updatePlayButtons();
-  updateUI(); // Для анимации обложки
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+  } else {
+    audio.play().catch(() => {});
+    isPlaying = true;
+  }
+  updatePlayButtonStates();
 }
 
 function nextStation() {
-  let nextIdx = curIdx + 1;
-  if (nextIdx >= stations.length) nextIdx = 0;
-  playStation(nextIdx);
+  let idx = curIdx + 1;
+  if (idx >= radioStations.length) idx = 0;
+  playStation(idx);
 }
 
 function prevStation() {
-  let prevIdx = curIdx - 1;
-  if (prevIdx < 0) prevIdx = stations.length - 1;
-  playStation(prevIdx);
+  let idx = curIdx - 1;
+  if (idx < 0) idx = radioStations.length - 1;
+  playStation(idx);
 }
 
 function changeVolume(val) {
   audio.volume = val / 100;
 }
 
-// --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
+// --- СИНХРОНИЗАЦИЯ ИНТЕРФЕЙСА ---
 function updateUI() {
   if (curIdx === -1) return;
-  const s = stations[curIdx];
+  const s = radioStations[curIdx];
   const isFav = favs.includes(s.name);
 
-  // Обновление Mini Player
+  // Десктопный плеер
+  document.getElementById('dkGlow').style.backgroundImage = `url(${s.logo})`;
+  document.getElementById('dkArt').src = s.logo;
+  document.getElementById('dkTitle').textContent = s.name;
+  
+  // Мобильный мини-плеер
   document.getElementById('mArt').src = s.logo;
   document.getElementById('mTitle').textContent = s.name;
   
-  // Обновление Full Player
-  document.getElementById('fBg').style.backgroundImage = `url(${s.logo})`;
+  // Мобильный фулл-плеер
+  document.getElementById('fpBg').style.backgroundImage = `url(${s.logo})`;
   document.getElementById('fArt').src = s.logo;
   document.getElementById('fTitle').textContent = s.name;
+
+  document.getElementById('miniPlayer').style.display = 'flex';
   
-  // Анимация обложки (увеличение при игре, уменьшение на паузе)
-  const fArt = document.getElementById('fArt');
-  isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
+  updatePlayButtonStates();
+  renderList();
 
-  // Избранное
+  // Кнопка избранного
   const favBtn = document.getElementById('fFavBtn');
-  favBtn.innerHTML = isFav 
-    ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
-    : `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
-  favBtn.classList.toggle('active', isFav);
+  if (isFav) {
+    favBtn.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+  } else {
+    favBtn.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+  }
 }
 
-function updatePlayButtons() {
-  const playPath = `<path d="M8 5v14l11-7z"/>`;
-  const pausePath = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-  document.getElementById('mPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
-  document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
+function updatePlayButtonStates() {
+  const playSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  const pauseSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+  
+  const isP = isPlaying;
+  document.getElementById('dkPlayIcon').outerHTML = isP ? pauseSVG.replace('width="30"', 'id="dkPlayIcon" width="30"') : playSVG.replace('width="30"', 'id="dkPlayIcon" width="30"');
+  document.getElementById('mPlayIcon').outerHTML = isP ? pauseSVG.replace('width="30"', 'id="mPlayIcon" width="26"') : playSVG.replace('width="30"', 'id="mPlayIcon" width="26"');
+  document.getElementById('fPlayIcon').outerHTML = isP ? pauseSVG.replace('width="30"', 'id="fPlayIcon" width="32"') : playSVG.replace('width="30"', 'id="fPlayIcon" width="32"');
+
+  // Классы анимации увеличения обложек
+  const dkArt = document.getElementById('dkArt');
+  const fArt = document.getElementById('fArt');
+  if (isP) { dkArt.classList.add('playing'); fArt.classList.add('playing'); }
+  else { dkArt.classList.remove('playing'); fArt.classList.remove('playing'); }
 }
 
-// --- УПРАВЛЕНИЕ FULL PLAYER ---
+// --- ПОЛУЧЕНИЕ НАЗВАНИЯ ТРЕКА ---
+async function fetchTrackInfo(streamUrl) {
+  try {
+    const response = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(streamUrl)}`);
+    const data = await response.json();
+    const currentTrack = data.title && data.title.trim() ? data.title : 'Прямой эфир';
+    
+    document.getElementById('dkTrack').textContent = currentTrack;
+    document.getElementById('mSub').textContent = currentTrack;
+    document.getElementById('fTrack').textContent = currentTrack;
+  } catch (e) {
+    const genre = radioStations[curIdx]?.genre || 'В эфире';
+    document.getElementById('dkTrack').textContent = genre;
+    document.getElementById('mSub').textContent = genre;
+    document.getElementById('fTrack').textContent = genre;
+  }
+}
+
+// --- УПРАВЛЕНИЕ ОКНАМИ (МОБИЛКА) ---
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('open'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('open'); }
+
+function toggleChatModal(open) {
+  // На десктопе чат всегда открыт справа. На мобильных устройствах при клике "Чат" открывается красивое ТГ-окно (алерт)
+  if (open && window.innerWidth <= 960) {
+    const userMsg = prompt("Введите сообщение для радио-чата:");
+    if(userMsg) {
+      appendChatMessage("Вы", userMsg, true);
+      if(tg) tg.HapticFeedback?.notificationOccurred('success');
+    }
+  }
+}
 
 // --- ИЗБРАННОЕ ---
 function toggleFav() {
   if (curIdx === -1) return;
-  if(tg) tg.HapticFeedback?.notificationOccurred('success');
+  const name = radioStations[curIdx].name;
+  const index = favs.indexOf(name);
   
-  const name = stations[curIdx].name;
-  const idx = favs.indexOf(name);
-  if (idx > -1) favs.splice(idx, 1);
+  if (index > -1) favs.splice(index, 1);
   else favs.push(name);
   
   localStorage.setItem('radio_favs', JSON.stringify(favs));
   updateUI();
-  if (activeTab === 'fav') renderList();
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
 }
 
-// --- НАЗВАНИЕ ТРЕКА (API) ---
-async function fetchTrack(url) {
-  try {
-    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
-    const track = data.title && data.title.trim() ? data.title : 'В эфире';
-    document.getElementById('mSub').textContent = track;
-    document.getElementById('fTrack').textContent = track;
-  } catch (e) {
-    document.getElementById('mSub').textContent = stations[curIdx].genre;
-    document.getElementById('fTrack').textContent = stations[curIdx].genre;
+// --- СИСТЕМА ИНТЕГРИРОВАННОГО ЖИВОГО ЧАТА ---
+const mockUsers = ["Алексей", "Masha_Rock", "Дмитрий", "Катя_Клуб", "Fox_Deep", "Влад", "User_777", "Артур"];
+const mockTexts = [
+  "Качает нереально! 🔥", "SOUNDPARK просто лучший, спасибо за качество!", "Всем привет из Питера! Вечер обещает быть крутым.", 
+  "Какая сейчас песня играет? Подскажите плиз!", "Обожаю это радио, весь день на репите 👍", "Басы просто разрыв колонок!",
+  "Крутой трек, закинул в избранное", "Spotify отдыхает, дизайн бомба ⚡️"
+];
+
+function appendChatMessage(user, text, isMy = false) {
+  const container = document.getElementById('chatMessages');
+  if(!container) return;
+  
+  const msgEl = document.createElement('div');
+  msgEl.className = `chat-msg ${isMy ? 'my-msg' : ''}`;
+  msgEl.innerHTML = `
+    <div class="msg-user">${user}</div>
+    <div class="msg-text">${text}</div>
+  `;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  
+  appendChatMessage("Вы", text, true);
+  input.value = "";
+  if(tg) tg.HapticFeedback?.impactOccurred('light');
+  
+  // Эмуляция ответа через пару секунд
+  setTimeout(() => {
+    const botUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    appendChatMessage(botUser, "Согласен! Трек огонь.");
+  }, 2500);
+}
+
+// Генерация стартовых сообщений для атмосферы
+function initChatHistory() {
+  for(let i=0; i<4; i++) {
+    const user = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    const text = mockTexts[Math.floor(Math.random() * mockTexts.length)];
+    appendChatMessage(user, text);
   }
+  
+  // Постоянный приток новых сообщений раз в 20-30 секунд
+  setInterval(() => {
+    if(document.hidden) return;
+    const user = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    const text = mockTexts[Math.floor(Math.random() * mockTexts.length)];
+    appendChatMessage(user, text);
+  }, 22000);
 }
 
-// --- СТАРТ ---
+// --- СТАРТ ПРИЛОЖЕНИЯ ---
 audio.volume = 0.8;
 renderTabs();
 renderList();
+initChatHistory();
 </script>
 </body>
 </html>
