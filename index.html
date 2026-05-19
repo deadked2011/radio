@@ -5,998 +5,423 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Radio Go</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a1a1a">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ffffff" id="themeColorMeta">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* =============================================
-   GLOBAL RESET & CORE VARIABLES
-   ============================================= */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{position:fixed;width:100%;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
-:root{
-  --bg:#f6f5f1;--card:#ffffff;--text:#121214;--muted:#8e8e93;
-  --accent:#121214;--brand:#2bbd6e;--border:rgba(0,0,0,.06);
-  --pill:#eae8e2;--pill-text:#636366;--green:#2bbd6e;--red:#ff3b30;--orange:#ff9500;
-  --shadow:0 8px 32px rgba(0,0,0,.03),0 1px 4px rgba(0,0,0,.02);
-  --px:clamp(14px,4vw,24px);--gap:10px;--sp-sm:12px;--sp-md:20px;
-  --r-card:28px;--r-row:16px;--r-btn:14px;
-  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
-  --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
-}
-:root.dark,body.dark{
-  --bg:#0b0b0d;--card:#16161a;--text:#f5f5f7;--muted:#7c7c82;
-  --accent:#f5f5f7;--brand:#2bbd6e;--border:rgba(255,255,255,.06);
-  --pill:#222227;--pill-text:#a1a1aa;--shadow:0 12px 40px rgba(0,0,0,.4);
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+  :root {
+    --bg: #ffffff;
+    --text: #000000;
+    --text-sec: #8e8e93;
+    --surface: #f2f2f7;
+    --surface-hover: #e5e5ea;
+    --accent: #fc3c44; /* Apple Music Red */
+    --player-bg: rgba(255, 255, 255, 0.85);
+    --border: rgba(0, 0, 0, 0.08);
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
 
-/* ── DESKTOP / TABLET LAYOUT ── */
-.page{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:calc(var(--sat)+12px) calc(var(--sar)+var(--px)) calc(var(--sab)+12px) calc(var(--sal)+var(--px))}
-.app{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:600px;margin:0 auto}
-.scroll-area{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.scroll-area::-webkit-scrollbar{display:none}
+  body.dark {
+    --bg: #000000;
+    --text: #ffffff;
+    --text-sec: #ebebf599;
+    --surface: #1c1c1e;
+    --surface-hover: #2c2c2e;
+    --player-bg: rgba(28, 28, 30, 0.85);
+    --border: rgba(255, 255, 255, 0.1);
+  }
 
-/* ── COMMON COMPONENTS ── */
-.header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-md)}
-.header-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,5vw,32px);letter-spacing:-.5px}
-.header-right{display:flex;align-items:center;gap:8px}
-.clock{font-size:14px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums;margin-right:4px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
-.live-dot.on{background:var(--green);animation:pulseLive 2s infinite}
-@keyframes pulseLive{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.15)}}
-.icon-btn{width:42px;height:42px;border-radius:var(--r-btn);background:var(--pill);border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--pill-text);transition:all .2s}
-.icon-btn svg{width:20px;height:20px}
-.icon-btn:active,.icon-btn.on{background:var(--accent);color:var(--bg)}
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s; }
 
-/* станции, карточка, контролы – всё по прежнему, но без дублирования */
-.tabs{flex-shrink:0;display:flex;gap:var(--gap);margin-bottom:var(--sp-sm)}
-.tab-btn{flex:1;padding:12px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--pill);color:var(--pill-text);display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
-.tab-btn.active{background:var(--accent);color:var(--bg)}
-.search-wrap{flex-shrink:0;position:relative;margin-bottom:var(--sp-sm)}
-.search-input{width:100%;padding:13px 16px 13px 44px;background:var(--card);border:1.5px solid var(--border);border-radius:16px;font-size:14px;font-weight:500;color:var(--text);box-shadow:var(--shadow);outline:none;transition:all .25s}
-.search-input:focus{border-color:var(--brand);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-.search-input::placeholder{color:var(--muted)}
-.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);display:flex}
-.genres{flex-shrink:0;display:flex;gap:8px;overflow-x:auto;margin-bottom:var(--sp-md);padding-bottom:4px;scrollbar-width:none}
-.genres::-webkit-scrollbar{display:none}
-.genre-pill{padding:8px 16px;border-radius:100px;background:var(--pill);color:var(--pill-text);font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;text-transform:uppercase;transition:all .2s}
-.genre-pill.active{background:var(--brand);color:#fff;box-shadow:0 4px 12px rgba(43,189,110,.2)}
+  /* ─── MAIN LAYOUT ─── */
+  .app-container { height: 100dvh; display: flex; flex-direction: column; }
+  
+  .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-/* NOW PLAYING CARD */
-.now-card{flex-shrink:0;background:var(--card);border-radius:var(--r-card);padding:var(--sp-md);box-shadow:var(--shadow);margin-bottom:var(--sp-sm);display:none;transition:background .3s;position:relative;overflow:hidden}
-.now-card.visible{display:block}
-.now-card-bg{position:absolute;inset:-30px;z-index:0;background-size:cover;background-position:center;filter:blur(36px) saturate(1.5) brightness(.5);opacity:0;transition:opacity .8s;transform:scale(1.1)}
-.now-card.has-bg .now-card-bg{opacity:1}
-.now-card-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(145deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.45) 100%);opacity:0;transition:opacity .8s}
-.now-card.has-bg .now-card-bg-overlay{opacity:1}
-.now-card-content{position:relative;z-index:2}
-.now-card.has-bg .now-name{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.3)}
-.now-card.has-bg .now-genre{color:rgba(255,255,255,.75)}
-.now-card.has-bg .fav-btn{color:rgba(255,255,255,.5)}
-.now-card.has-bg .fav-btn.on{color:#ff2d55}
-.now-card.has-bg .ctrl{background:rgba(255,255,255,.12);color:#fff;backdrop-filter:blur(10px)}
-.now-card.has-bg .play-btn{background:#ffffff;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.now-card.has-bg .play-btn svg{fill:#121214}
-.now-card.has-bg .vol-row{border-top-color:rgba(255,255,255,.12)}
-.now-card.has-bg .vol-icon-svg,.now-card.has-bg .vol-val{color:rgba(255,255,255,.7)!important}
-.now-card.has-bg .vol-track-bg{background:rgba(255,255,255,.2)}
-.now-card.has-bg .vol-fill{background:rgba(255,255,255,.8)!important}
-.now-card.has-bg input.vol-input::-webkit-slider-thumb{background:#fff;border-color:rgba(255,255,255,.2)}
-.now-card.has-bg .loading-bar{background:rgba(255,255,255,.15)}
-.now-card.has-bg .loading-bar-inner{background:#ffffff}
-.now-top{display:flex;align-items:center;gap:16px;margin-bottom:var(--sp-md)}
-.now-logo{width:clamp(68px,11vw,88px);height:clamp(68px,11vw,88px);border-radius:50%;background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 20px rgba(0,0,0,.12);border:2px solid rgba(255,255,255,.1)}
-.now-logo img{width:100%;height:100%;object-fit:cover}
-.now-info{flex:1;min-width:0}
-.now-name{font-family:'DM Serif Display',serif;font-size:clamp(20px,4.5vw,25px);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;margin-bottom:2px}
-.now-genre{font-size:12px;font-weight:700;color:var(--text);opacity:.6;text-transform:uppercase;letter-spacing:.8px}
-.now-track{font-size:13px;font-weight:600;color:var(--orange);margin-top:6px;white-space:nowrap;overflow:hidden;max-width:100%;display:none}
-.now-track.visible{display:block}
-.now-track-inner{display:inline-block;padding-right:40px}
-.now-track.marquee .now-track-inner{animation:streamingMarquee 15s linear infinite}
-@keyframes streamingMarquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
-.now-card.has-bg .now-track{color:#f0a030}
-.fav-btn{background:none;border:none;cursor:pointer;font-size:26px;color:var(--muted);flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:transform .15s}
-.fav-btn:active{transform:scale(1.18)}
-.fav-btn.on{color:var(--brand)}
+  .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 100px); scrollbar-width: none; }
+  .content-scroll::-webkit-scrollbar { display: none; }
 
-.loading-bar{height:4px;background:var(--border);border-radius:99px;margin-bottom:var(--sp-sm);overflow:hidden;display:none}
-.loading-bar.active{display:block}
-.loading-bar-inner{height:100%;width:30%;background:var(--accent);border-radius:99px;animation:streamLoad 1.2s infinite}
-@keyframes streamLoad{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-.viz{height:26px;display:flex;align-items:flex-end;gap:3px;margin:0 auto var(--sp-sm);width:160px;justify-content:center;mask-image:linear-gradient(to right,transparent 0%,#000 15%,#000 85%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 15%,#000 85%,transparent 100%)}
-.bar{width:3.5px;min-width:3.5px;background:rgba(128,128,128,.2);border-radius:99px;height:4px;transition:background .3s}
-.bar.on{background:var(--accent);animation:dynamicWave var(--dur,.8s) ease-in-out infinite alternate}
-.now-card.has-bg .bar{background:rgba(255,255,255,.25)}
-.now-card.has-bg .bar.on{background:rgba(255,255,255,.95)}
-@keyframes dynamicWave{from{height:4px}to{height:26px}}
+  /* ─── SEARCH & TABS ─── */
+  .search-box { margin: 16px 0; background: var(--surface); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .search-box input { border: none; background: transparent; width: 100%; font-size: 16px; color: var(--text); outline: none; }
+  .search-box input::placeholder { color: var(--text-sec); }
 
-.controls{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);margin-bottom:var(--sp-sm)}
-.ctrl{width:50px;height:50px;border-radius:var(--r-btn);background:var(--pill);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--pill-text);transition:transform .15s}
-.ctrl:active{transform:scale(.94)}
-.ctrl svg{width:22px;height:22px}
-.play-btn{width:66px;height:66px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.15);transition:transform .2s}
-.play-btn:active{transform:scale(.92)}
-.play-btn svg{width:24px;height:24px;fill:var(--bg);margin-left:3px}
-.play-btn.playing svg{margin-left:0}
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 8px 16px; border-radius: 20px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; transition: 0.2s; }
+  .tab.active { background: var(--text); color: var(--bg); }
 
-/* VOLUME */
-.vol-row{display:flex;align-items:center;gap:12px;padding-top:var(--sp-sm);border-top:1px solid var(--border)}
-.vol-icon-svg{display:flex;align-items:center;flex-shrink:0;color:var(--muted);width:20px;height:20px}
-.vol-icon-svg svg{width:100%;height:100%}
-.vol-wrap{flex:1;position:relative;display:flex;align-items:center;height:32px;min-width:60px}
-.vol-track-bg{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:5px;border-radius:99px;background:var(--border);pointer-events:none}
-.vol-fill{position:absolute;left:9px;top:50%;transform:translateY(-50%);height:5px;width:0;border-radius:99px;background:var(--brand);pointer-events:none;transition:background-color .25s}
-input.vol-input{position:relative;z-index:2;width:100%;-webkit-appearance:none;appearance:none;height:5px;background:transparent;outline:none;cursor:pointer;border-radius:99px}
-input.vol-input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--card);border:2.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);transition:transform .15s;cursor:pointer}
-input.vol-input:active::-webkit-slider-thumb,input.vol-input.dragging::-webkit-slider-thumb{transform:scale(1.3)}
-input.vol-input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--card);border:2.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer}
-.vol-val{font-size:13px;font-weight:700;color:var(--muted);min-width:36px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+  /* ─── STATION LIST ─── */
+  .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); transition: opacity 0.2s; }
+  .station-row:active { opacity: 0.6; }
+  .station-img { width: 52px; height: 52px; border-radius: 10px; background: var(--surface); object-fit: cover; }
+  .station-info { flex: 1; min-width: 0; }
+  .station-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .station-genre { font-size: 13px; color: var(--text-sec); }
+  .playing-icon { display: none; color: var(--accent); font-size: 12px; }
+  .station-row.active .playing-icon { display: block; }
+  .station-row.active .station-name { color: var(--accent); }
 
-/* STATION LIST */
-.section-label{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:12px;padding:0 2px;margin-top:20px;flex-shrink:0}
-.list{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.row{background:var(--card);border-radius:var(--r-row);padding:12px 14px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none;box-shadow:var(--shadow);border:1px solid transparent;transition:transform .2s;min-height:64px}
-.row:active{transform:scale(.985)}
-.row.active{border-color:var(--brand);box-shadow:0 4px 16px rgba(43,189,110,.06)}
-.row-img{width:44px;height:44px;min-width:44px;border-radius:12px;background:var(--pill);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
-.row-img img{width:100%;height:100%;object-fit:cover;display:block}
-.row-info{flex:1;min-width:0;overflow:hidden}
-.row-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.row-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:4px}
-.row-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
-.row.active .row-dot{display:none}
-.row-eq{display:none;align-items:flex-end;gap:2px;height:13px}
-.row.active .row-eq{display:flex}
-.row-eq-bar{width:2.5px;background:var(--brand);border-radius:99px;animation:eqPulse .6s ease-in-out infinite alternate;transform-origin:bottom}
-.row-eq-bar:nth-child(1){height:4px;animation-delay:0s}
-.row-eq-bar:nth-child(2){height:12px;animation-delay:.15s}
-.row-eq-bar:nth-child(3){height:7px;animation-delay:.3s}
-.row-eq-bar:nth-child(4){height:13px;animation-delay:.08s}
-@keyframes eqPulse{0%{transform:scaleY(.3)}100%{transform:scaleY(1)}}
-.empty{text-align:center;color:var(--muted);padding:48px 24px;font-size:14px;font-weight:500}
-.show-more-btn{width:100%;margin-top:8px;padding:14px;border:none;cursor:pointer;background:var(--pill);color:var(--pill-text);border-radius:var(--r-row);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;transition:background .2s}
-.show-more-btn:active{background:var(--border)}
+  /* ─── MINI PLAYER (BOTTOM BAR) ─── */
+  .mini-player { position: fixed; bottom: var(--safe-bottom); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.3s; }
+  .mini-player.hidden { transform: translateY(150%); }
+  .mini-art { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--surface); }
+  .mini-info { flex: 1; min-width: 0; }
+  .mini-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini-sub { font-size: 13px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini-controls { display: flex; align-items: center; gap: 16px; }
+  .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .btn-icon svg { width: 24px; height: 24px; fill: currentColor; }
 
-/* CHAT (десктоп) */
-.chat-section{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(0,0,0,.04);border-radius:var(--r-card);box-shadow:var(--shadow);margin-top:var(--gap);display:none;flex-direction:column;height:260px;transition:background .3s}
-.chat-section.show{display:flex}
-.chat-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(128,128,128,.1);flex-shrink:0}
-.chat-section-title{font-weight:700;font-size:14px}
-.chat-open-btn{background:var(--pill);color:var(--pill-text);border:none;border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:background .2s}
-.chat-open-btn:active{background:var(--border)}
-.chat-msgs{flex:1;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.chat-msgs::-webkit-scrollbar{display:none}
-.chat-msg{display:flex;gap:10px;align-items:flex-start;font-size:13px;animation:msgIn .25s ease}
-@keyframes msgIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.chat-msg-avatar{width:30px;height:30px;min-width:30px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.chat-msg-body{background:rgba(0,0,0,.03);padding:8px 12px;border-radius:14px;max-width:85%}
-body.dark .chat-msg-body{background:rgba(255,255,255,.04)}
-.chat-msg-name{font-weight:700;font-size:11px;margin-bottom:2px;color:var(--muted)}
-.chat-msg-text{word-break:break-word;line-height:1.45;font-size:13px;color:var(--text)}
+  /* ─── FULL SCREEN PLAYER ─── */
+  .full-player { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--bg); z-index: 200; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); overflow: hidden; }
+  .full-player.open { transform: translateY(0); }
+  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; }
+  body.dark .fp-bg { opacity: 0.3; }
+  .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; padding: var(--safe-top) 24px calc(var(--safe-bottom) + 24px); }
+  
+  .fp-header { display: flex; justify-content: space-between; padding: 16px 0 32px; }
+  .fp-down { background: none; border: none; color: var(--text); cursor: pointer; }
+  .fp-down svg { width: 32px; height: 32px; }
 
-/* ── MOBILE TIKTOK VIEW ── */
-@media(max-width:768px){
-  body{background:#000}
-  #tiktokView{position:fixed;inset:0;z-index:9999;background:#000;display:block;overflow:hidden}
-  .page,.app{display:none!important}
-  .tt-bg{position:absolute;inset:-30px;z-index:0;background-size:cover;background-position:center;filter:blur(40px) brightness(.25) saturate(1.4);transform:scale(1.12)}
-  .tt-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 55%,rgba(0,0,0,.85) 100%)}
-  .tt-header{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 100%)}
-  .tt-header-left{display:flex;align-items:center;gap:10px}
-  .tt-title{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;letter-spacing:-.2px}
-  .tt-header-right{display:flex;gap:8px}
-  .tt-hbtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex-shrink:0;transition:transform .1s}
-  .tt-hbtn:active{transform:scale(.84)}
-  .tt-hbtn svg{width:17px;height:17px}
-  .tt-hbtn.on{background:rgba(255,255,255,.9);color:#000}
-  .tt-center{position:absolute;z-index:3;top:50%;left:0;right:0;transform:translateY(-58%);display:flex;flex-direction:column;align-items:center;padding:0 20px}
-  .tt-logo{width:clamp(100px,30vw,150px);height:clamp(100px,30vw,150px);border-radius:50%;background:#1a1a1a;overflow:hidden;flex-shrink:0;box-shadow:0 12px 44px rgba(0,0,0,.65),0 0 0 3px rgba(255,255,255,.08);margin-bottom:20px}
-  .tt-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-  .tt-logo.playing{animation:ttLogoSpin 12s linear infinite}
-  @keyframes ttLogoSpin{to{transform:rotate(360deg)}}
-  .tt-info{text-align:center;width:100%}
-  .tt-name{font-family:'DM Serif Display',serif;font-size:clamp(20px,5.5vw,28px);color:#fff;line-height:1.2;margin-bottom:5px;text-shadow:0 2px 16px rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tt-genre{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5)}
-  .tt-track{font-size:12px;font-weight:600;color:#f0a030;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:8px;min-height:16px}
-  .tt-viz{display:flex;align-items:flex-end;gap:3px;height:22px;margin-top:16px;justify-content:center}
-  .tt-bar{width:3px;background:rgba(255,255,255,.18);border-radius:99px;height:4px}
-  .tt-bar.on{background:rgba(255,255,255,.9);animation:ttWave var(--dur,.65s) ease-in-out infinite alternate}
-  @keyframes ttWave{from{height:4px}to{height:22px}}
-  .tt-side-actions{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:20px;z-index:40}
-  .tt-side-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer}
-  .tt-side-icon{width:52px;height:52px;border-radius:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .12s}
-  .tt-side-btn:active .tt-side-icon{transform:scale(.84)}
-  .tt-side-icon.fav-on{background:rgba(255,45,85,.3);border-color:rgba(255,45,85,.35)}
-  .tt-side-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.3px}
-  .tt-left-actions{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px)+90px);display:flex;flex-direction:column;align-items:center;gap:20px;z-index:40}
-  .tt-left-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer}
-  .tt-left-btn:active .tt-side-icon{transform:scale(.84)}
-  .tt-left-btn svg{width:22px;height:22px}
-  .tt-ai-label{font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px}
+  .fp-art-wrap { width: 100%; aspect-ratio: 1; margin-bottom: 40px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; flex-shrink: 0; }
+  .fp-art { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+  .fp-art:not(.playing) { transform: scale(0.85); border-radius: 24px; }
 
-  /* Чат (выезжает слева) */
-  #ttChatOverlay{position:fixed;top:0;left:0;bottom:0;z-index:800;width:min(88vw,340px);background:rgba(6,6,8,.97);transform:translateX(-100%);transition:transform .3s;display:flex;flex-direction:column;box-shadow:6px 0 36px rgba(0,0,0,.7)}
-  #ttChatOverlay.open{transform:translateX(0)}
-  #ttChatBackdrop{position:fixed;inset:0;z-index:799;background:rgba(0,0,0,.4);display:none}
-  #ttChatBackdrop.open{display:block}
-  .tt-chat-header{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px)+12px) 14px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-  .tt-chat-title{font-weight:700;font-size:15px;color:#fff;flex:1}
-  .tt-chat-tg-btn{background:rgba(43,189,110,.18);border:1px solid rgba(43,189,110,.28);color:#2bbd6e;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;border-radius:100px}
-  .tt-chat-close{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
-  .tt-chat-msgs{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;scrollbar-width:none}
-  .tt-chat-msgs::-webkit-scrollbar{display:none}
-  .tt-chat-msg{display:flex;gap:8px;align-items:flex-start}
-  .tt-chat-avatar{width:26px;height:26px;min-width:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-  .tt-chat-body{background:rgba(255,255,255,.05);padding:6px 10px;border-radius:12px;max-width:82%}
-  .tt-chat-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:2px}
-  .tt-chat-text{font-size:13px;color:rgba(255,255,255,.88);line-height:1.4;word-break:break-word}
-  .tt-chat-footer{padding:10px 14px calc(env(safe-area-inset-bottom,0px)+10px);border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
-  .tt-chat-join-btn{width:100%;padding:12px;border-radius:14px;border:none;background:linear-gradient(135deg,#2bbd6e,#20a558);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
-  .tt-chat-join-text{font-size:11px;color:rgba(255,255,255,.38);text-align:center;margin-top:6px}
+  .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .fp-titles { flex: 1; min-width: 0; }
+  .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fp-track { font-size: 16px; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
 
-  /* Поиск */
-  #ttSearchOverlay{position:fixed;bottom:0;left:0;right:0;z-index:600;background:rgba(6,6,8,.98);border-radius:22px 22px 0 0;transform:translateY(100%);transition:transform .3s;max-height:82vh;display:flex;flex-direction:column}
-  #ttSearchOverlay.open{transform:translateY(0)}
-  .tt-search-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:99px;margin:10px auto 0;flex-shrink:0}
-  .tt-search-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;flex-shrink:0}
-  .tt-search-icon{color:rgba(255,255,255,.32)}
-  #ttSearchInput{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:500;color:#fff;outline:none}
-  .tt-search-close{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.75);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
-  #ttSearchResults{flex:1;overflow-y:auto;padding:4px 12px 28px}
-  #ttSearchResults::-webkit-scrollbar{display:none}
-  .tt-s-item{display:flex;align-items:center;gap:11px;padding:9px 6px;border-radius:12px;cursor:pointer}
-  .tt-s-item:active{background:rgba(255,255,255,.06)}
-  .tt-s-img{width:42px;height:42px;min-width:42px;border-radius:10px;overflow:hidden;background:#222}
-  .tt-s-img img{width:100%;height:100%;object-fit:cover}
-  .tt-s-name{font-size:14px;font-weight:600;color:#fff}
-  .tt-s-genre{font-size:11px;color:rgba(255,255,255,.38);margin-top:1px}
-  .tt-s-play{color:#2bbd6e;font-size:14px}
-  .tt-s-empty{text-align:center;color:rgba(255,255,255,.28);padding:28px 0;font-size:14px}
-}
+  .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 40px; padding: 0 20px; }
+  .fp-main-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+  .fp-main-btn svg { width: 32px; height: 32px; fill: currentColor; }
+  .fp-sec-btn { background: none; border: none; color: var(--text); cursor: pointer; }
+  .fp-sec-btn svg { width: 32px; height: 32px; fill: currentColor; }
+  
+  .fav-btn.active { color: var(--accent); }
+
+  /* Volume */
+  .vol-bar { display: flex; align-items: center; gap: 12px; color: var(--text-sec); }
+  .vol-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; }
+  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 </style>
 </head>
 <body>
-<!-- Офлайн-баннер -->
-<div id="offlineBanner" style="display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 18px;border-radius:16px;background:rgba(255,80,80,.92);backdrop-filter:blur(10px);font-weight:700;color:white;box-shadow:0 10px 40px rgba(0,0,0,.3)">
-  📡 Нет сети — ждём восстановление соединения
-</div>
 
-<!-- AMBIENT BACKGROUND (десктоп) -->
-<div class="ambient-bg" id="ambientBg"></div>
-
-<!-- ═══════════════════════════════════════════
-     DESKTOP / TABLET VIEW
-     ═══════════════════════════════════════════ -->
-<div class="page" id="desktopView">
+<div class="app-container">
   <div class="header">
-    <div class="header-title">Radio Go</div>
-    <div class="header-right">
-      <span class="live-dot" id="liveDot"></span>
-      <span class="clock" id="clock"></span>
-      <button class="icon-btn" id="darkBtn" onclick="toggleDark()" title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-      <button class="icon-btn" id="carBtn" onclick="toggleCar()" title="Авторежим"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="m6.5 10 2-6h7l2 6"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></button>
-      <button class="icon-btn" id="splitBtn" onclick="onSplitClick()" title="Разделить экран"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
-      <button class="icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Чат радио"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <h1>Radio</h1>
+    <div class="header-actions">
+      <button onclick="toggleTheme()" id="themeBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
   </div>
 
-  <div class="app">
-    <div class="scroll-area">
-      <div class="app-inner" id="appInner">
-        <div class="app-left">
-          <div class="tabs" id="tabs">
-            <button class="tab-btn active" id="tabAll" onclick="setTab('all')">Все станции</button>
-            <button class="tab-btn" id="tabFav" onclick="setTab('fav')">Избранное</button>
-          </div>
-          <div id="searchWrap" class="search-wrap">
-            <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-            <input class="search-input" id="searchInput" placeholder="Поиск любимой волны..." oninput="renderList()">
-          </div>
-          <div class="genres" id="genrePills"></div>
-
-          <div class="now-card" id="nowCard">
-            <div class="now-card-bg" id="nowCardBg"></div>
-            <div class="now-card-bg-overlay"></div>
-            <div class="now-card-content">
-              <div class="now-top">
-                <div class="now-logo" id="nowLogo">🎵</div>
-                <div class="now-info">
-                  <div class="now-name" id="nowName">—</div>
-                  <div class="now-genre" id="nowGenre">—</div>
-                  <div class="now-track" id="nowTrack"><span class="now-track-inner" id="nowTrackInner"></span></div>
-                </div>
-                <button class="fav-btn" id="favBtn" onclick="toggleFav()">♡</button>
-              </div>
-              <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
-              <div class="viz" id="viz"></div>
-              <div class="controls">
-                <button class="ctrl" onclick="prev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
-                <button class="play-btn" id="playBtn" onclick="togglePlay()"><svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
-                <button class="ctrl" onclick="next()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
-              </div>
-              <div class="vol-row">
-                <span class="vol-icon-svg" id="volIconWrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
-                <div class="vol-wrap" id="volWrap">
-                  <div class="vol-track-bg"></div>
-                  <div class="vol-fill" id="volFill"></div>
-                  <input class="vol-input" id="volSlider" type="range" min="0" max="100" value="80" oninput="onVolChange(this.value)" onmousedown="this.classList.add('dragging')" onmouseup="this.classList.remove('dragging')" ontouchstart="this.classList.add('dragging')" ontouchend="this.classList.remove('dragging')">
-                </div>
-                <span class="vol-val" id="volVal">80%</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-label" id="listLabel">Все станции</div>
-          <div class="list" id="stationList"></div>
-        </div>
-        <div class="app-right">
-          <div class="chat-section" id="chatSection">
-            <div class="chat-section-header">
-              <span class="chat-section-title">💬 Живой чат радио</span>
-              <button class="chat-open-btn" onclick="openChat()">В Telegram</button>
-            </div>
-            <div class="chat-msgs" id="chatMessages"><div style="text-align:center;color:var(--muted);padding:44px 16px;font-size:14px">Загружаю сообщения...</div></div>
-          </div>
-          <div class="car-recs" id="carRecs"></div>
-        </div>
-      </div>
+  <div class="content-scroll">
+    <div class="search-box">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-sec)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Найти станцию..." oninput="renderList()">
     </div>
+    
+    <div class="tabs" id="genreTabs">
+      </div>
+
+    <div id="stationList">
+      </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MOBILE TIKTOK VIEW
-     ═══════════════════════════════════════════ -->
-<div id="tiktokView" style="display:none">
-  <div id="ttSlide"></div>
-  <div class="tt-header">
-    <div class="tt-header-left">
-      <button class="tt-hbtn" id="ttChatBtn" onclick="ttOpenChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
-      <div class="tt-title">Radio Go</div>
-    </div>
-    <div class="tt-header-right">
-      <button class="tt-hbtn" onclick="ttOpenSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-      <button class="tt-hbtn" id="ttDarkBtn" onclick="toggleDark()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-      <button class="tt-hbtn" onclick="ttOpenList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    </div>
+<div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
+  <img src="" class="mini-art" id="mArt">
+  <div class="mini-info">
+    <div class="mini-title" id="mTitle">Station Name</div>
+    <div class="mini-sub" id="mSub">Artist - Track</div>
   </div>
-  <div id="ttChatBackdrop" onclick="ttCloseChat()"></div>
-  <div id="ttChatOverlay">
-    <div class="tt-chat-header">
-      <div class="tt-chat-title">💬 Radio Chat</div>
-      <button class="tt-chat-tg-btn" onclick="openChat()">В Telegram ↗</button>
-      <button class="tt-chat-close" onclick="ttCloseChat()">✕</button>
-    </div>
-    <div class="tt-chat-msgs" id="ttChatMsgs"><div style="text-align:center;color:rgba(255,255,255,.3);padding:32px 0;font-size:13px">Загружаю сообщения...</div></div>
-    <div class="tt-chat-footer">
-      <button class="tt-chat-join-btn" onclick="openChat()">Написать в чат → Telegram</button>
-      <div class="tt-chat-join-text">Читайте здесь, общайтесь в группе</div>
-    </div>
+  <div class="mini-controls">
+    <button class="btn-icon" onclick="event.stopPropagation(); togglePlay()">
+      <svg id="mPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="btn-icon" onclick="event.stopPropagation(); nextStation()">
+      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    </button>
   </div>
-  <div id="ttSearchOverlay">
-    <div class="tt-search-handle"></div>
-    <div class="tt-search-bar">
-      <span class="tt-search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-      <input id="ttSearchInput" type="search" placeholder="Поиск радиостанции..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="ttSearchFilter()">
-      <button class="tt-search-close" onclick="ttCloseSearch()">✕</button>
+</div>
+
+<div class="full-player" id="fullPlayer">
+  <div class="fp-bg" id="fBg"></div>
+  <div class="fp-content">
+    <div class="fp-header">
+      <button class="fp-down" onclick="closeFullPlayer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
     </div>
-    <div id="ttSearchResults"></div>
-  </div>
-  <div id="ttListOverlay" style="display:none">
-    <div class="tt-list-fixed-hdr">
-      <div class="tt-list-title">Все станции</div>
-      <button class="tt-list-close" onclick="ttCloseList()">✕</button>
+    
+    <div class="fp-art-wrap">
+      <img src="" class="fp-art" id="fArt">
     </div>
-    <div id="ttListBody"></div>
+
+    <div class="fp-info-row">
+      <div class="fp-titles">
+        <div class="fp-title" id="fTitle">Station Name</div>
+        <div class="fp-track" id="fTrack">Loading track...</div>
+      </div>
+      <button class="btn-icon fav-btn" id="fFavBtn" onclick="toggleFav()">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+
+    <div class="fp-controls">
+      <button class="fp-sec-btn" onclick="prevStation()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      </button>
+      <button class="fp-main-btn" onclick="togglePlay()">
+        <svg id="fPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="fp-sec-btn" onclick="nextStation()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+    </div>
+
+    <div class="vol-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
+      <input type="range" class="vol-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" id="vSlider">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    </div>
   </div>
 </div>
 
 <audio id="audio"></audio>
 
-<!-- ═══════════════════════════════════════════
-     STATIONS (встроенный список)
-     ═══════════════════════════════════════════ -->
 <script>
-// Минимальный набор станций, если не загружен stations.js
-if (!window.stations) {
-  window.stations = [
-    {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8", listeners:3317},
-    {name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", stream:"https://h.getradio.me/rp85/hls.m3u8", listeners:17757},
-    {name:"Маруся ФМ", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8", listeners:15262},
-    {name:"Европа Плюс", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8", listeners:8133},
-    {name:"Ретро Хит", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8", listeners:3588},
-    {name:"Радио Шансон", genre:"Шансон", tag:"shanson", logo:"https://radiopotok.ru/f/station/256/2.png", stream:"https://h.getradio.me/rp2/hls.m3u8", listeners:2464},
-    {name:"Вести FM", genre:"Новости", tag:"news", logo:"https://radiopotok.ru/f/station/256/644.png", stream:"https://h.getradio.me/rp644/hls.m3u8", listeners:7716},
-    {name:"Дорожное радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/83.png", stream:"https://h.getradio.me/rp83/hls.m3u8", listeners:4922}
-  ];
-  window.genres = [
-    {id:"all",label:"Все"},{id:"deep",label:"Deep House"},{id:"pop",label:"Поп"},
-    {id:"rock",label:"Рок"},{id:"retro",label:"Ретро"},{id:"shanson",label:"Шансон"},
-    {id:"news",label:"Новости"},{id:"edm",label:"Электро"},{id:"chill",label:"Чилаут"}
-  ];
-}
-</script>
+// --- БАЗА ДАННЫХ ---
+const stations = [
+  {name:"SOUNDPARK DEEP", genre:"Deep House", tag:"deep", logo:"https://radiopotok.ru/f/station/256/1260.png", stream:"https://h.getradio.me/spdeep/hls.m3u8"},
+  {name:"Русское Радио", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/85.png", stream:"https://h.getradio.me/rp85/hls.m3u8"},
+  {name:"Маруся ФМ", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1323.png", stream:"https://h.getradio.me/rp1323/hls.m3u8"},
+  {name:"Европа Плюс", genre:"Поп", tag:"pop", logo:"https://radiopotok.ru/f/station/256/1576.png", stream:"https://h.getradio.me/rp1576/hls.m3u8"},
+  {name:"Ретро Хит", genre:"Ретро", tag:"retro", logo:"https://radiopotok.ru/f/station/256/1570.png", stream:"https://h.getradio.me/rp1570/hls.m3u8"},
+  {name:"Вести FM", genre:"Новости", tag:"news", logo:"https://radiopotok.ru/f/station/256/644.png", stream:"https://h.getradio.me/rp644/hls.m3u8"}
+];
 
-<script>
-// ═══ КОНФИГУРАЦИЯ ═══════════════════════════════════
-const CHAT_API_BASE = "https://radio-chat.deadked2011.workers.dev";
+// --- СОСТОЯНИЕ ---
+let curIdx = -1;
+let isPlaying = false;
+let activeTab = "all";
+let hls = null;
+const audio = document.getElementById('audio');
+const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
+let trackPoll = null;
+
+// Инициализация Telegram (если открыто внутри ТГ)
 const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation();}
+if(tg) { tg.ready(); tg.expand(); }
 
-// ═══ СОСТОЯНИЕ ══════════════════════════════════════
-const audio = document.getElementById("audio");
-audio.volume = 0.8;
+// --- ТЕМА ---
+let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark');
+function applyTheme() {
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#000000' : '#ffffff');
+}
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('radio_dark', isDark ? '1' : '0');
+  applyTheme();
+  if(tg) tg.HapticFeedback?.impactOccurred('light');
+}
+applyTheme();
 
-let curIdx=0, playing=false, activeGenre="all", activeTab="all";
-let darkMode  = localStorage.getItem("rDark")==="1";
-let carMode   = localStorage.getItem("rCar")==="1";
-let splitMode = localStorage.getItem("splitMode")==="1";
-let chatVisible = false;
-let favs = JSON.parse(localStorage.getItem("rfavs")||"[]");
-let hlsInstance=null, nowPlayingTimer=null;
-let userPaused=false, wasInterrupted=false, resumeTimer=null, lastAudioTime=0;
-let listExpanded = {};
+// --- РЕНДЕР ИНТЕРФЕЙСА ---
+function renderTabs() {
+  const tabsEl = document.getElementById('genreTabs');
+  const genres = [{id: 'all', name: 'Все'}, {id: 'fav', name: 'Избранное'}];
+  const uniqueTags = [...new Set(stations.map(s => s.tag))];
+  uniqueTags.forEach(t => genres.push({id: t, name: t.toUpperCase()}));
 
-// ═══ ТЕМА ═══════════════════════════════════════════
-function toggleDark(){
-  darkMode=!darkMode;
-  document.body.classList.toggle("dark",darkMode);
-  document.documentElement.classList.toggle("dark",darkMode);
-  document.getElementById("darkBtn").classList.toggle("on",darkMode);
-  localStorage.setItem("rDark",darkMode?"1":"0");
-  if(tg)tg.HapticFeedback?.impactOccurred("light");
+  tabsEl.innerHTML = genres.map(g => 
+    `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.name}</button>`
+  ).join('');
 }
 
-// ═══ АВТОРЕЖИМ ══════════════════════════════════════
-function applyCarMode(on){
-  ["tabs","searchWrap","genrePills","listLabel","stationList"].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.style.display=on?"none":"";
-  });
-  if(on && curIdx>=0) renderCarRecs(curIdx);
-  else { const r=document.getElementById("carRecs"); if(r) r.innerHTML=""; }
-}
-function toggleCar(){
-  carMode=!carMode;
-  document.body.classList.toggle("car",carMode);
-  document.getElementById("carBtn").classList.toggle("on",carMode);
-  localStorage.setItem("rCar",carMode?"1":"0");
-  applyCarMode(carMode);
-  if(tg)tg.HapticFeedback?.impactOccurred("medium");
-}
-
-// ═══ РАЗДЕЛЕНИЕ ЭКРАНА (только для десктопа) ════════
-function applySplit(on){
-  document.body.classList.toggle("split",on);
-  document.getElementById("splitBtn").classList.toggle("on",on);
-  if(on){ loadChatMessages(); if(curIdx>=0) renderCarRecs(curIdx); }
-  localStorage.setItem("splitMode",on?"1":"0");
-}
-function onSplitClick(){
-  if(window.innerWidth<960){ if(tg)tg.HapticFeedback?.notificationOccurred("warning"); return; }
-  splitMode=!splitMode; applySplit(splitMode);
-  if(tg)tg.HapticFeedback?.impactOccurred("light");
-}
-window.addEventListener("resize",()=>{
-  if(window.innerWidth<960 && splitMode && document.body.classList.contains("split")) applySplit(false);
-});
-
-// ═══ ЧАТ (десктоп) ═══════════════════════════════════
-function toggleChat(){
-  chatVisible=!chatVisible;
-  document.getElementById("chatSection").classList.toggle("show",chatVisible);
-  document.getElementById("chatToggleBtn").classList.toggle("on",chatVisible);
-  if(chatVisible) loadChatMessages();
-}
-
-// ═══ ЧАСЫ ════════════════════════════════════════════
-function tick(){const n=new Date();document.getElementById("clock").textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
-setInterval(tick,1000); tick();
-
-// ═══ ВИЗУАЛИЗАТОР (десктоп) ══════════════════════════
-const bars=[], vizEl=document.getElementById("viz");
-for(let i=0;i<24;i++){
-  const b=document.createElement("div"); b.className="bar";
-  const mn=4, mx=4+Math.floor(Math.random()*18);
-  b.style.cssText=`height:${mn}px;--min:${mn}px;--max:${mx}px;--dur:${(0.45+Math.random()*0.55).toFixed(2)}s;animation-delay:${(Math.random()*0.4).toFixed(2)}s`;
-  vizEl.appendChild(b); bars.push(b);
-}
-function vizOn(on){ bars.forEach(b=>on?b.classList.add("on"):b.classList.remove("on")); }
-function setLoading(on){ document.getElementById("loadingBar").classList.toggle("active",on); }
-
-// ═══ АУДИО – АВТОМАТИЧЕСКОЕ ВОЗОБНОВЛЕНИЕ ════════════
-audio.addEventListener("pause",()=>{
-  if(userPaused||!playing) return;
-  wasInterrupted=true; lastAudioTime=Date.now();
-  clearTimeout(resumeTimer);
-  resumeTimer=setTimeout(()=>{ if(wasInterrupted&&!userPaused&&!document.hidden) attemptResume(); },1500);
-});
-audio.addEventListener("ended",()=>{ if(!userPaused&&playing){ wasInterrupted=true; attemptResume(); } });
-document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden&&wasInterrupted&&!userPaused){ clearTimeout(resumeTimer); resumeTimer=setTimeout(attemptResume,600); }
-});
-setInterval(()=>{ if(wasInterrupted&&!userPaused&&!document.hidden&&Date.now()-lastAudioTime>4000) attemptResume(); },4000);
-
-async function attemptResume(){
-  wasInterrupted=false;
-  audio.volume=0;
-  if(window.stations&&window.stations[curIdx]) playStream(window.stations[curIdx].stream);
-  const target=Number(document.getElementById("volSlider").value)/100;
-  let v=0;
-  const fade=setInterval(()=>{ v+=0.04; if(v>=target){v=target;clearInterval(fade);} audio.volume=v; },60);
-}
-
-// ═══ MEDIA SESSION ════════════════════════════════════
-function updateMediaSession(s){
-  if(!("mediaSession" in navigator)) return;
-  const cover=s.logo||`https://ui-avatars.com/api/?name=${encodeURIComponent(s.name||'FM')}&background=random&color=fff&size=256&font-size=0.4`;
-  navigator.mediaSession.metadata=new MediaMetadata({title:s.name,artist:s.genre||"",album:"Radio Go",artwork:[{src:cover,sizes:"256x256",type:"image/png"}]});
-  navigator.mediaSession.setActionHandler("previoustrack",prev);
-  navigator.mediaSession.setActionHandler("nexttrack",next);
-  navigator.mediaSession.setActionHandler("play",()=>{ userPaused=false; playStream(window.stations[curIdx].stream); });
-  navigator.mediaSession.setActionHandler("pause",()=>{ userPaused=true; audio.pause(); setPlaying(false); });
-}
-
-// ═══ ПЛЕЙЛИСТ ════════════════════════════════════════
-function playStream(url){
-  if(!url) return;
-  if(hlsInstance){ hlsInstance.destroy(); hlsInstance=null; }
-  setLoading(true); vizOn(false);
-  if(url.includes(".m3u8")){
-    if(audio.canPlayType("application/vnd.apple.mpegurl")){
-      audio.src=url;
-      audio.play().then(()=>setPlaying(true)).catch(()=>onPlayError());
-      return;
-    }
-    if(typeof Hls!=="undefined"&&Hls.isSupported()){
-      hlsInstance=new Hls({enableWorker:true,lowLatencyMode:true,backBufferLength:0,maxBufferLength:2,maxMaxBufferLength:4,liveSyncDurationCount:1,liveMaxLatencyDurationCount:3});
-      hlsInstance.loadSource(url); hlsInstance.attachMedia(audio);
-      hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{ audio.play().then(()=>setPlaying(true)).catch(()=>onPlayError()); });
-      hlsInstance.on(Hls.Events.ERROR,(_,d)=>{
-        if(!navigator.onLine){ showOfflineState(true); return; }
-        if(d.fatal){
-          if(d.type===Hls.ErrorTypes.NETWORK_ERROR){ setTimeout(()=>{ try{ hlsInstance&&hlsInstance.startLoad(); }catch(e){} },1500); }
-          else if(d.type===Hls.ErrorTypes.MEDIA_ERROR){ try{ hlsInstance&&hlsInstance.recoverMediaError(); }catch(e){} }
-          else { if(hlsInstance){ hlsInstance.destroy(); hlsInstance=null; } onPlayError(); }
-        }
-      });
-      return;
-    }
-  }
-  audio.src=url;
-  audio.play().then(()=>setPlaying(true)).catch(()=>onPlayError());
-}
-
-function setPlaying(on){
-  playing=on; setLoading(false); vizOn(on);
-  document.getElementById("liveDot").classList.toggle("on",on);
-  document.getElementById("playBtn").classList.toggle("playing",on);
-  document.getElementById("playIcon").innerHTML=on
-    ?'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>'
-    :'<polygon points="5 3 19 12 5 21 5 3"/>';
-  if("mediaSession" in navigator) navigator.mediaSession.playbackState=on?"playing":"paused";
-  if(window.ttSyncPlay) window.ttSyncPlay();
-}
-
-function onPlayError(){
-  playing=false; setPlaying(false); setLoading(false);
-  const inner=document.getElementById("nowTrackInner"), el=document.getElementById("nowTrack");
-  if(inner&&el){ inner.textContent="⚠️ Поток недоступен. Переключаем..."; el.classList.add("visible"); }
-  setTimeout(()=>{ if(!playing) next(); },3000);
-}
-
-function togglePlay(){
-  if(tg)tg.HapticFeedback?.impactOccurred("light");
-  if(!playing){ userPaused=false; wasInterrupted=false; playStream(window.stations[curIdx].stream); }
-  else{ userPaused=true; wasInterrupted=false; clearTimeout(resumeTimer); if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); setPlaying(false); }
-}
-function prev(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx-1+window.stations.length)%window.stations.length,true); }
-function next(){ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation((curIdx+1)%window.stations.length,true); }
-
-// ═══ ГРОМКОСТЬ ═══════════════════════════════════════
-const VOL_THUMB_R = 9;
-function recalcVolFill(v){
-  const fill=document.getElementById("volFill");
-  const slider=document.getElementById("volSlider");
-  if(!fill||!slider) return;
-  const w=slider.getBoundingClientRect().width||slider.offsetWidth;
-  if(!w) return;
-  const usable=w-VOL_THUMB_R*2;
-  fill.style.left=VOL_THUMB_R+"px";
-  fill.style.width=Math.max(0,(v/100)*usable)+"px";
-}
-function onVolChange(v){
-  v=Number(v); audio.volume=v/100;
-  recalcVolFill(v);
-  document.getElementById("volVal").textContent=Math.round(v)+"%";
-}
-window.addEventListener("resize",()=>recalcVolFill(Number(document.getElementById("volSlider")?.value||80)));
-
-// ═══ ЗАГРУЗКА СТАНЦИЙ ════════════════════════════════
-function fbImg(n){ return `https://ui-avatars.com/api/?name=${encodeURIComponent(n||'FM')}&background=random&color=fff&size=256&font-size=0.4`; }
-function ge(tag){ return{deep:"🎧",pop:"🎤",rock:"🎸",retro:"📻",shanson:"🎶",news:"📰",edm:"🎛",chill:"🌊",rap:"🎙️",dnb:"🥁",trance:"✨",techno:"⚙️",jazz:"🎷",classic:"🎻",foreign:"🌍"}[tag]||"🎵"; }
-
-function loadStation(idx,autoplay){
-  if(!window.stations||!window.stations.length) return;
-  curIdx=idx; const s=window.stations[idx];
-  const cover=s.logo||fbImg(s.name);
-  document.getElementById("nowLogo").innerHTML=`<img src="${cover}" onerror="this.src='${fbImg(s.name)}'">`;
-  document.getElementById("nowName").textContent=s.name;
-  document.getElementById("nowGenre").textContent=s.genre||"";
-  const card=document.getElementById("nowCard"); card.classList.add("visible");
-  const bg=document.getElementById("nowCardBg"), amb=document.getElementById("ambientBg");
-  if(s.logo){
-    bg.style.backgroundImage=`url(${s.logo})`; card.classList.add("has-bg");
-    if(amb){ amb.style.backgroundImage=`url(${s.logo})`; amb.classList.add("on"); }
-  } else {
-    bg.style.backgroundImage=""; card.classList.remove("has-bg");
-    if(amb){ amb.style.backgroundImage=""; amb.classList.remove("on"); }
-  }
-  updateFavBtn(); updateMediaSession(s); renderList(); startNowPlaying(s.stream); renderCarRecs(idx);
-  if(autoplay||playing){ userPaused=false; playStream(s.stream); }
-  else{ if(hlsInstance){hlsInstance.destroy();hlsInstance=null;} audio.pause(); audio.src=""; setPlaying(false); }
-}
-
-// ═══ ИЗБРАННОЕ ════════════════════════════════════════
-function toggleFav(){
-  if(tg)tg.HapticFeedback?.notificationOccurred("success");
-  const key=window.stations[curIdx].name;
-  const i=favs.indexOf(key);
-  if(i===-1) favs.push(key); else favs.splice(i,1);
-  localStorage.setItem("rfavs",JSON.stringify(favs));
-  updateFavBtn(); if(activeTab==="fav") renderList();
-}
-function updateFavBtn(){
-  const on=favs.includes(window.stations[curIdx].name);
-  document.getElementById("favBtn").textContent=on?"♥":"♡";
-  document.getElementById("favBtn").classList.toggle("on",on);
-}
-
-// ═══ ТАБЫ ═════════════════════════════════════════════
-function setTab(tab){
-  activeTab=tab;
-  document.getElementById("tabAll").classList.toggle("active",tab==="all");
-  document.getElementById("tabFav").classList.toggle("active",tab==="fav");
-  document.getElementById("searchWrap").style.display=tab==="all"?"":"none";
-  document.getElementById("genrePills").style.display=tab==="all"?"":"none";
-  if(tab==="all") renderGenres();
+function setTab(id) {
+  activeTab = id;
+  renderTabs();
   renderList();
+  if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
-// ═══ ЖАНРЫ ════════════════════════════════════════════
-function renderGenres(){
-  const el=document.getElementById("genrePills"); el.innerHTML="";
-  const list=(window.genres&&Array.isArray(window.genres)&&window.genres.length)
-    ? window.genres
-    : [{id:"all",label:"Все"},...Array.from(new Set(window.stations.map(s=>s.tag).filter(Boolean))).map(t=>({id:t,label:t}))];
-  list.forEach(g=>{
-    const b=document.createElement("button");
-    b.className="genre-pill"+(g.id===activeGenre?" active":"");
-    b.textContent=g.label||g.id;
-    b.onclick=()=>{ activeGenre=g.id; renderGenres(); renderList(); };
-    el.appendChild(b);
-  });
-}
-
-// ═══ СПИСОК СТАНЦИЙ ═══════════════════════════════════
-const SHOW_INIT=8;
-function renderList(){
-  if(!window.stations||!window.stations.length) return;
-  const q=(document.getElementById("searchInput").value||"").toLowerCase();
-  const el=document.getElementById("stationList"); el.innerHTML="";
-  let filtered=window.stations.filter(s=>{
-    if(activeTab==="fav"&&!favs.includes(s.name)) return false;
-    if(activeTab==="all"&&activeGenre!=="all"&&s.tag!==activeGenre) return false;
-    if(q&&!s.name.toLowerCase().includes(q)&&!(s.genre&&s.genre.toLowerCase().includes(q))) return false;
+function renderList() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const listEl = document.getElementById('stationList');
+  
+  const filtered = stations.filter(s => {
+    if (activeTab === 'fav' && !favs.includes(s.name)) return false;
+    if (activeTab !== 'all' && activeTab !== 'fav' && s.tag !== activeTab) return false;
+    if (q && !s.name.toLowerCase().includes(q)) return false;
     return true;
   });
-  document.getElementById("listLabel").textContent=activeTab==="fav"?`Избранное (${filtered.length})`:`Все станции (${filtered.length})`;
-  if(!filtered.length){ el.innerHTML=activeTab==="fav"?'<div class="empty">♡ Нажмите ♡ на любой станции</div>':'<div class="empty">Ничего не найдено</div>'; return; }
-  const key=activeTab+"_"+activeGenre+"_"+q;
-  const expanded=!!listExpanded[key];
-  filtered.slice(0,expanded?filtered.length:Math.min(SHOW_INIT,filtered.length)).forEach(s=>{
-    const idx=window.stations.indexOf(s), row=document.createElement("div");
-    row.className="row"+(idx===curIdx?" active":"");
-    const img=s.logo||fbImg(s.name);
-    row.innerHTML=`<div class="row-img"><img src="${img}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div class="row-info"><div class="row-name">${s.name}</div><div class="row-sub">${s.genre||"Радио"}</div></div><div class="row-right"><div class="row-dot"></div><div class="row-eq"><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div><div class="row-eq-bar"></div></div></div>`;
-    row.onclick=()=>{ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation(idx,true); };
-    el.appendChild(row);
-  });
-  if(filtered.length>SHOW_INIT){
-    const hidden=filtered.length-SHOW_INIT, btn=document.createElement("button");
-    btn.className="show-more-btn"+(expanded?" expanded":"");
-    btn.textContent=expanded?"Свернуть":`Ещё ${hidden} станций`;
-    btn.onclick=()=>{ listExpanded[key]=!expanded; renderList(); if(!listExpanded[key]) el.scrollIntoView({behavior:"smooth",block:"start"}); };
-    el.appendChild(btn);
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-sec)">Ничего не найдено</div>`;
+    return;
   }
+
+  listEl.innerHTML = filtered.map((s) => {
+    const origIdx = stations.indexOf(s);
+    const isActive = origIdx === curIdx;
+    return `
+      <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
+        <img src="${s.logo}" class="station-img" loading="lazy">
+        <div class="station-info">
+          <div class="station-name">${s.name}</div>
+          <div class="station-genre">${s.genre}</div>
+        </div>
+        <div class="playing-icon">АУДИО ▶</div>
+      </div>
+    `;
+  }).join('');
 }
 
-// ═══ РЕКОМЕНДАЦИИ ═════════════════════════════════════
-function renderCarRecs(idx){
-  const recs=document.getElementById("carRecs"); if(!recs||!window.stations||!window.stations.length) return;
-  const cur=window.stations[idx]; if(!cur){ recs.innerHTML=""; return; }
-  const similar=window.stations.filter(s=>s.tag===cur.tag&&window.stations.indexOf(s)!==idx).sort((a,b)=>(b.listeners||0)-(a.listeners||0)).slice(0,4);
-  if(!similar.length){ recs.innerHTML=""; return; }
-  recs.innerHTML='<div class="car-recs-title">🎵 Рекомендации</div>';
-  similar.forEach(s=>{
-    const si=window.stations.indexOf(s), btn=document.createElement("button"); btn.className="car-rec-row";
-    const img=s.logo||fbImg(s.name);
-    const cnt=s.listeners?(s.listeners>=1000?(s.listeners/1000).toFixed(0)+"k":s.listeners):"";
-    btn.innerHTML=`<div class="car-rec-img"><img src="${img}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div class="car-rec-info"><div class="car-rec-name">${s.name}</div><div class="car-rec-genre">${s.genre||"Радио"}</div></div>${cnt?`<div style="font-size:11px;color:var(--muted);flex-shrink:0">${cnt}</div>`:""}`;
-    btn.onclick=()=>{ if(tg)tg.HapticFeedback?.impactOccurred("light"); loadStation(si,true); };
-    recs.appendChild(btn);
-  });
-}
-
-// ═══ NOW PLAYING TRACK ════════════════════════════════
-async function fetchNowPlaying(url){
-  const el=document.getElementById("nowTrack"), inner=document.getElementById("nowTrackInner");
-  if(!el||!inner) return;
-  try{
-    const r=await fetch(`${CHAT_API_BASE}/now-playing?url=${encodeURIComponent(url)}`);
-    if(!r.ok) return;
-    const{title}=await r.json();
-    if(title&&title.trim()){
-      const text="♪ "+title.trim(), long=title.length>35;
-      inner.textContent=long?text+"   "+text:text;
-      el.classList.add("visible"); el.classList.toggle("marquee",long);
-    }else{ inner.textContent=""; el.classList.remove("visible","marquee"); }
-  }catch(e){ el.classList.remove("visible","marquee"); }
-}
-function startNowPlaying(url){
-  if(nowPlayingTimer) clearInterval(nowPlayingTimer);
-  document.getElementById("nowTrackInner").textContent="";
-  document.getElementById("nowTrack").classList.remove("visible","marquee");
-  fetchNowPlaying(url);
-  nowPlayingTimer=setInterval(()=>fetchNowPlaying(url),15000);
-}
-
-// ═══ ЧАТ (загрузка сообщений) ═════════════════════════
-async function loadChatMessages(){
-  const c=document.getElementById("chatMessages"); if(!c) return;
-  try{
-    const r=await fetch(`${CHAT_API_BASE}/get-messages`); if(!r.ok) return;
-    const msgs=await r.json(), list=Array.isArray(msgs)?msgs:[];
-    c.innerHTML="";
-    if(!list.length){ c.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Пока нет сообщений</div>'; return; }
-    list.forEach(m=>{
-      const div=document.createElement("div"); div.className="chat-msg";
-      const t=m.time?new Date(m.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}):"";
-      const hue=([...m.name].reduce((a,ch)=>a+ch.charCodeAt(0),0)*47)%360;
-      div.innerHTML=`<div class="chat-msg-avatar" style="background:hsl(${hue},50%,44%)">${(m.name[0]||"?").toUpperCase()}</div><div class="chat-msg-body"><div class="chat-msg-name">${m.name}${t?` <span style="font-weight:400;opacity:.6">${t}</span>`:""}</div><div class="chat-msg-text">${m.text}</div></div>`;
-      c.appendChild(div);
-    });
-    c.scrollTop=c.scrollHeight;
-  }catch(e){}
-}
-function openChat(){ const url="https://t.me/strmradiochat/2"; if(tg)tg.openTelegramLink(url); else window.open(url,"_blank"); }
-setInterval(()=>{ if(chatVisible||splitMode) loadChatMessages(); },3000);
-
-// ═══ СЕТЬ ═════════════════════════════════════════════
-function showOfflineState(v){ document.getElementById("offlineBanner").style.display=v?"flex":"none"; }
-window.addEventListener("offline",()=>showOfflineState(true));
-window.addEventListener("online",()=>{ showOfflineState(false); if(window.stations&&window.stations[curIdx]&&!playing) setTimeout(()=>{ try{ playStream(window.stations[curIdx].stream); }catch(e){} },1200); });
-
-// ═══ МОБИЛЬНАЯ ВЕРСИЯ (TikTok UI) ════════════════════
-(function(){
-  const MOBILE_BREAKPOINT = 768;
-  function isMobile(){ return window.innerWidth <= MOBILE_BREAKPOINT; }
-
-  const view = document.getElementById('tiktokView');
-  const slide = document.getElementById('ttSlide');
-  const chatOv = document.getElementById('ttChatOverlay');
-  const chatBk = document.getElementById('ttChatBackdrop');
-  const chatMs = document.getElementById('ttChatMsgs');
-  const searchOv = document.getElementById('ttSearchOverlay');
-  const searchIn = document.getElementById('ttSearchInput');
-  const searchRes = document.getElementById('ttSearchResults');
-  const listOv = document.getElementById('ttListOverlay');
-  const listBody = document.getElementById('ttListBody');
-  let initialized = false, chatPollId = null;
-
-  function renderSlide() {
-    if(!window.stations || !window.stations.length) return;
-    const s = window.stations[curIdx];
-    const cover = s.logo || fbImg(s.name);
-    const isP = playing;
-    const isFav = favs.includes(s.name);
-    const piSvg = isP
-      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="#111" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-    let barsHtml = '';
-    for(let i=0;i<14;i++) barsHtml += `<div class="tt-bar${isP?' on':''}" style="--dur:${(0.35+Math.random()*0.5).toFixed(2)}s"></div>`;
-
-    slide.innerHTML =
-      `<div class="tt-bg" style="background-image:url(${cover})"></div>`+
-      `<div class="tt-bg-overlay"></div>`+
-
-      `<div class="tt-center">`+
-        `<div class="tt-logo${isP?' playing':''}" id="ttLogo"><img src="${cover}" onerror="this.src='${fbImg(s.name)}'" loading="eager"></div>`+
-        `<div class="tt-info">`+
-          `<div class="tt-name">${s.name}</div>`+
-          `<div class="tt-genre">${s.genre||'Радио'}</div>`+
-          `<div class="tt-track" id="ttTrackEl"></div>`+
-        `</div>`+
-        `<div class="tt-viz" id="ttVizEl">${barsHtml}</div>`+
-      `</div>`+
-
-      `<div class="tt-side-actions">`+
-        `<button class="tt-side-btn" onclick="ttTapPlay(event)">`+
-          `<div class="tt-side-icon" id="ttSidePlayIcon">`+
-            (isP
-              ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-              :'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
-            )+
-          `</div>`+
-          `<div class="tt-side-label">${isP?'Пауза':'Играть'}</div>`+
-        `</button>`+
-        `<button class="tt-side-btn" onclick="ttTapFav(event)">`+
-          `<div class="tt-side-icon${isFav?' fav-on':''}" id="ttFavIcon">`+
-            (isFav
-              ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff2d55"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-              :'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-            )+
-          `</div>`+
-          `<div class="tt-side-label">${isFav?'В избр.':'Избранное'}</div>`+
-        `</button>`+
-        `<button class="tt-side-btn" onclick="ttOpenSearch()">`+
-          `<div class="tt-side-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>`+
-          `<div class="tt-side-label">Поиск</div>`+
-        `</button>`+
-      `</div>`+
-
-      `<div class="tt-left-actions">`+
-        `<button class="tt-left-btn" onclick="prev()">`+
-          `<div class="tt-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></div>`+
-          `<div class="tt-side-label">Назад</div>`+
-        `</button>`+
-        `<button class="tt-left-btn" onclick="next()">`+
-          `<div class="tt-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></div>`+
-          `<div class="tt-side-label">Вперёд</div>`+
-        `</button>`+
-        `<button class="tt-left-btn" onclick="">`+
-          `<div class="tt-side-icon" style="background:linear-gradient(135deg,rgba(43,189,110,.25),rgba(80,120,255,.25));border-color:rgba(255,255,255,.15)"><span class="tt-ai-label">AI</span></div>`+
-          `<div class="tt-side-label">AI</div>`+
-        `</button>`+
-      `</div>`;
-    ttSyncTrack();
-  }
-
-  window.ttSyncPlay = function() {
-    if(!isMobile()) return;
-    const isP = playing;
-    const logo = document.getElementById('ttLogo');
-    const sideIcon = document.getElementById('ttSidePlayIcon');
-    if(logo){ isP ? logo.classList.add('playing') : logo.classList.remove('playing'); }
-    if(sideIcon){
-      sideIcon.innerHTML = isP
-        ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>'
-        :'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-      const label = sideIcon.parentElement?.querySelector('.tt-side-label');
-      if(label) label.textContent = isP?'Пауза':'Играть';
-    }
-    document.querySelectorAll('.tt-bar').forEach(b=>{ isP?b.classList.add('on'):b.classList.remove('on'); });
-  };
-
-  window.ttTapPlay = function(e){ e.preventDefault(); togglePlay(); setTimeout(ttSyncPlay, 100); };
-  window.ttTapFav = function(e){
-    e.preventDefault();
-    toggleFav();
-    const fi = document.getElementById('ttFavIcon');
-    if(fi){
-      const on = favs.includes(window.stations[curIdx].name);
-      fi.innerHTML = on
-        ?'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff2d55"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-        :'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
-      on ? fi.classList.add('fav-on') : fi.classList.remove('fav-on');
-      const label = fi.parentElement?.querySelector('.tt-side-label');
-      if(label) label.textContent = on?'В избр.':'Избранное';
-    }
-  };
-
-  function ttSyncTrack(){
-    const el = document.getElementById('ttTrackEl'), src = document.getElementById('nowTrackInner');
-    if(el && src) el.textContent = (src.textContent || '').replace(/\s{3,}.*/, '').trim();
-  }
-
-  window.ttOpenChat = function(){ chatOv.classList.add('open'); chatBk.classList.add('open'); ttLoadChat(); if(!chatPollId) chatPollId = setInterval(ttLoadChat, 4000); };
-  window.ttCloseChat = function(){ chatOv.classList.remove('open'); chatBk.classList.remove('open'); if(chatPollId){ clearInterval(chatPollId); chatPollId = null; } };
-
-  function ttLoadChat(){
-    fetch(`${CHAT_API_BASE}/get-messages`).then(r=>r.json()).then(msgs=>{
-      if(!Array.isArray(msgs)||!msgs.length){ chatMs.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px 0;font-size:13px">Пока нет сообщений</div>'; return; }
-      chatMs.innerHTML='';
-      msgs.forEach(m=>{
-        const hue=([].reduce.call(m.name||'?',(a,c)=>a+c.charCodeAt(0),0)*47)%360;
-        const t=m.time?new Date(m.time).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}):'';
-        const d=document.createElement('div'); d.className='tt-chat-msg';
-        d.innerHTML=`<div class="tt-chat-avatar" style="background:hsl(${hue},48%,42%)">${(m.name[0]||'?').toUpperCase()}</div><div class="tt-chat-body"><div class="tt-chat-name">${m.name||'Аноним'}${t?' <span style="font-weight:400;opacity:.5">'+t+'</span>':''}</div><div class="tt-chat-text">${m.text||''}</div></div>`;
-        chatMs.appendChild(d);
-      });
-      chatMs.scrollTop=chatMs.scrollHeight;
-    }).catch(()=>{});
-  }
-
-  window.ttOpenSearch = function(){ searchIn.value=''; ttSearchFilter(); searchOv.classList.add('open'); setTimeout(()=>searchIn.focus(),300); };
-  window.ttCloseSearch = function(){ searchOv.classList.remove('open'); searchIn.blur(); };
-  window.ttSearchFilter = function(){
-    const q=(searchIn.value||'').toLowerCase().trim(), st=window.stations||[];
-    const res=q?st.filter(s=>s.name.toLowerCase().includes(q)||(s.genre&&s.genre.toLowerCase().includes(q))):st.slice(0,24);
-    searchRes.innerHTML='';
-    if(!res.length){ searchRes.innerHTML='<div class="tt-s-empty">Ничего не найдено</div>'; return; }
-    res.slice(0,30).forEach(s=>{
-      const idx=st.indexOf(s), isAct=idx===curIdx, cover=s.logo||fbImg(s.name);
-      const item=document.createElement('div'); item.className='tt-s-item';
-      item.innerHTML=`<div class="tt-s-img"><img src="${cover}" onerror="this.src='${fbImg(s.name)}'" loading="lazy"></div><div style="flex:1;min-width:0"><div class="tt-s-name">${s.name}</div><div class="tt-s-genre">${s.genre||'Радио'}</div></div>${isAct?'<div class="tt-s-play">▶</div>':''}`;
-      item.onclick=function(){ loadStation(idx,true); ttCloseSearch(); setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80); };
-      searchRes.appendChild(item);
-    });
-  };
-
-  window.ttOpenList = function(){ listOv.style.display='block'; ttBuildList(); };
-  window.ttCloseList = function(){ listOv.style.display='none'; };
-  function ttBuildList(){
-    listBody.innerHTML=''; const st=window.stations||[]; const groups={};
-    st.forEach((s,idx)=>{ const g=s.tag||s.genre||'Другое'; if(!groups[g]) groups[g]=[]; groups[g].push({s,idx}); });
-    Object.keys(groups).sort().forEach(g=>{
-      const arr=groups[g], grp=document.createElement('div'); grp.className='tt-genre-grp';
-      if(arr.some(x=>x.idx===curIdx)) grp.classList.add('open');
-      grp.innerHTML=`<div class="tt-genre-hdr"><div class="tt-genre-hdr-name">${g}</div><div class="tt-genre-cnt">${arr.length}</div><div class="tt-genre-arr">▼</div></div><div class="tt-genre-list"></div>`;
-      grp.querySelector('.tt-genre-hdr').onclick=()=>grp.classList.toggle('open');
-      const gList=grp.querySelector('.tt-genre-list');
-      arr.forEach(x=>{
-        const isAct=x.idx===curIdx, cover=x.s.logo||fbImg(x.s.name);
-        const row=document.createElement('div'); row.className='tt-l-item'+(isAct?' playing':'');
-        row.innerHTML=`<div class="tt-l-img"><img src="${cover}" onerror="this.src='${fbImg(x.s.name)}'" loading="lazy"></div><div style="flex:1;min-width:0"><div class="tt-l-name">${x.s.name}</div><div class="tt-l-genre">${x.s.genre||'Радио'}</div></div>${isAct?'<div class="tt-l-play">▶</div>':''}`;
-        row.onclick=function(){ loadStation(x.idx,true); ttCloseList(); setTimeout(()=>{renderSlide();setTimeout(ttSyncPlay,120);},80); };
-        gList.appendChild(row);
-      });
-      listBody.appendChild(grp);
-    });
-  }
-
-  function ttInit(){
-    if(initialized || !isMobile()) return;
-    initialized = true;
-    view.style.display = 'block';
-    let tries = 0;
-    const wait = setInterval(()=>{
-      tries++;
-      if((window.stations && window.stations.length) || tries > 60){ clearInterval(wait); renderSlide(); }
-    }, 150);
-    document.addEventListener('touchstart', e => { if(searchOv.classList.contains('open') && !searchOv.contains(e.target)) ttCloseSearch(); }, {passive: true});
-  }
-
-  window.addEventListener('resize', () => {
-    if(isMobile()){ if(!initialized) ttInit(); else view.style.display='block'; }
-    else view.style.display='none';
-  });
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ()=>setTimeout(ttInit,300));
-  else setTimeout(ttInit,300);
-})();
-
-// ═══ ИНИЦИАЛИЗАЦИЯ ════════════════════════════════════
-window.addEventListener("DOMContentLoaded",()=>{
-  if(darkMode||tg?.colorScheme==="dark"){ darkMode=true; document.body.classList.add("dark"); document.documentElement.classList.add("dark"); }
-  document.getElementById("darkBtn").classList.toggle("on",darkMode);
-  if(carMode){ document.body.classList.add("car"); applyCarMode(true); }
-  document.getElementById("carBtn").classList.toggle("on",carMode);
-  if(window.innerWidth>=960 && localStorage.getItem("splitMode")===null){ splitMode=true; applySplit(true); }
-  else if(splitMode && window.innerWidth>=960) applySplit(true);
-  requestAnimationFrame(()=>{ onVolChange(80); });
-  if(window.stations && window.stations.length>0){
-    renderGenres(); renderList(); loadStation(0,false);
+// --- ПЛЕЕР ---
+function playStation(idx) {
+  if (curIdx === idx && isPlaying) return openFullPlayer(); // Если уже играет, просто открываем
+  
+  if (tg) tg.HapticFeedback?.impactOccurred('medium');
+  curIdx = idx;
+  const s = stations[idx];
+  
+  updateUI();
+  document.getElementById('miniPlayer').classList.remove('hidden');
+  
+  // Очистка HLS
+  if (hls) { hls.destroy(); hls = null; }
+  audio.pause();
+  audio.src = '';
+  
+  // Запуск
+  if (s.stream.includes('.m3u8') && Hls.isSupported()) {
+    hls = new Hls({ lowLatencyMode: true });
+    hls.loadSource(s.stream);
+    hls.attachMedia(audio);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
   } else {
-    document.getElementById("stationList").innerHTML='<div class="empty">Не удалось загрузить станции</div>';
+    audio.src = s.stream;
+    audio.play().catch(()=>{});
   }
-});
+  
+  isPlaying = true;
+  updatePlayButtons();
+  renderList();
+  fetchTrack(s.stream);
+  
+  if (trackPoll) clearInterval(trackPoll);
+  trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
+}
+
+function togglePlay() {
+  if (curIdx === -1) return playStation(0);
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+  
+  if (isPlaying) { audio.pause(); isPlaying = false; }
+  else { audio.play(); isPlaying = true; }
+  
+  updatePlayButtons();
+  updateUI(); // Для анимации обложки
+}
+
+function nextStation() {
+  let nextIdx = curIdx + 1;
+  if (nextIdx >= stations.length) nextIdx = 0;
+  playStation(nextIdx);
+}
+
+function prevStation() {
+  let prevIdx = curIdx - 1;
+  if (prevIdx < 0) prevIdx = stations.length - 1;
+  playStation(prevIdx);
+}
+
+function changeVolume(val) {
+  audio.volume = val / 100;
+}
+
+// --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
+function updateUI() {
+  if (curIdx === -1) return;
+  const s = stations[curIdx];
+  const isFav = favs.includes(s.name);
+
+  // Обновление Mini Player
+  document.getElementById('mArt').src = s.logo;
+  document.getElementById('mTitle').textContent = s.name;
+  
+  // Обновление Full Player
+  document.getElementById('fBg').style.backgroundImage = `url(${s.logo})`;
+  document.getElementById('fArt').src = s.logo;
+  document.getElementById('fTitle').textContent = s.name;
+  
+  // Анимация обложки (увеличение при игре, уменьшение на паузе)
+  const fArt = document.getElementById('fArt');
+  isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
+
+  // Избранное
+  const favBtn = document.getElementById('fFavBtn');
+  favBtn.innerHTML = isFav 
+    ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
+    : `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+  favBtn.classList.toggle('active', isFav);
+}
+
+function updatePlayButtons() {
+  const playPath = `<path d="M8 5v14l11-7z"/>`;
+  const pausePath = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+  document.getElementById('mPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
+  document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
+}
+
+// --- УПРАВЛЕНИЕ FULL PLAYER ---
+function openFullPlayer() { document.getElementById('fullPlayer').classList.add('open'); }
+function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('open'); }
+
+// --- ИЗБРАННОЕ ---
+function toggleFav() {
+  if (curIdx === -1) return;
+  if(tg) tg.HapticFeedback?.notificationOccurred('success');
+  
+  const name = stations[curIdx].name;
+  const idx = favs.indexOf(name);
+  if (idx > -1) favs.splice(idx, 1);
+  else favs.push(name);
+  
+  localStorage.setItem('radio_favs', JSON.stringify(favs));
+  updateUI();
+  if (activeTab === 'fav') renderList();
+}
+
+// --- НАЗВАНИЕ ТРЕКА (API) ---
+async function fetchTrack(url) {
+  try {
+    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    const track = data.title && data.title.trim() ? data.title : 'В эфире';
+    document.getElementById('mSub').textContent = track;
+    document.getElementById('fTrack').textContent = track;
+  } catch (e) {
+    document.getElementById('mSub').textContent = stations[curIdx].genre;
+    document.getElementById('fTrack').textContent = stations[curIdx].genre;
+  }
+}
+
+// --- СТАРТ ---
+audio.volume = 0.8;
+renderTabs();
+renderList();
 </script>
 </body>
 </html>
