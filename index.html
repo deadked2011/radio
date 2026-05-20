@@ -1,411 +1,1040 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Radio Go</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="stations.js"></script>
-    <style>
-        :root {
-            --bg-main: #090d16;
-            --bg-sidebar: #111827;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.08);
-            --accent: #fc3c44;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Radio Go</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff" id="themeColorMeta">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="stations.js"></script>
 
-        body.dimmed-theme {
-            filter: brightness(0.4) contrast(1.1);
-        }
-        body.dimmed-theme #right-sidebar, body.dimmed-theme #genres-bar, body.dimmed-theme #header {
-            filter: brightness(1.4);
-        }
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
+      --text-sec: #8e8e93;
+      --surface: #f2f2f7;
+      --surface-hover: #e5e5ea;
+      --accent: #fc3c44;
+      --player-bg: rgba(255, 255, 255, 0.85);
+      --border: rgba(0, 0, 0, 0.08);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-main); color: var(--text); height: 100vh; overflow: hidden; user-select: none; }
+    body.dark-theme {
+      --bg: #1c1c1e;
+      --text: #ffffff;
+      --text-sec: #8e8e93;
+      --surface: #2c2c2e;
+      --surface-hover: #3a3a3c;
+      --player-bg: rgba(28, 28, 30, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+    }
 
-        #app { display: flex; width: 100vw; height: 100vh; position: relative; }
-        #left-player { flex: 1; height: 100%; display: flex; flex-direction: column; background: #05070c; position: relative; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* Шапка */
-        #header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: rgba(9, 13, 22, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 10; }
-        .logo { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; background: linear-gradient(45deg, #fc3c44, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .controls { display: flex; gap: 10px; }
-        .btn-round { background: var(--glass); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 16px; }
-        .btn-round:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
 
-        /* Жанры (Исправлен скролл на ПК) */
-        #genres-bar { display: flex; gap: 8px; padding: 12px 20px; overflow-x: auto; white-space: nowrap; background: rgba(5, 7, 12, 0.6); scrollbar-width: none; cursor: grab; }
-        #genres-bar::-webkit-scrollbar { display: none; }
-        #genres-bar:active { cursor: grabbing; }
-        .genre-tag { padding: 8px 16px; border-radius: 20px; background: var(--glass); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-        .genre-tag.active, .genre-tag:hover { background: var(--accent); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(252, 60, 68, 0.3); }
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
 
-        /* TikTok Лента */
-        #feed { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        #feed::-webkit-scrollbar { display: none; }
-        
-        .card { height: 100%; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .blur-bg { position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; background-size: cover; background-position: center; filter: blur(60px) brightness(0.2); z-index: 1; }
-        .content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px; width: 100%; max-width: 380px; }
-        
-        .img-box { width: 180px; height: 180px; margin-bottom: 20px; border-radius: 28px; box-shadow: 0 16px 32px rgba(0,0,0,0.6); background: #1e293b; overflow: hidden; border: 2px solid var(--border); }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .title { font-size: 24px; font-weight: 800; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-        .sub { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
-        
-        /* Монитор текущего трека */
-        .track-box { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); backdrop-filter: blur(10px); padding: 12px 16px; border-radius: 16px; width: 100%; display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
-        .live-lbl { background: var(--accent); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
-        .track-txt { flex: 1; font-size: 14px; font-weight: 600; color: #38bdf8; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Левая главная панель */
+    .main-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: var(--safe-top);
+      background-color: var(--bg);
+    }
 
-        .play-btn { width: 70px; height: 70px; border-radius: 50%; background: #fff; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
-        .play-btn:hover { transform: scale(1.05); }
-        .play-btn svg { width: 28px; height: 28px; fill: #000; }
-        .play-btn.playing { background: var(--accent); }
-        .play-btn.playing svg { fill: #fff; }
+    .app-header {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
 
-        /* ПРАВАЯ ПАНЕЛЬ: 50/50 НА ПК */
-        #right-sidebar { width: 420px; height: 100%; background: var(--bg-sidebar); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 20; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .side-header-mob { display: none; padding: 16px 20px; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        
-        .side-split { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .side-split-top { border-bottom: 1px solid var(--border); }
-        .side-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 16px 20px 10px; }
-        .side-scroll { flex: 1; overflow-y: auto; padding: 0 20px 20px; }
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+    }
 
-        /* Элементы истории */
-        .hist-card { display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 8px; border: 1px solid transparent; }
-        .hist-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
-        .hist-info { flex: 1; overflow: hidden; }
-        .hist-name { font-size: 13px; font-weight: 700; color: var(--text); }
-        .hist-track { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .hist-time { font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 6px; }
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
 
-        /* Адаптивность под мобилки */
-        @media (max-width: 1023px) {
-            #right-sidebar { position: fixed; right: 0; top: 0; width: 100%; height: 100%; transform: translateX(100%); }
-            #right-sidebar.open { transform: translateX(0); }
-            .side-header-mob { display: flex; }
-        }
-        @media (min-width: 1024px) {
-            #right-sidebar { transform: translateX(0) !important; }
-        }
-    </style>
+    /* Горизонтальные табы жанров */
+    .tabs-container {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      background-color: var(--surface);
+      color: var(--text-sec);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab.active {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    /* Область контента */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+
+    .station-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 12px 16px;
+      gap: 8px;
+    }
+
+    .station-card {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-radius: 12px;
+      background-color: var(--surface);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .station-card:hover {
+      background-color: var(--surface-hover);
+    }
+    .station-card.active {
+      border-color: var(--accent);
+      background-color: var(--surface-hover);
+    }
+
+    .station-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-right: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .station-details {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .station-name {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .station-genre {
+      font-size: 13px;
+      color: var(--text-sec);
+      margin-top: 2px;
+    }
+
+    .station-status-icon {
+      font-size: 16px;
+      padding-right: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Анимация пульсации эквалайзера */
+    .playing-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      width: 16px;
+      height: 16px;
+    }
+    .playing-bars span {
+      display: block;
+      width: 3px;
+      background-color: var(--accent);
+      animation: bounce 0.8s ease-in-out infinite alternate;
+    }
+    .playing-bars span:nth-child(2) { animation-delay: 0.2s; }
+    .playing-bars span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0% { height: 3px; }
+      100% { height: 16px; }
+    }
+
+    .mobile-chat {
+      padding: 16px;
+      height: 100%;
+    }
+
+    /* Правая панель для ПК (Чат + История) */
+    .sidebar-panel {
+      width: 400px;
+      border-left: 1px solid var(--border);
+      background-color: var(--surface);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .sidebar-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-section.chat-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sec);
+      padding: 16px 16px 8px;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 16px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      background-color: var(--bg);
+      border-radius: 10px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .history-item-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+
+    .history-item-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .history-item-track {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item-station {
+      font-size: 11px;
+      color: var(--text-sec);
+    }
+
+    .history-item-time {
+      font-size: 11px;
+      color: var(--text-sec);
+      padding-left: 8px;
+    }
+
+    .desktop-chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 16px;
+    }
+
+    /* Мини-плеер внизу экрана мобильных */
+    .mini-player {
+      position: fixed;
+      bottom: calc(16px + var(--safe-bottom));
+      left: 16px;
+      right: 16px;
+      height: 64px;
+      background-color: var(--player-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      z-index: 99;
+      cursor: pointer;
+    }
+    .mini-player.hidden {
+      display: none !important;
+    }
+
+    .mini-left {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .mini-art {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+
+    .mini-info {
+      overflow: hidden;
+    }
+
+    .mini-title {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-sub {
+      font-size: 12px;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    .mini-controls button {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Полноэкранный плеер (Мобильная шторка) */
+    .full-player {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg);
+      z-index: 1000;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+      display: flex;
+      flex-direction: column;
+    }
+    .full-player.open {
+      transform: translateY(0);
+    }
+
+    .fp-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(40px) brightness(0.5);
+      opacity: 0.4;
+      z-index: 1;
+    }
+
+    .fp-header {
+      position: relative;
+      z-index: 2;
+      padding: calc(16px + var(--safe-top)) 20px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fp-close, .fp-fav {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #ffffff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .fp-header-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .fp-body {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px calc(40px + var(--safe-bottom));
+      text-align: center;
+    }
+
+    .fp-art-container {
+      width: 72vw;
+      height: 72vw;
+      max-width: 290px;
+      max-height: 290px;
+      margin-bottom: 36px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      overflow: hidden;
+      background-color: var(--surface);
+    }
+
+    .fp-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .fp-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .fp-track {
+      font-size: 16px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 44px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .fp-controls {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .fp-prev, .fp-next {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 32px;
+      cursor: pointer;
+      opacity: 0.85;
+      transition: transform 0.1s;
+    }
+    .fp-prev:active, .fp-next:active {
+      transform: scale(0.85);
+    }
+
+    .fp-play {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      color: #000000;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+    }
+    .fp-play:active {
+      transform: scale(0.95);
+    }
+    .fp-play.playing {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .empty-state, .empty-history {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-sec);
+      font-size: 15px;
+    }
+
+    /* Медиа-запросы под десктоп */
+    @media (max-width: 1023px) {
+      .sidebar-panel {
+        display: none;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .mini-player, .full-player {
+        display: none !important;
+      }
+      .content-area {
+        padding-bottom: 16px;
+      }
+      .station-list {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+      .station-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 16px;
+      }
+      .station-logo {
+        margin-right: 0;
+        margin-bottom: 12px;
+        width: 80px;
+        height: 80px;
+      }
+      .station-status-icon {
+        margin-top: 10px;
+        padding-right: 0;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div id="app">
-        <main id="left-player">
-            <header id="header">
-                <div class="logo">RADIO GO</div>
-                <div class="controls">
-                    <button class="btn-round" onclick="toggleDim()" title="Затемнение">🌓</button>
-                    <button class="btn-round" onclick="toggleSidebar()" title="Общение / История">💬</button>
-                </div>
-            </header>
+  <div class="app-container">
+    <main class="main-panel">
+      <header class="app-header">
+        <div class="logo">RADIO GO</div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Поиск радиостанций..." oninput="renderList()">
+        </div>
+      </header>
+      
+      <div class="tabs-container" id="genreTabs"></div>
+      
+      <div class="content-area">
+        <div id="stationList" class="station-list"></div>
+        <div id="mobileChatContainer" class="mobile-chat hidden"></div>
+      </div>
+    </main>
 
-            <div id="genres-bar"></div>
-            <div id="feed"></div>
-        </main>
+    <aside class="sidebar-panel">
+      <div class="sidebar-section">
+        <div class="section-title">🕒 История эфира</div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+      <div class="sidebar-section chat-section">
+        <div class="section-title">💬 Чат обсуждения</div>
+        <div id="tgChatContainer" class="desktop-chat"></div>
+      </div>
+    </aside>
+  </div>
 
-        <aside id="right-sidebar">
-            <div class="side-header-mob">
-                <h3>Общение и История</h3>
-                <button class="btn-round" style="width:32px; height:32px" onclick="toggleSidebar()">✕</button>
-            </div>
-            
-            <div class="side-split side-split-top">
-                <div class="side-title">🕒 История прослушивания</div>
-                <div id="history-box" class="side-scroll"></div>
-            </div>
-            
-            <div class="side-split">
-                <div class="side-title">💬 Комментарии канала</div>
-                <div class="side-scroll" style="padding-top: 5px;">
-                    <div id="tg-widget-container">
-                        </div>
-                </div>
-            </div>
-        </aside>
+  <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
+    <div class="mini-left">
+      <img src="" class="mini-art" id="mArt" alt="">
+      <div class="mini-info">
+        <div class="mini-title" id="mTitle">Выберите станцию</div>
+        <div class="mini-sub" id="mSub">Прямой эфир</div>
+      </div>
     </div>
+    <div class="mini-controls">
+      <button id="mPlayBtn" onclick="togglePlay(event)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
+  </div>
 
-    <script>
-        let audio = new Audio();
-        let hlsPlayer = null;
-        let activeIdx = -1;
-        let isPlaying = false;
-        let userTouched = false;
-        let currentFilter = 'all';
-        
-        let historyData = JSON.parse(localStorage.getItem('radio_history')) || [];
-        let trackCheckInterval = null;
-        let lastTrackTitle = "";
+  <div class="full-player" id="fullPlayer">
+    <div class="fp-bg" id="fBg"></div>
+    <div class="fp-header">
+      <button class="fp-close" onclick="closeFullPlayer()">✕</button>
+      <div class="fp-header-title">Сейчас играет</div>
+      <button class="fp-fav" id="fFavBtn" onclick="toggleFavorite(event)">🤍</button>
+    </div>
+    <div class="fp-body">
+      <div class="fp-art-container">
+        <img src="" class="fp-art" id="fArt" alt="">
+      </div>
+      <h2 class="fp-title" id="fTitle">Станция не выбрана</h2>
+      <p class="fp-track" id="fTrack">Прямой эфир</p>
+      
+      <div class="fp-controls">
+        <button class="fp-prev" onclick="prevStation()">⏮</button>
+        <button class="fp-play" id="fPlayBtn" onclick="togglePlay(event)">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="fp-next" onclick="nextStation()">⏭</button>
+      </div>
+    </div>
+  </div>
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initGenres();
-            initDragScroll();
-            renderFeed('all');
-            initTheme();
-            renderHistory();
-            initTelegramComments();
-        });
+  <script>
+    let audio = new Audio();
+    let hls = null;
+    let curIdx = -1;
+    let isPlaying = false;
+    let activeTab = 'all';
+    
+    const TELEGRAM_GROUP = 'radiostream_chat';
+    const tg = window.Telegram?.WebApp;
+    
+    let radioGenres = window.genres || [{id:"all", label:"Все"}];
+    let favs = JSON.parse(localStorage.getItem('radio_favs')) || [];
+    let historyData = JSON.parse(localStorage.getItem('radio_history')) || [];
+    
+    let trackInterval = null;
+    let currentTrackTitle = "";
+    let isDark = false;
+    let lastChatContainerId = "";
+    let lastThemeDark = null;
 
-        // 1. Рендер ленты жанров
-        function initGenres() {
-            const bar = document.getElementById('genres-bar');
-            if(!window.genres) return;
-            bar.innerHTML = window.genres.map((g, i) => `
-                <div class="genre-tag ${i===0?'active':''}" onclick="filterGenre('${g.id}', this)">${g.label}</div>
-            `).join('');
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      audio.volume = 0.8;
+      renderTabs();
+      renderList();
+      updateUI();
+      initSwipeGestures();
+      renderHistory();
+      loadTelegramChat();
+    });
+
+    // Определение цветовой схемы Telegram
+    function applyTheme() {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        isDark = tg.colorScheme === 'dark';
+      } else {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      if (isDark) {
+        document.body.classList.add('dark-theme');
+        document.getElementById('themeColorMeta').setAttribute('content', '#1c1c1e');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.getElementById('themeColorMeta').setAttribute('content', '#ffffff');
+      }
+    }
+
+    // Построение панели вкладок (Жанры + Избранное + Мобильный Чат)
+    function renderTabs() {
+      const tabsEl = document.getElementById('genreTabs');
+      if (!tabsEl) return;
+      
+      let displayGenres = [...radioGenres];
+      
+      if (!displayGenres.some(g => g.id === 'fav')) {
+        displayGenres.splice(1, 0, {id: 'fav', label: 'Избранное'});
+      }
+
+      if (window.innerWidth < 1024) {
+        if (!displayGenres.some(g => g.id === 'chat')) {
+          displayGenres.push({id: 'chat', label: '💬 Чат'});
         }
+      } else {
+        if (activeTab === 'chat') activeTab = 'all';
+      }
 
-        // 2. Листание жанров на ПК (Мышь + Колесо)
-        function initDragScroll() {
-            const bar = document.getElementById('genres-bar');
-            bar.addEventListener('wheel', (e) => {
-                if (e.deltaY !== 0) { e.preventDefault(); bar.scrollLeft += e.deltaY * 1.2; }
-            }, { passive: false });
+      tabsEl.innerHTML = displayGenres.map(g => 
+        `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>`
+      ).join('');
+    }
 
-            let isDown = false, startX, scrollLeft;
-            bar.addEventListener('mousedown', (e) => {
-                isDown = true; startX = e.pageX - bar.offsetLeft; scrollLeft = bar.scrollLeft;
-            });
-            bar.addEventListener('mouseleave', () => isDown = false);
-            bar.addEventListener('mouseup', () => isDown = false);
-            bar.addEventListener('mousemove', (e) => {
-                if(!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - bar.offsetLeft;
-                bar.scrollLeft = scrollLeft - (x - startX) * 2;
-            });
+    function setTab(id) {
+      activeTab = id;
+      renderTabs();
+      renderList();
+    }
+
+    // Основной рендер списка станций
+    function renderList() {
+      const listEl = document.getElementById('stationList');
+      const mobileChatEl = document.getElementById('mobileChatContainer');
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      
+      if (activeTab === 'chat' && window.innerWidth < 1024) {
+        listEl.style.display = 'none';
+        mobileChatEl.style.display = 'block';
+        loadTelegramChat();
+        return;
+      } else {
+        listEl.style.display = 'grid';
+        mobileChatEl.style.display = 'none';
+      }
+
+      const filtered = window.stations.filter(s => {
+        if (activeTab === 'fav' && !favs.includes(s.name)) return false;
+        if (activeTab !== 'all' && activeTab !== 'fav' && s.tag !== activeTab) return false;
+        if (q && !s.name.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">Ничего не найдено</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(s => {
+        const originalIdx = window.stations.findIndex(st => st.name === s.name);
+        const isCurrent = originalIdx === curIdx;
+        return `
+          <div class="station-card ${isCurrent ? 'active' : ''}" onclick="playStation(${originalIdx})">
+            <img src="${s.logo}" class="station-logo" alt="" onerror="imgFallback(this)">
+            <div class="station-details">
+              <div class="station-name">${s.name}</div>
+              <div class="station-genre">${s.genre || 'Радиостанция'}</div>
+            </div>
+            <div class="station-status-icon">
+              ${isCurrent && isPlaying ? '<span class="playing-bars"><span></span><span></span><span></span></span>' : '▶️'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function imgFallback(img) {
+      img.onerror = null;
+      img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='100%' height='100%' fill='%23fc3c44'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20'>📻</text></svg>";
+    }
+
+    // Безопасный потоковый движок (HLS.js + Native fallback)
+    function playStation(idx) {
+      if (curIdx === idx) {
+        if (isPlaying) {
+          if (window.innerWidth < 1024) openFullPlayer();
+        } else {
+          togglePlay();
         }
-
-        function filterGenre(id, el) {
-            document.querySelectorAll('.genre-tag').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            currentFilter = id;
-            renderFeed(id);
-            document.getElementById('feed').scrollTop = 0;
-        }
-
-        // 3. TikTok Лента станций
-        function renderFeed(filterId) {
-            const feed = document.getElementById('feed');
-            feed.innerHTML = '';
-            
-            const filtered = filterId === 'all' ? window.stations : window.stations.filter(s => s.tag === filterId);
-            if(!filtered || filtered.length === 0) {
-                feed.innerHTML = '<div style="text-align:center;padding-top:40vh;color:#94a3b8">Станций не найдено</div>';
-                return;
-            }
-
-            filtered.forEach((st, idx) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.index = idx;
-                card.dataset.stream = st.stream;
-                card.dataset.name = st.name;
-                card.dataset.logo = st.logo;
-
-                card.innerHTML = `
-                    <div class="blur-bg" style="background-image:url('${st.logo}')"></div>
-                    <div class="content">
-                        <div class="img-box">
-                            <img src="${st.logo}" alt="${st.name}" onerror="imgFallback(this, '${st.name}')">
-                        </div>
-                        <div class="title">${st.name}</div>
-                        <div class="sub">${st.genre || 'Радиостанция'}</div>
-                        
-                        <div class="track-box">
-                            <span class="live-lbl">LIVE</span>
-                            <div class="track-txt" id="ticker-${idx}">Загрузка трека...</div>
-                        </div>
-
-                        <button class="play-btn" onclick="handlePlayClick(${idx}, '${st.stream}', this, event)">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </button>
-                    </div>
-                `;
-                feed.appendChild(card);
-            });
-
-            bindObserver();
-        }
-
-        // Автогенерация картинок при ошибке ссылки
-        function imgFallback(img, name) {
-            img.onerror = null;
-            const letters = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-            const canvas = document.createElement('canvas');
-            canvas.width = 200; canvas.height = 200;
-            const ctx = canvas.getContext('2d');
-            const gr = ctx.createLinearGradient(0,0,200,200);
-            gr.addColorStop(0, '#fc3c44'); gr.addColorStop(1, '#000');
-            ctx.fillStyle = gr; ctx.fillRect(0,0,200,200);
-            ctx.fillStyle = '#fff'; ctx.font = 'bold 50px Inter, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(letters || '📻', 100, 100);
-            img.src = canvas.toDataURL();
-        }
-
-        // 4. Свайп Обсервер (TikTok переключение)
-        function bindObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if(entry.isIntersecting) {
-                        const card = entry.target;
-                        const idx = parseInt(card.dataset.index);
-                        activeIdx = idx;
-                        
-                        // Парсим трек "Кто поет"
-                        monitorTrackTitle(card.dataset.stream, idx, card.dataset.name, card.dataset.logo);
-
-                        // Если юзер уже нажимал плей — запускаем поток автоматом при скролле
-                        if(userTouched) {
-                            runAudioStream(card.dataset.stream);
-                        }
-                    }
-                });
-            }, { root: document.getElementById('feed'), threshold: 0.6 });
-
-            document.querySelectorAll('.card').forEach(c => observer.observe(c));
-        }
-
-        // 5. Потоковый Аудио-Движок (HLS + Обычный Аудио)
-        function runAudioStream(url) {
-            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
-            audio.pause();
-
-            if(url.includes('.m3u8')) {
-                if(Hls.isSupported()) {
-                    hlsPlayer = new Hls();
-                    hlsPlayer.loadSource(url);
-                    hlsPlayer.attachMedia(audio);
-                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
-                } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
-                    audio.src = url;
-                    audio.play().catch(()=>{});
-                }
-            } else {
-                audio.src = url;
-                audio.play().catch(()=>{});
-            }
+        return;
+      }
+      
+      if (tg) tg.HapticFeedback?.impactOccurred('medium');
+      curIdx = idx;
+      const s = window.stations[curIdx];
+      
+      updateUI();
+      
+      if (window.innerWidth < 1024) {
+        document.getElementById('miniPlayer').classList.remove('hidden');
+      }
+      
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      audio.pause();
+      audio.src = '';
+      
+      if (s.stream && s.stream.includes('.m3u8')) {
+        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+          hls = new Hls({ lowLatencyMode: true });
+          hls.loadSource(s.stream);
+          hls.attachMedia(audio);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            audio.play().catch(()=>{});
             isPlaying = true;
             updatePlayButtonsUI();
+          });
+        } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+          audio.src = s.stream;
+          audio.play().catch(()=>{});
+          isPlaying = true;
+          updatePlayButtonsUI();
         }
+      } else if (s.stream) {
+        audio.src = s.stream;
+        audio.play().catch(()=>{});
+        isPlaying = true;
+        updatePlayButtonsUI();
+      }
+      
+      startTrackMonitoring(s.stream);
+    }
 
-        function handlePlayClick(idx, url, btn, e) {
-            e.stopPropagation();
-            userTouched = true;
-
-            if(activeIdx === idx && isPlaying) {
-                audio.pause();
-                isPlaying = false;
-                updatePlayButtonsUI();
-            } else {
-                runAudioStream(url);
-            }
+    function togglePlay(event) {
+      if (event) event.stopPropagation();
+      if (curIdx === -1) return;
+      
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+      } else {
+        const s = window.stations[curIdx];
+        if (s.stream && s.stream.includes('.m3u8')) {
+          playStation(curIdx);
+          return;
+        } else {
+          audio.play().catch(()=>{});
+          isPlaying = true;
         }
+      }
+      updatePlayButtonsUI();
+    }
 
-        function updatePlayButtonsUI() {
-            document.querySelectorAll('.play-btn').forEach((btn, idx) => {
-                if(idx === activeIdx && isPlaying) {
-                    btn.classList.add('playing');
-                    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-                } else {
-                    btn.classList.remove('playing');
-                    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-                }
-            });
-        }
+    function updatePlayButtonsUI() {
+      const mPlayBtn = document.getElementById('mPlayBtn');
+      const fPlayBtn = document.getElementById('fPlayBtn');
+      const iconPause = `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+      const iconPlay = `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+      
+      if (isPlaying) {
+        mPlayBtn.innerHTML = iconPause;
+        fPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+        fPlayBtn.classList.add('playing');
+      } else {
+        mPlayBtn.innerHTML = iconPlay;
+        fPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+        fPlayBtn.classList.remove('playing');
+      }
+      renderList();
+    }
 
-        // 6. Парсинг текущего трека (Кто сейчас поет) через ваш воркер
-        async function monitorTrackTitle(streamUrl, idx, stationName, logo) {
-            if(trackCheckInterval) clearInterval(trackCheckInterval);
-            
-            const fetcher = async () => {
-                try {
-                    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(streamUrl)}`);
-                    const data = await res.json();
-                    const title = data.title && data.title.trim() ? data.title : 'Прямой эфир';
-                    
-                    const ticker = document.getElementById(`ticker-${idx}`);
-                    if(ticker) ticker.innerText = title;
+    // Мониторинг названия треков через ваш Cloudflare Worker
+    function startTrackMonitoring(streamUrl) {
+      if (trackInterval) clearInterval(trackInterval);
+      
+      const fetcher = async () => {
+        if (curIdx === -1 || window.stations[curIdx].stream !== streamUrl) return;
+        const s = window.stations[curIdx];
+        try {
+          const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(streamUrl)}`);
+          const data = await res.json();
+          const track = data.title && data.title.trim() ? data.title : 'Прямой эфир';
+          
+          document.getElementById('mSub').textContent = track;
+          document.getElementById('fTrack').textContent = track;
+          
+          if (track !== 'Прямой эфир' && track !== currentTrackTitle) {
+            currentTrackTitle = track;
+            pushToHistory(s.name, s.logo, track);
+          }
+        } catch (e) {
+          document.getElementById('mSub').textContent = s.genre || 'Радиостанция';
+          document.getElementById('fTrack').textContent = s.genre || 'Радиостанция';
+        }
+      };
+      
+      fetcher();
+      trackInterval = setInterval(fetcher, 15000);
+    }
 
-                    if(activeIdx === idx && title !== lastTrackTitle && title !== 'Прямой эфир') {
-                        lastTrackTitle = title;
-                        pushToHistory(stationName, logo, title);
-                    }
-                } catch(e) {
-                    const ticker = document.getElementById(`ticker-${idx}`);
-                    if(ticker) ticker.innerText = 'Музыкальный эфир';
-                }
-            };
+    // Запись и вывод истории прослушивания
+    function pushToHistory(stationName, logo, trackTitle) {
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (historyData.length > 0 && historyData[0].track === trackTitle && historyData[0].station === stationName) return;
+      
+      historyData.unshift({ station: stationName, logo, track: trackTitle, time });
+      if (historyData.length > 25) historyData.pop();
+      localStorage.setItem('radio_history', JSON.stringify(historyData));
+      renderHistory();
+    }
 
-            fetcher();
-            trackCheckInterval = setInterval(fetcher, 25000); // Опрос раз в 25 сек
-        }
+    function renderHistory() {
+      const historyList = document.getElementById('historyList');
+      if (!historyList) return;
+      
+      if (historyData.length === 0) {
+        historyList.innerHTML = `<div class="empty-history">История пуста</div>`;
+        return;
+      }
+      
+      historyList.innerHTML = historyData.map(h => `
+        <div class="history-item">
+          <img src="${h.logo}" class="history-item-logo" alt="" onerror="imgFallback(this)">
+          <div class="history-item-info">
+            <div class="history-item-track">${h.track}</div>
+            <div class="history-item-station">${h.station}</div>
+          </div>
+          <div class="history-item-time">${h.time}</div>
+        </div>
+      `).join('');
+    }
 
-        // 7. Работа с историей треков
-        function pushToHistory(station, logo, track) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            historyData.unshift({ station, logo, track, time });
-            if(historyData.length > 20) historyData.pop();
-            localStorage.setItem('radio_history', JSON.stringify(historyData));
-            renderHistory();
-        }
+    // Переключение Избранного
+    function toggleFavorite(event) {
+      if (event) event.stopPropagation();
+      if (curIdx === -1) return;
+      
+      if (tg) tg.HapticFeedback?.notificationOccurred('success');
+      const name = window.stations[curIdx].name;
+      const idx = favs.indexOf(name);
+      
+      if (idx > -1) favs.splice(idx, 1);
+      else favs.push(name);
+      
+      localStorage.setItem('radio_favs', JSON.stringify(favs));
+      updateUI();
+      if (activeTab === 'fav') renderList();
+    }
 
-        function renderHistory() {
-            const box = document.getElementById('history-box');
-            if(historyData.length === 0) {
-                box.innerHTML = '<div style="color:var(--text-muted); font-size:12px; text-align:center; padding:20px;">История пуста</div>';
-                return;
-            }
-            box.innerHTML = historyData.map(h => `
-                <div class="hist-card">
-                    <img class="hist-img" src="${h.logo}" onerror="imgFallback(this, '')">
-                    <div class="hist-info">
-                        <div class="hist-name">${h.station}</div>
-                        <div class="hist-track">${h.track}</div>
-                    </div>
-                    <div class="hist-time">${h.time}</div>
-                </div>
-            `).join('');
-        }
+    function updateUI() {
+      const favBtn = document.getElementById('fFavBtn');
+      if (curIdx === -1 || !window.stations[curIdx]) return;
+      
+      const s = window.stations[curIdx];
+      document.getElementById('mTitle').textContent = s.name;
+      document.getElementById('fTitle').textContent = s.name;
+      
+      document.getElementById('mArt').src = s.logo;
+      document.getElementById('fArt').src = s.logo;
+      document.getElementById('fBg').style.backgroundImage = `url('${s.logo}')`;
+      
+      if (favBtn) {
+        favBtn.innerHTML = favs.includes(s.name) ? '❤️' : '🤍';
+      }
+    }
 
-        // 8. Легкий инжект виджета комментариев
-        function initTelegramComments() {
-            const container = document.getElementById('tg-widget-container');
-            container.innerHTML = '';
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = "https://telegram.org/js/telegram-widget.js?22";
-            script.setAttribute('data-telegram-discussion', 'radiostream_chat'); // Ваш линк чата
-            script.setAttribute('data-comments-limit', '5');
-            script.setAttribute('data-color', 'fc3c44');
-            script.setAttribute('data-dark', '1');
-            container.appendChild(script);
-        }
+    // Навигация по плееру
+    function nextStation() {
+      if (window.stations.length === 0) return;
+      let nextIdx = curIdx + 1;
+      if (nextIdx >= window.stations.length) nextIdx = 0;
+      playStation(nextIdx);
+    }
 
-        // 9. Системные тумблеры (Интерфейс)
-        function initTheme() {
-            if(localStorage.getItem('dimmed') === 'true') document.body.classList.add('dimmed-theme');
+    function prevStation() {
+      if (window.stations.length === 0) return;
+      let prevIdx = curIdx - 1;
+      if (prevIdx < 0) prevIdx = window.stations.length - 1;
+      playStation(prevIdx);
+    }
+
+    function openFullPlayer() {
+      document.getElementById('fullPlayer').classList.add('open');
+    }
+
+    function closeFullPlayer() {
+      document.getElementById('fullPlayer').classList.remove('open');
+    }
+
+    // Умный инжект виджета комментариев Telegram (без зацикливаний и багов)
+    function loadTelegramChat() {
+      const isDesktop = window.innerWidth >= 1024;
+      const containerId = isDesktop ? 'tgChatContainer' : 'mobileChatContainer';
+      
+      if (!isDesktop && activeTab !== 'chat') return;
+      
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (lastChatContainerId === containerId && lastThemeDark === isDark && container.innerHTML !== '') return;
+      
+      document.getElementById('tgChatContainer').innerHTML = '';
+      document.getElementById('mobileChatContainer').innerHTML = '';
+      
+      lastChatContainerId = containerId;
+      lastThemeDark = isDark;
+      
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = "https://telegram.org/js/telegram-widget.js?22";
+      script.setAttribute('data-telegram-discussion', TELEGRAM_GROUP);
+      script.setAttribute('data-comments-limit', '10');
+      script.setAttribute('data-color', 'fc3c44');
+      script.setAttribute('data-dark', isDark ? '1' : '0');
+      
+      container.appendChild(script);
+    }
+
+    // Свайпы для мобильной шторки плеера
+    function initSwipeGestures() {
+      const fp = document.getElementById('fullPlayer');
+      let startX = 0, startY = 0;
+
+      fp.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+
+      fp.addEventListener('touchend', (e) => {
+        const diffX = e.changedTouches[0].clientX - startX;
+        const diffY = e.changedTouches[0].clientY - startY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
+          if (diffX > 0) prevStation(); else nextStation();
+        } else if (diffY > 100 && Math.abs(diffX) < 60) {
+          closeFullPlayer();
         }
-        function toggleDim() {
-            const isDim = document.body.classList.toggle('dimmed-theme');
-            localStorage.setItem('dimmed', isDim);
-        }
-        function toggleSidebar() {
-            document.getElementById('right-sidebar').classList.toggle('open');
-        }
-    </script>
+      }, { passive: true });
+    }
+
+    window.addEventListener('resize', () => {
+      renderTabs();
+      renderList();
+      if (window.innerWidth >= 1024) closeFullPlayer();
+      loadTelegramChat();
+    });
+  </script>
 </body>
 </html>
