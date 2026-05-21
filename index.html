@@ -782,8 +782,10 @@ function changeVolume(val) { audio.volume = val / 100; }
 
 function updateUI() {
   const favBtn = document.getElementById('fFavBtn');
+  const headerTitle = document.getElementById('headerTitle');
   
   if (curIdx === -1 || !stations[curIdx]) {
+    headerTitle.textContent = "Радио";
     document.getElementById('mTitle').textContent = "Выберите станцию";
     document.getElementById('mSub').textContent = "";
     document.getElementById('fTitle').textContent = "Выберите станцию";
@@ -797,11 +799,12 @@ function updateUI() {
   }
   
   const s = stations[curIdx];
-  const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random`;
+  headerTitle.textContent = s.name; // Меняем название в шапке
+  const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
   const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
   const isFav = favs.includes(s.name);
   
-  document.getElementById('fArt').style.opacity = "1";
+  document.getElementById('fArt').src = cover;
   favBtn.style.visibility = "visible";
 
   const mArt = document.getElementById('mArt');
