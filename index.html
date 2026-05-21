@@ -48,7 +48,11 @@
   
   .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; }
+  
+  /* Контейнер кнопок управления в шапке */
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
+  .header-actions button:active { opacity: 0.75; }
 
   .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 100px); -webkit-overflow-scrolling: touch; }
   .content-scroll::-webkit-scrollbar { display: none; }
@@ -79,6 +83,7 @@
   .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); transition: opacity 0.2s; }
   .station-row:active { opacity: 0.6; }
   .station-img { width: 52px; height: 52px; border-radius: 10px; background: var(--surface); object-fit: cover; }
+  .sidebar-panel .station-row:hover { opacity: 0.85; }
   .station-info { flex: 1; min-width: 0; }
   .station-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
   .station-genre { font-size: 13px; color: var(--text-sec); }
@@ -86,7 +91,7 @@
   .station-row.active .playing-icon { display: block; }
   .station-row.active .station-name { color: var(--accent); }
 
-  /* ─── МОБИЛЬНАЯ ШТОРКА ЧАТА ─── */
+  /* ─── МОБИЛЬНАЯ/МОДАЛЬНАЯ ШТОРКА ЧАТА ─── */
   .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 19999; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
   
@@ -102,8 +107,12 @@
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
   
   .sheet-body { flex: 1; overflow-y: auto; padding: 12px; background: var(--surface); -webkit-overflow-scrolling: touch; }
-  .sheet-body iframe { width: 100% !important; height: 100% !important; border: none !important; }
-  #tgChatContainer iframe { width: 100% !important; height: 100% !important; border: none !important; }
+
+  /* Адаптация шторки чата под большие экраны ПК */
+  @media (min-width: 1024px) {
+    .chat-sheet { left: 50%; right: auto; width: 450px; border-radius: 24px 24px 0 0; transform: translate(-50%, 100%); }
+    .chat-sheet.open { transform: translate(-50%, 0); }
+  }
 
   /* ─── МИНИ-ПЛЕЕР ДЛЯ ТЕЛЕФОНОВ ─── */
   .mini-player { position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
@@ -175,7 +184,10 @@
     <div class="header">
       <h1>Радио</h1>
       <div class="header-actions">
-        <button onclick="toggleTheme()" id="themeBtn">
+        <button onclick="openChatSheet()" id="headerChatBtn" title="Чат эфира">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button onclick="toggleTheme()" id="themeBtn" title="Переключить тему">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
@@ -320,12 +332,7 @@ function renderTabs() {
     displayGenres.splice(1, 0, {id: 'fav', label: 'Избранное'});
   }
 
-  // На телефонах добавляем вкладку "Чат"
-  if (window.innerWidth < 1024) {
-    if (!displayGenres.some(g => g.id === 'chat')) {
-      displayGenres.push({id: 'chat', label: '💬 Чат эфира'});
-    }
-  }
+  // Из этого места мы удалили генерацию вкладки "Чат эфира", так как она теперь вынесена наверх в шапку
 
   tabsEl.innerHTML = displayGenres.map(g => 
     `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>`
@@ -333,11 +340,6 @@ function renderTabs() {
 }
 
 function setTab(id) {
-  // На мобилках перехватываем вкладку чата и вызываем шторку
-  if (id === 'chat' && window.innerWidth < 1024) {
-    openChatSheet();
-    return; 
-  }
   activeTab = id;
   renderTabs();
   renderList();
@@ -345,10 +347,6 @@ function setTab(id) {
 }
 
 function onSearchInput() {
-  if (activeTab === 'chat' && window.innerWidth < 1024) {
-    activeTab = 'all';
-    renderTabs();
-  }
   renderList();
 }
 
@@ -359,7 +357,7 @@ function renderList() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const filtered = stations.filter(s => {
     if (activeTab === 'fav' && !favs.includes(s.name)) return false;
-    if (activeTab !== 'all' && activeTab !== 'fav' && activeTab !== 'chat' && s.tag !== activeTab) return false;
+    if (activeTab !== 'all' && activeTab !== 'fav' && s.tag !== activeTab) return false;
     if (q && !s.name.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -390,13 +388,16 @@ function renderList() {
 // --- ИНТЕГРАЦИЯ ТЕЛЕГРАМ ЧАТА ---
 function loadTelegramChat() {
   const isDesktop = window.innerWidth >= 1024;
-  const containerId = isDesktop ? 'tgChatContainer' : 'mobileSheetChatContainer';
-  const container = document.getElementById(containerId);
+  const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
   
+  // Определяем контейнер: если открыта шторка (на мобилке или на ПК), грузим в неё, иначе на ПК — в правую боковую панель.
+  const containerId = isSheetOpen 
+    ? 'mobileSheetChatContainer' 
+    : (isDesktop ? 'tgChatContainer' : 'mobileSheetChatContainer');
+    
+  const container = document.getElementById(containerId);
   if (!container) return;
   
-  // Чтобы исключить агрессивные авто-редиректы и перехват кликов скриптами Telegram,
-  // мы рендерим красивый нативный блок с кнопкой. Переход в группу будет происходить СТРОГО по желанию пользователя.
   container.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 24px; box-sizing: border-box;">
       <div style="background: var(--surface); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
@@ -412,11 +413,17 @@ function loadTelegramChat() {
   `;
 }
 
-// ─── УПРАВЛЕНИЕ ШТОРКОЙ ДЛЯ ТЕЛЕФОНОВ ───
+// ─── УПРАВЛЕНИЕ ШТОРКОЙ/МОДАЛКОЙ ЧАТА ───
 function openChatSheet() {
   const sheet = document.getElementById('chatSheet');
   sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  sheet.style.transform = 'translateY(0)';
+  
+  if (window.innerWidth >= 1024) {
+    sheet.style.transform = 'translate(-50%, 0)';
+  } else {
+    sheet.style.transform = 'translateY(0)';
+  }
+  
   sheet.classList.add('open');
   document.getElementById('chatBackdrop').classList.add('open');
   loadTelegramChat();
@@ -426,18 +433,25 @@ function openChatSheet() {
 function closeChatSheet() {
   const sheet = document.getElementById('chatSheet');
   sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  sheet.style.transform = 'translateY(100%)';
+  
+  if (window.innerWidth >= 1024) {
+    sheet.style.transform = 'translate(-50%, 100%)';
+  } else {
+    sheet.style.transform = 'translateY(100%)';
+  }
+  
   sheet.classList.remove('open');
   document.getElementById('chatBackdrop').classList.remove('open');
   setTimeout(() => {
     document.getElementById('mobileSheetChatContainer').innerHTML = '';
+    // Возвращаем фокус на постоянный чат ПК, если мы закрыли модалку на десктопе
+    if (window.innerWidth >= 1024) loadTelegramChat();
   }, 400);
 }
 
 function redirectToTelegramChat() {
   if(tg) tg.HapticFeedback?.impactOccurred('medium');
   const chatUrl = 'https://t.me/' + TELEGRAM_GROUP;
-  // Используем нативный и безопасный метод WebApp для открытия ссылок внутри Telegram
   if (window.Telegram?.WebApp && window.Telegram.WebApp.openTelegramLink) {
     window.Telegram.WebApp.openTelegramLink(chatUrl);
   } else {
@@ -445,13 +459,14 @@ function redirectToTelegramChat() {
   }
 }
 
-// Плавный свайп шторки чата вниз (TikTok / Fluent style)
+// Плавный свайп шторки чата вниз для мобильных телефонов
 function initChatSheetGestures() {
   const sheet = document.getElementById('chatSheet');
   let startY = 0;
   let currentY = 0;
 
   sheet.addEventListener('touchstart', (e) => {
+    if (window.innerWidth >= 1024) return; // Отключаем жесты свайпа на ПК
     const body = document.getElementById('mobileSheetChatContainer');
     if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
       startY = e.touches[0].clientY;
@@ -461,7 +476,7 @@ function initChatSheetGestures() {
   }, { passive: true });
 
   sheet.addEventListener('touchmove', (e) => {
-    if (!startY) return;
+    if (!startY || window.innerWidth >= 1024) return;
     currentY = e.touches[0].clientY;
     let diffY = currentY - startY;
     if (diffY > 0) {
@@ -471,7 +486,7 @@ function initChatSheetGestures() {
   }, { passive: true });
 
   sheet.addEventListener('touchend', (e) => {
-    if (!startY || !currentY) return;
+    if (!startY || !currentY || window.innerWidth >= 1024) return;
     let diffY = currentY - startY;
     sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
     
@@ -543,7 +558,6 @@ function nextStation() {
   playStation(nextIdx);
 }
 
-// --- СИНХРОНИЗАЦИЯ ДАННЫХ И ИНТЕРФЕЙСА ---
 function prevStation() {
   if(stations.length === 0) return;
   let prevIdx = curIdx - 1;
