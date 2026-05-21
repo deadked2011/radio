@@ -71,9 +71,12 @@
   /* Правая панель (Чат для ПК) */
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; }
+  .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
 
-  /* Адаптивность для ПК */
+  /* Кнопка перехода в группу Telegram */
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
+  .tg-group-btn:active { opacity: 0.8; }
+
   @media (min-width: 1024px) {
     .sidebar-panel { width: var(--sidebar-width); }
     .chat-panel { display: flex; }
@@ -103,7 +106,7 @@
   .station-row.active .playing-icon { display: block; }
   .station-row.active .station-name { color: var(--accent); }
 
-  /* ─── МОБИЛЬНАЯ/МОДАЛЬНАЯ ШТОРКА ЧАТА ─── */
+  /* ─── МОБИЛЬНАЯ ШТОРКА ЧАТА ─── */
   .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 19999; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
   
@@ -111,7 +114,7 @@
   .chat-sheet.open { transform: translateY(0); }
   .sheet-handle { width: 36px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 8px auto 0; opacity: 0.4; flex-shrink: 0; }
   
-  .sheet-header { padding: 12px 20px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
+  .sheet-header { padding: 12px 20px 4px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
   
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
@@ -151,10 +154,12 @@
   .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3vh; width: 100%; flex-shrink: 0; padding: 0 10px; }
   .fp-titles { flex: 1; min-width: 0; overflow: hidden; }
   
-  /* Элемент бегущей строки (Анимация трека) */
-  .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; }
+  /* Элементы бегущей строки */
+  .marquee-container { overflow: hidden; white-space: nowrap; max-width: 78%; }
   .fp-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .fp-track-wrap { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; overflow: hidden; }
+  
+  /* Изменено на flex-start, чтобы привязать анимацию близко к названию трека подальше от сердечка */
+  .fp-track-wrap { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; overflow: hidden; }
   .fp-track { font-size: 16px; color: var(--accent); font-weight: 500; display: inline-block; white-space: nowrap; }
   body.playing .fp-track.scrollable { animation: track-marquee 12s linear infinite; padding-left: 10px; }
   @keyframes track-marquee {
@@ -163,17 +168,9 @@
     100% { transform: translateX(0); }
   }
 
-  /* Живой CSS Визуализатор */
+  /* Живой визуализатор управляемый из JS (без CSS анимаций движения) */
   .visualizer-bars { display: flex; gap: 3px; align-items: flex-end; height: 16px; width: 22px; flex-shrink: 0; opacity: 0.85; }
-  .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(0.2); }
-  body.playing .v-bar { animation: bounce-bar 0.8s ease-in-out infinite alternate; }
-  body.playing .v-bar:nth-child(2) { animation-delay: 0.15s; animation-duration: 0.6s; }
-  body.playing .v-bar:nth-child(3) { animation-delay: 0.35s; animation-duration: 0.9s; }
-  body.playing .v-bar:nth-child(4) { animation-delay: 0.05s; animation-duration: 0.7s; }
-  @keyframes bounce-bar {
-    0% { transform: scaleY(0.15); }
-    100% { transform: scaleY(1); }
-  }
+  .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(0.2); transition: transform 0.1s ease; }
 
   .fp-meta-info { display: flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; color: var(--text-sec); }
   .fp-listeners { display: inline-flex; align-items: center; gap: 4px; }
@@ -186,7 +183,7 @@
   .fp-sec-btn:active { transform: scale(0.85); }
   .fp-sec-btn svg { width: 34px; height: 34px; fill: currentColor; }
   
-  .fav-btn { transition: transform 0.1s; }
+  .fav-btn { transition: transform 0.1s; margin-left: 12px; }
   .fav-btn:active { transform: scale(0.8); }
   .fav-btn.active { color: var(--accent); }
 
@@ -207,25 +204,26 @@
     .mini-player { display: none !important; }
   }
 
-  /* 🚗 КРУПНЫЙ ИНТЕРФЕЙС ДЛЯ РЕЖИМА АВТО (CAR MODE) 🚗 */
+  /* 🚗 КРУПНЫЙ И КРАСИВЫЙ ИНТЕРФЕЙС ДЛЯ РЕЖИМА АВТО (ИСПРАВЛЕНО РАСТЯГИВАНИЕ) 🚗 */
   body.car .sidebar-panel, body.car .chat-panel, body.car .mini-player, body.car .sheet-backdrop, body.car .chat-sheet { display: none !important; }
   body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: var(--bg); }
-  body.car .fp-content { max-width: 600px; padding: calc(var(--safe-top) + 20px) 32px calc(var(--safe-bottom) + 20px); justify-content: space-around; }
-  body.car .fp-art-wrap { max-width: 220px; box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
-  body.car .fp-title { font-size: 38px; text-align: center; font-weight: 900; }
-  body.car .fp-track { font-size: 24px; text-align: center; }
-  body.car .fp-track-wrap { justify-content: center; }
-  body.car .fp-meta-info { justify-content: center; font-size: 16px; }
-  body.car .fp-titles { text-align: center; }
-  body.car .fp-controls { padding: 0 40px; margin-bottom: 2vh; }
-  body.car .fp-main-btn { width: 110px; height: 110px; }
-  body.car .fp-main-btn svg { width: 48px; height: 48px; }
-  body.car .fp-sec-btn svg { width: 52px; height: 52px; }
-  body.car .visualizer-bars { height: 24px; width: 32px; gap: 4px; }
-  body.car .v-bar { width: 5px; }
+  body.car .fp-content { max-width: 500px; padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 20px); justify-content: space-around; align-items: center; text-align: center; margin: 0 auto; width: 100%; }
+  body.car .fp-art-wrap { width: 200px; height: 200px; max-width: 200px; box-shadow: 0 12px 35px rgba(0,0,0,0.4); margin: 0 auto; }
+  body.car .fp-title { font-size: 32px; text-align: center; font-weight: 900; width: 100%; }
+  body.car .fp-track { font-size: 20px; text-align: center; }
+  body.car .fp-track-wrap { justify-content: center; width: 100%; gap: 14px; }
+  body.car .fp-meta-info { justify-content: center; font-size: 15px; width: 100%; }
+  body.car .fp-titles { text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; }
+  body.car .fp-info-row { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2vh; padding: 0; }
+  body.car .fp-controls { padding: 0; margin-bottom: 1vh; width: 100%; max-width: 360px; justify-content: space-around; }
+  body.car .fp-main-btn { width: 96px; height: 96px; }
+  body.car .fp-main-btn svg { width: 42px; height: 42px; }
+  body.car .fp-sec-btn svg { width: 44px; height: 44px; }
+  body.car .visualizer-bars { height: 20px; width: 26px; gap: 4px; }
+  body.car .v-bar { width: 4px; }
   body.car .fp-down { display: none !important; }
-  body.car .fp-header { display: flex !important; justify-content: center; padding-bottom: 10px; }
-  body.car .fp-desktop-title { display: block !important; font-size: 20px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+  body.car .fp-header { display: flex !important; justify-content: center; padding-bottom: 10px; width: 100%; }
+  body.car .fp-desktop-title { display: block !important; font-size: 16px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
 </style>
 </head>
 <body>
@@ -329,6 +327,10 @@
 
   <div class="chat-panel">
     <div class="chat-header">Чат эфира</div>
+    <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+      Перейти в группу
+    </a>
     <div class="chat-body" id="tgChatContainer"></div>
   </div>
 
@@ -341,6 +343,10 @@
     <div class="sheet-title">Чат эфира</div>
     <button class="sheet-close" onclick="closeChatSheet()">✕</button>
   </div>
+  <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+    Перейти в группу
+  </a>
   <div class="sheet-body" id="mobileSheetChatContainer"></div>
 </div>
 
@@ -375,11 +381,20 @@ let isPlaying = false;
 let activeTab = "all";
 let hls = null;
 const audio = document.getElementById('audio');
+// Включаем CORS-режим для работы Web Audio API
+audio.crossOrigin = "anonymous"; 
+
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let trackPoll = null;
 
 // Состояние режима авто
 let carMode = localStorage.getItem('radio_car') === '1';
+
+// Состояние аудиоконтекста для визуализатора
+let audioCtx = null;
+let analyser = null;
+let audioSource = null;
+let isVisualizerInit = false;
 
 // Инициализация Telegram WebApp
 const tg = window.Telegram?.WebApp;
@@ -478,6 +493,7 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
+// Поиск по названию
 function onSearchInput() {
   renderList();
 }
@@ -523,7 +539,7 @@ function renderList() {
   }).join('');
 }
 
-// --- ПОДКЛЮЧЕНИЕ ЖИВОГО ВИДЖЕТА ТЕЛЕГРАМ (ЛОГИКА ЧАТА) ---
+// --- ИНИЦИАЛИЗАЦИЯ И ПОДГРУЗКА ОБСУЖДЕНИЙ ТЕЛЕГРАМ ---
 function loadTelegramChat() {
   const isDesktop = window.innerWidth >= 1024;
   const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
@@ -542,6 +558,7 @@ function loadTelegramChat() {
   script.src = "https://telegram.org/js/telegram-widget.js?22";
   script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
   script.setAttribute('data-comments-limit', '20');
+  script.setAttribute('data-width', '100%'); // Растягиваем на 100% ширины
   
   if (isDark) {
     script.setAttribute('data-dark', '1');
@@ -624,6 +641,83 @@ function initChatSheetGestures() {
   }, { passive: true });
 }
 
+// ─── ИНИЦИАЛИЗАЦИЯ И ЛОГИКА РЕАЛЬНОГО ЗВУКОВОГО ВИЗУАЛИЗАТОРА ───
+function initAudioAnalyser() {
+  if (isVisualizerInit) return;
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 64; // Оптимальный размер буфера для 4-х полос
+    
+    audioSource = audioCtx.createMediaElementSource(audio);
+    audioSource.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    
+    isVisualizerInit = true;
+    startVisualizerRenderLoop();
+  } catch (e) {
+    console.warn("Сбой AudioContext (возможно CORS ограничение). Включен процедурный фолбек визуализатора.", e);
+    startProceduralFallbackLoop();
+  }
+}
+
+function startVisualizerRenderLoop() {
+  const bars = document.querySelectorAll('.v-bar');
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  function render() {
+    requestAnimationFrame(render);
+    
+    if (!isPlaying || audio.paused) {
+      bars.forEach(b => b.style.transform = 'scaleY(0.2)');
+      return;
+    }
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Проверка на тишину/блокировку CORS. Если поток пустой — запускаем мягкую симуляцию
+    let checkSum = 0;
+    for (let i = 0; i < dataArray.length; i++) checkSum += dataArray[i];
+    
+    if (checkSum === 0) {
+      let time = Date.now() * 0.004;
+      bars.forEach((bar, i) => {
+        let val = Math.sin(time + i * 0.7) * 0.4 + 0.6;
+        bar.style.transform = `scaleY(${val})`;
+      });
+      return;
+    }
+
+    // Распределяем частоты по нашим 4 элементам индикатора
+    const bins = [2, 5, 8, 12]; 
+    bars.forEach((bar, i) => {
+      let rawValue = dataArray[bins[i]] || 0;
+      let targetScale = 0.2 + (rawValue / 255) * 0.8;
+      bar.style.transform = `scaleY(${targetScale})`;
+    });
+  }
+  render();
+}
+
+function startProceduralFallbackLoop() {
+  const bars = document.querySelectorAll('.v-bar');
+  function render() {
+    requestAnimationFrame(render);
+    if (!isPlaying || audio.paused) {
+      bars.forEach(b => b.style.transform = 'scaleY(0.2)');
+      return;
+    }
+    let time = Date.now() * 0.005;
+    bars.forEach((bar, i) => {
+      let val = 0.2 + (Math.sin(time + i * 1.2) * 0.4 + 0.4);
+      bar.style.transform = `scaleY(${val})`;
+    });
+  }
+  render();
+}
+
 // --- УПРАВЛЕНИЕ АУДИОПОТОКОМ ---
 function playStation(idx) {
   if (curIdx === idx && isPlaying) {
@@ -643,6 +737,15 @@ function playStation(idx) {
   if (hls) { hls.destroy(); hls = null; }
   audio.pause();
   audio.src = '';
+  
+  // Включаем CORS повторно на смене источника
+  audio.crossOrigin = "anonymous"; 
+
+  // Активируем контекст после пользовательского действия
+  initAudioAnalyser();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
   
   if (s.stream && s.stream.includes('.m3u8') && Hls.isSupported()) {
     hls = new Hls({ lowLatencyMode: true });
@@ -672,6 +775,11 @@ function togglePlay() {
   
   if (tg) tg.HapticFeedback?.impactOccurred('light');
   
+  initAudioAnalyser();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
   if (isPlaying) { 
     audio.pause(); 
     isPlaying = false; 
@@ -740,7 +848,7 @@ function updateUI() {
   document.getElementById('fTitle').textContent = s.name;
   document.getElementById('fGenre').textContent = s.genre || 'Радио';
   
-  // Обновление количества слушателей
+  // Количество слушателей
   if (s.listeners !== undefined) {
     document.getElementById('fListenersCount').textContent = s.listeners;
     document.getElementById('fListenersRow').style.display = "inline-flex";
@@ -830,7 +938,6 @@ async function fetchTrack(url) {
     trackEl.textContent = track;
     document.getElementById('mSub').textContent = track;
     
-    // Активируем бегущую строку, если текст длинный
     if (track.length > 22) {
       trackEl.classList.add('scrollable');
     } else {
@@ -874,7 +981,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initSwipeGestures();
   initChatSheetGestures();
   loadTelegramChat();
-  tick(); // Запустить часы
+  tick();
 });
 </script>
 </body>
