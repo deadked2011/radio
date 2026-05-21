@@ -94,7 +94,7 @@
   /* ─── СПИСОК СТАНЦИЙ ─── */
   .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); transition: opacity 0.2s; }
   .station-row:active { opacity: 0.6; }
-  .station-img { width: 52px; height: 52px; border-radius: 50% !important; background: var(--surface); object-fit: cover; }
+  .station-img { width: 52px; height: 52px; border-radius: 10px; background: var(--surface); object-fit: cover; }
   .sidebar-panel .station-row:hover { opacity: 0.85; }
   .station-info { flex: 1; min-width: 0; }
   .station-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
@@ -125,7 +125,7 @@
   /* ─── МИНИ-ПЛЕЕР ДЛЯ ТЕЛЕФОНОВ ─── */
   .mini-player { position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
   .mini-player.hidden { transform: translateY(180%); }
-  .mini-art { width: 44px; height: 44px; border-radius: 50% !important; object-fit: cover; background: var(--surface); }
+  .mini-art { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--surface); }
   .mini-info { flex: 1; min-width: 0; overflow: hidden; }
   .mini-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mini-sub { font-size: 13px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -139,42 +139,34 @@
   body.dark .fp-bg { opacity: 0.3; }
   .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; height: 100%; max-width: 440px; width: 100%; margin: 0 auto; padding: var(--safe-top) 24px calc(var(--safe-bottom) + 40px); }
   
-  .fp-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 32px; flex-shrink: 0; gap: 12px; }
+  .fp-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 32px; flex-shrink: 0; }
   .fp-down { background: rgba(128,128,128,0.2); border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; backdrop-filter: blur(10px); }
   .fp-down svg { width: 24px; height: 24px; }
   .fp-desktop-title { font-size: 18px; font-weight: 700; display: none; color: var(--text); text-align: center; width: 100%; }
 
-  /* АНИМАЦИЯ ПЛАСТИНКИ И ВСЕХ КАРТИНОК */
+  /* АНИМАЦИЯ ПЛАСТИНКИ */
   @keyframes record-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
 
-  .station-img, .mini-art, .fp-art {
-    animation: record-spin 18s linear infinite;
-    animation-play-state: paused;
-  }
-  
-  body.playing .fp-art,
-  body.playing .mini-art,
-  body.playing .station-row.active .station-img {
-    animation-play-state: running;
-  }
-
   .fp-art-wrap { 
     width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
-    border-radius: 50%; 
+    border-radius: 50%; /* Делаем круглым как пластинку */
     box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
     overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
   }
   .fp-art { 
     width: 100%; height: 100%; object-fit: cover; 
+    animation: record-spin 18s linear infinite;
+    animation-play-state: paused; /* По умолчанию остановлено */
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
-    transform: scale(0.9); 
+    transform: scale(0.9); /* Чуть меньше на паузе */
     filter: brightness(0.8);
   }
-  body.playing .fp-art { 
+  .fp-art.playing { 
+    animation-play-state: running; /* Крутится когда играет */
     transform: scale(1);
     filter: brightness(1);
   }
@@ -246,8 +238,17 @@
   body.car .visualizer-bars { height: 20px; width: 26px; gap: 4px; }
   body.car .v-bar { width: 4px; }
   body.car .fp-down { display: none !important; }
-  body.car .fp-header { display: flex !important; justify-content: space-between; align-items: center; padding-bottom: 10px; width: 100%; }
-  body.car .fp-desktop-title { display: block !important; font-size: 16px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-align: left; width: auto; }
+  body.car .fp-header { display: flex !important; justify-content: center; padding-bottom: 10px; width: 100%; }
+  body.car .fp-desktop-title { display: block !important; font-size: 16px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* ─── СТИЛИ ДЛЯ НАВТИВНОГО КАСТОМНОГО ЧАТА ─── */
+  .chat-messages { display: flex; flex-direction: column; gap: 10px; }
+  .chat-msg { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; max-width: 85%; }
+  .chat-msg-meta { font-size: 11px; font-weight: 700; color: var(--accent); padding-left: 4px; }
+  .chat-msg-text { background: var(--bg); color: var(--text); padding: 10px 14px; border-radius: 16px; border-top-left-radius: 4px; font-size: 14px; line-height: 1.4; border: 1px solid var(--border); word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .chat-msg.self { align-self: flex-end; align-items: flex-end; }
+  .chat-msg.self .chat-msg-text { background: var(--text); color: var(--bg); border-top-left-radius: 16px; border-top-right-radius: 4px; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .chat-msg.self .chat-msg-meta { color: var(--text-sec); padding-left: 0; padding-right: 4px; }
 </style>
 </head>
 <body>
@@ -257,20 +258,19 @@
   <div class="sidebar-panel">
     <div class="header">
       <div class="header-left">
-        <h1 id="headerTitle">Радио</h1> 
-        <div class="live-status">
-            <span class="live-dot"></span>
-            <span id="liveClock">00:00:00</span>
-        </div>
-      </div>
+    <h1 id="headerTitle">Радио</h1> <div class="live-status">
+        <span class="live-dot"></span>
+        <span id="liveClock">00:00:00</span>
+    </div>
+</div>
       <div class="header-actions">
-        <button onclick="toggleCarMode()" class="car-btn-element" title="Режим авто">
+        <button onclick="toggleCarMode()" id="carBtn" title="Режим авто">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg>
         </button>
-        <button onclick="openChatSheet()" title="Чат эфира">
+        <button onclick="openChatSheet()" id="headerChatBtn" title="Чат эфира">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>
-        <button onclick="toggleTheme()" title="Переключить тему">
+        <button onclick="toggleTheme()" id="themeBtn" title="Переключить тему">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
@@ -295,18 +295,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="fp-desktop-title" id="fpDesktopTitle" onclick="if(carMode) toggleCarMode()" style="cursor: pointer;">Сейчас играет</div>
-        
-        <div class="header-actions">
-          <button onclick="toggleCarMode()" class="car-btn-element" title="Режим авто">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg>
-          </button>
-          <button onclick="openChatSheet()" title="Чат эфира">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-          <button onclick="toggleTheme()" title="Переключить тему">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-        </div>
+        <div style="width: 40px;" class="fp-down"></div>
       </div>
       
       <div class="fp-art-wrap">
@@ -366,7 +355,15 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
       Перейти в группу
     </a>
-    <div class="chat-body" id="tgChatContainer"></div>
+    <div class="chat-body" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+      <div class="chat-messages" id="tgChatMessages" style="flex: 1; overflow-y: auto; padding: 16px;"></div>
+      <div class="chat-input-wrapper" style="padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center;">
+        <input type="text" id="tgChatInput" placeholder="Написать в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('tg')">
+        <button onclick="sendChatMessage('tg')" style="background: none; border: none; color: var(--accent); cursor: pointer; display: flex; align-items: center; padding: 4px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -382,7 +379,15 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
     Перейти в группу
   </a>
-  <div class="sheet-body" id="mobileSheetChatContainer"></div>
+  <div class="sheet-body" style="display: flex; flex-direction: column; overflow: hidden; flex: 1; background: var(--surface);">
+    <div class="chat-messages" id="mobileSheetChatMessages" style="flex: 1; overflow-y: auto; padding: 16px;"></div>
+    <div class="chat-input-wrapper" style="padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; padding-bottom: calc(var(--safe-bottom) + 12px);">
+      <input type="text" id="mobileChatInput" placeholder="Написать в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('mobile')" style="flex: 1; border: none; background: var(--surface); padding: 10px 14px; border-radius: 10px; color: var(--text); font-size: 14px; outline: none;">
+      <button onclick="sendChatMessage('mobile')" style="background: none; border: none; color: var(--accent); cursor: pointer; display: flex; align-items: center; padding: 4px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
@@ -421,6 +426,7 @@ audio.crossOrigin = "anonymous";
 
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let trackPoll = null;
+let chatPoll = null;
 
 let carMode = localStorage.getItem('radio_car') === '1';
 
@@ -444,7 +450,7 @@ setInterval(tick, 1000);
 // --- РЕЖИМ АВТО ---
 function applyCarMode() {
   document.body.classList.toggle('car', carMode);
-  document.querySelectorAll('.car-btn-element').forEach(btn => btn.classList.toggle('active', carMode));
+  document.getElementById('carBtn').classList.toggle('active', carMode);
   
   const desktopTitle = document.getElementById('fpDesktopTitle');
   if (carMode) {
@@ -521,6 +527,9 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
+// Инпуты стиля для десктопа
+document.getElementById('tgChatInput').style.cssText = "flex: 1; border: none; background: var(--surface); padding: 10px 14px; border-radius: 10px; color: var(--text); font-size: 14px; outline: none;";
+
 function onSearchInput() { renderList(); }
 
 function renderList() {
@@ -565,75 +574,112 @@ function renderList() {
   }).join('');
 }
 
-// --- ЧАТ ТЕЛЕГРАМ ---
+// --- УПРАВЛЕНИЕ ПОЛЛИНГОМ И ОБНОВЛЕНИЕМ ЧАТА ---
 function loadTelegramChat() {
   const isDesktop = window.innerWidth >= 1024;
   const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
   
-  document.getElementById('tgChatContainer').innerHTML = '';
-  document.getElementById('mobileSheetChatContainer').innerHTML = '';
-  
-  if (!isDesktop && !isSheetOpen) return;
-  
-  const containerId = isSheetOpen ? 'mobileSheetChatContainer' : 'tgChatContainer';
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = "https://telegram.org/js/telegram-widget.js?22";
-  script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
-  script.setAttribute('data-comments-limit', '20');
-  script.setAttribute('data-width', '100%');
-  if (isDark) script.setAttribute('data-dark', '1');
-  
-  container.appendChild(script);
+  if (isDesktop || isSheetOpen) {
+    if (!chatPoll) {
+      fetchChatMessages();
+      chatPoll = setInterval(fetchChatMessages, 4000); 
+    }
+  } else {
+    if (chatPoll) {
+      clearInterval(chatPoll);
+      chatPoll = null;
+    }
+  }
 }
 
-// --- УПРАВЛЕНИЕ АУДИОПОТОКОМ ---
-function playStation(idx) {
-  if (curIdx === idx && isPlaying) {
-    if (window.innerWidth < 1024) openFullPlayer();
-    return;
-  }
-  
-  if (tg) tg.HapticFeedback?.impactOccurred('medium');
-  curIdx = idx;
-  const s = stations[idx];
-  
-  updateUI();
-  if (window.innerWidth < 1024 && !carMode) {
-    document.getElementById('miniPlayer').classList.remove('hidden');
-  }
-  
-  if (hls) { hls.destroy(); hls = null; }
-  audio.pause();
-  audio.src = '';
-  audio.crossOrigin = "anonymous"; 
+async function fetchChatMessages() {
+  const isDesktop = window.innerWidth >= 1024;
+  const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
+  if (!isDesktop && !isSheetOpen) return;
 
-  initAudioAnalyser();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  
-  if (s.stream && s.stream.includes('.m3u8') && Hls.isSupported()) {
-    hls = new Hls({ lowLatencyMode: true });
-    hls.loadSource(s.stream);
-    hls.attachMedia(audio);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
-  } else if(s.stream) {
-    audio.src = s.stream;
-    audio.play().catch(()=>{});
+  try {
+    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/get-messages`);
+    if (!res.ok) return;
+    const messages = await res.json(); 
+    
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
+
+    const renderMessages = (containerId) => {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      
+      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+
+      el.innerHTML = messages.map(msg => {
+        const isSelf = currentUserId && msg.user_id === currentUserId;
+        return `
+          <div class="chat-msg ${isSelf ? 'self' : ''}">
+            <div class="chat-msg-meta">${escapeHtml(msg.username || 'Слушатель')}</div>
+            <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
+          </div>
+        `;
+      }).join('');
+
+      if (isAtBottom || el.innerHTML === '' || !el.dataset.initScrolled) {
+        el.scrollTop = el.scrollHeight;
+        el.dataset.initScrolled = "true";
+      }
+    };
+
+    if (isDesktop) renderMessages('tgChatMessages');
+    if (isSheetOpen) renderMessages('mobileSheetChatMessages');
+
+  } catch (e) {
+    console.error("Ошибка при обновлении сообщений чата:", e);
   }
+}
+
+async function sendChatMessage(type) {
+  const inputId = type === 'tg' ? 'tgChatInput' : 'mobileChatInput';
+  const input = document.getElementById(inputId);
+  if (!input) return;
   
-  isPlaying = true;
-  document.body.classList.add('playing');
-  updatePlayButtons();
-  renderList();
-  
-  updateMediaSession(s, 'Загрузка...');
-  fetchTrack(s.stream);
-  
-  if (trackPoll) clearInterval(trackPoll);
-  trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.disabled = true;
+
+  const user = window.Telegram?.WebApp?.initDataUnsafe?.user || { first_name: "Гость", username: "guest" };
+  const initData = window.Telegram?.WebApp?.initData || "";
+
+  try {
+    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/send-message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        user: user,
+        initData: initData
+      })
+    });
+
+    if (res.ok) {
+      input.value = '';
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+      await fetchChatMessages();
+      
+      const containerId = type === 'tg' ? 'tgChatMessages' : 'mobileSheetChatMessages';
+      const container = document.getElementById(containerId);
+      if (container) container.scrollTop = container.scrollHeight;
+    }
+  } catch (e) {
+    console.error("Ошибка отправки:", e);
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function openChatSheet() {
@@ -644,6 +690,10 @@ function openChatSheet() {
   
   sheet.classList.add('open');
   document.getElementById('chatBackdrop').classList.add('open');
+  
+  const mobileContainer = document.getElementById('mobileSheetChatMessages');
+  if (mobileContainer) delete mobileContainer.dataset.initScrolled;
+  
   loadTelegramChat();
   if(tg) tg.HapticFeedback?.impactOccurred('light');
 }
@@ -657,8 +707,7 @@ function closeChatSheet() {
   sheet.classList.remove('open');
   document.getElementById('chatBackdrop').classList.remove('open');
   setTimeout(() => {
-    document.getElementById('mobileSheetChatContainer').innerHTML = '';
-    if (window.innerWidth >= 1024) loadTelegramChat();
+    loadTelegramChat();
   }, 400);
 }
 
@@ -667,8 +716,8 @@ function initChatSheetGestures() {
   let startY = 0, currentY = 0;
   sheet.addEventListener('touchstart', (e) => {
     if (window.innerWidth >= 1024) return;
-    const body = document.getElementById('mobileSheetChatContainer');
-    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
+    const body = document.getElementById('mobileSheetChatMessages');
+    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle') || e.target.closest('.chat-input-wrapper')) {
       startY = e.touches[0].clientY;
     } else startY = 0;
   }, { passive: true });
@@ -761,6 +810,52 @@ function startProceduralFallbackLoop() {
   render();
 }
 
+// --- УПРАВЛЕНИЕ АУДИОПОТОКОМ ---
+function playStation(idx) {
+  if (curIdx === idx && isPlaying) {
+    if (window.innerWidth < 1024) openFullPlayer();
+    return;
+  }
+  
+  if (tg) tg.HapticFeedback?.impactOccurred('medium');
+  curIdx = idx;
+  const s = stations[idx];
+  
+  updateUI();
+  if (window.innerWidth < 1024 && !carMode) {
+    document.getElementById('miniPlayer').classList.remove('hidden');
+  }
+  
+  if (hls) { hls.destroy(); hls = null; }
+  audio.pause();
+  audio.src = '';
+  audio.crossOrigin = "anonymous"; 
+
+  initAudioAnalyser();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  
+  if (s.stream && s.stream.includes('.m3u8') && Hls.isSupported()) {
+    hls = new Hls({ lowLatencyMode: true });
+    hls.loadSource(s.stream);
+    hls.attachMedia(audio);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
+  } else if(s.stream) {
+    audio.src = s.stream;
+    audio.play().catch(()=>{});
+  }
+  
+  isPlaying = true;
+  document.body.classList.add('playing');
+  updatePlayButtons();
+  renderList();
+  
+  updateMediaSession(s, 'Загрузка...');
+  fetchTrack(s.stream);
+  
+  if (trackPoll) clearInterval(trackPoll);
+  trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
+}
+
 function togglePlay() {
   if (curIdx === -1 && stations.length > 0) return playStation(0);
   if (curIdx === -1) return;
@@ -847,6 +942,8 @@ function updateUI() {
     document.getElementById('fListenersRow').style.display = "none";
   }
   
+  isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
+
   favBtn.innerHTML = isFav 
     ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
     : `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
