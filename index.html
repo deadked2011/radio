@@ -68,12 +68,15 @@
   .content-scroll::-webkit-scrollbar { display: none; }
 
   /* Правая панель (Чат для ПК) */
-  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
+  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; position: relative; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
+  .chat-body { flex: 1; overflow-y: auto; padding: 0 0 65px 0; background: var(--surface); position: relative; width: 100%; }
 
-  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; border: none; width: calc(100% - 32px); cursor: pointer; }
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
   .tg-group-btn:active { opacity: 0.8; }
+
+  /* Заглушка, закрывающая ввод комментариев */
+  .chat-input-mask { position: absolute; bottom: 0; left: 0; right: 0; height: 62px; background: var(--surface); z-index: 100; pointer-events: auto; border-top: 1px solid var(--border); }
 
   @media (min-width: 1024px) {
     .sidebar-panel { width: var(--sidebar-width); }
@@ -115,7 +118,7 @@
   .sheet-header { padding: 12px 20px 4px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
-  .sheet-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
+  .sheet-body { flex: 1; overflow-y: auto; padding: 0 0 65px 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
 
   @media (min-width: 1024px) {
     .chat-sheet { left: 50%; right: auto; width: 450px; border-radius: 24px 24px 0 0; transform: translate(-50%, 100%); }
@@ -152,7 +155,7 @@
 
   .fp-art-wrap { 
     width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
-    border-radius: 50%;
+    border-radius: 50%; 
     box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
     overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
@@ -342,11 +345,12 @@
 
   <div class="chat-panel">
     <div class="chat-header">Чат эфира</div>
-    <button onclick="openExternalChat(event)" class="tg-group-btn">
+    <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
       Перейти в группу
-    </button>
+    </a>
     <div class="chat-body" id="tgChatContainer"></div>
+    <div class="chat-input-mask"></div>
   </div>
 
 </div>
@@ -358,11 +362,12 @@
     <div class="sheet-title">Чат эфира</div>
     <button class="sheet-close" onclick="closeChatSheet()">✕</button>
   </div>
-  <button onclick="openExternalChat(event)" class="tg-group-btn">
+  <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
     Перейти в группу
-  </button>
+  </a>
   <div class="sheet-body" id="mobileSheetChatContainer"></div>
+  <div class="chat-input-mask"></div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
@@ -385,9 +390,7 @@
 
 <script>
 // ─── НАСТРОЙКИ ТЕЛЕГРАМ ЧАТА ───
-// ─── НАСТРОЙКИ ТЕЛЕГРАМ ЧАТА ───
 const TELEGRAM_CHANNEL = "strmradio"; 
-const TELEGRAM_CHAT_POST_ID = "2"; // 👈 Вставьте сюда ID вашего поста вместо 123
 
 // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
 const stations = window.stations || [];
@@ -413,16 +416,6 @@ let isVisualizerInit = false;
 
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
-
-// --- ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ ССЫЛКИ НА ЧАТ ---
-function openExternalChat(e) {
-  if (e) e.preventDefault();
-  if (tg && tg.openTelegramLink) {
-    tg.openTelegramLink('https://t.me/' + TELEGRAM_CHANNEL);
-  } else {
-    window.open('https://t.me/' + TELEGRAM_CHANNEL, '_blank');
-  }
-}
 
 // --- ЧАСЫ ОБНОВЛЕНИЯ ---
 function tick() {
@@ -513,7 +506,7 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
-onSearchInput = function() { renderList(); }
+function onSearchInput() { renderList(); }
 
 function renderList() {
   const listEl = document.getElementById('stationList');
@@ -574,7 +567,8 @@ function loadTelegramChat() {
   const script = document.createElement('script');
   script.async = true;
   script.src = "https://telegram.org/js/telegram-widget.js?22";
-  script.setAttribute('data-telegram-discussion', `${TELEGRAM_CHANNEL}/${TELEGRAM_CHAT_POST_ID}`);  script.setAttribute('data-comments-limit', '20');
+  script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
+  script.setAttribute('data-comments-limit', '20');
   script.setAttribute('data-width', '100%');
   if (isDark) script.setAttribute('data-dark', '1');
   
@@ -853,6 +847,7 @@ function updatePlayButtons() {
   document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
 }
 
+// Изменено: Оставляем логику разворачивания плеера без изменений
 function openFullPlayer() { 
   if (window.innerWidth < 1024 || carMode) {
     document.getElementById('fullPlayer').classList.add('open'); 
