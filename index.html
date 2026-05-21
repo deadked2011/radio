@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Radio Go</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff" id="themeColorMeta" name="theme-color">
+<meta name="theme-color" content="#ffffff" id="themeColorMeta">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -40,11 +40,48 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s; height: 100vh; height: 100dvh; }
 
-  <div id="preloader">
-  <div class="droplet"></div>
-  <div class="preloader-brand">Radio Go</div>
-</div>
-  
+  /* ─── ПРЕЛОАДЕР (ЗАГРУЗКА) ─── */
+  #preloader {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease;
+  }
+
+  .droplet {
+    width: 60px;
+    height: 60px;
+    background: var(--accent);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    animation: pulse-droplet 1.5s infinite ease-in-out;
+    margin-bottom: 20px;
+  }
+
+  .preloader-brand {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    opacity: 0;
+    animation: fade-in-brand 0.8s ease forwards 0.3s;
+  }
+
+  @keyframes pulse-droplet {
+    0% { transform: scale(1) rotate(-45deg); }
+    50% { transform: scale(1.15) rotate(-45deg); }
+    100% { transform: scale(1) rotate(-45deg); }
+  }
+
+  @keyframes fade-in-brand {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   /* ─── ГЛАВНЫЙ МАКЕТ ─── */
   .app-layout { display: flex; width: 100%; height: 100%; overflow: hidden; position: relative; }
   
@@ -57,12 +94,7 @@
   .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-sec); font-weight: 600; margin-top: 2px; }
   .live-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; display: inline-block; }
   body.playing .live-dot { animation: pulse-green 1.5s infinite; }
-  @keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
-  }
-
+  
   .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
   .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
   .header-actions button:active { opacity: 0.75; }
@@ -70,33 +102,6 @@
 
   .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 100px); -webkit-overflow-scrolling: touch; }
   .content-scroll::-webkit-scrollbar { display: none; }
-
-  /* ─── ПАНЕЛЬ ЧАТА ─── */
-  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
-  .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  
-  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
-  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
-  .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
-  body.dark .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-  
-  .chat-msg { background: var(--bg); padding: 10px 14px; border-radius: 14px; max-width: 85%; width: fit-content; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .msg-user { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
-  .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
-  .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
-  
-  .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
-  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
-  .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
-
-  @media (min-width: 1024px) {
-    .sidebar-panel { width: var(--sidebar-width); }
-    .chat-panel { display: flex; }
-    .content-scroll { padding-bottom: 24px; }
-    .chat-write-action { padding-bottom: 16px; }
-    .header h1 { font-size: 28px; }
-  }
 
   /* ─── ПОИСК И ВКЛАДКИ ─── */
   .search-box { margin: 16px 0; background: var(--surface); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -121,6 +126,25 @@
   .station-row.active .playing-icon { display: block; }
   .station-row.active .station-name { color: var(--accent); }
 
+  /* ─── ПАНЕЛЬ ЧАТА (Базовые стили) ─── */
+  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
+  .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
+  
+  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+  body.dark .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+  
+  .chat-msg { background: var(--bg); padding: 10px 14px; border-radius: 14px; max-width: 85%; width: fit-content; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .msg-user { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+  .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
+  .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
+  
+  .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
+  .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
+
   /* ─── МОБИЛЬНАЯ ШТОРКА ЧАТА ─── */
   .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 19999; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
@@ -128,15 +152,9 @@
   .chat-sheet { position: fixed; bottom: 0; left: 0; right: 0; height: 85vh; background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 20000; display: flex; flex-direction: column; }
   .chat-sheet.open { transform: translateY(0); }
   .sheet-handle { width: 36px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 8px auto 0; opacity: 0.4; flex-shrink: 0; }
-  
   .sheet-header { padding: 12px 20px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
-
-  @media (min-width: 1024px) {
-    .chat-sheet { left: 50%; right: auto; width: 450px; border-radius: 24px 24px 0 0; transform: translate(-50%, 100%); }
-    .chat-sheet.open { transform: translate(-50%, 0); }
-  }
 
   /* ─── МИНИ-ПЛЕЕР ДЛЯ ТЕЛЕФОНОВ ─── */
   .mini-player { position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
@@ -230,12 +248,6 @@
     .full-player.open { transform: translateY(0); }
     .vol-bar { display: none !important; }
   }
-  @media (min-width: 1024px) {
-    .full-player { flex: 1; height: 100%; border-right: 1px solid var(--border); }
-    .fp-down { display: none !important; }
-    .fp-desktop-title { display: block !important; }
-    .mini-player { display: none !important; }
-  }
 
   /* 🚗 КРУПНЫЙ ИНТЕРФЕЙС АВТОРЕЖИМА (CAR MODE) 🚗 */
   body.car .sidebar-panel, body.car .chat-panel, body.car .mini-player, body.car .sheet-backdrop, body.car .chat-sheet { display: none !important; }
@@ -257,51 +269,77 @@
   body.car .fp-down { display: none !important; }
   body.car .fp-header { display: flex !important; justify-content: center; padding-bottom: 10px; width: 100%; }
   body.car .fp-desktop-title { display: block !important; font-size: 16px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
-  /* ─── ПРЕЛОАДЕР (ЗАГРУЗКА) ─── */
-#preloader {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg);
-  z-index: 999999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.6s ease;
-}
 
-.droplet {
-  width: 60px;
-  height: 60px;
-  background: var(--accent);
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  animation: pulse-droplet 1.5s infinite ease-in-out;
-  margin-bottom: 20px;
-}
+  /* 💻 ИНТЕРФЕЙС ДЛЯ ПК (FLUENT DESIGN) 💻 */
+  @media (min-width: 1024px) {
+    .app-layout {
+      flex-direction: row;
+      background: var(--bg); /* Базовый фон на случай долгой загрузки картинки */
+    }
 
-.preloader-brand {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.5px;
-  opacity: 0;
-  animation: fade-in-brand 0.8s ease forwards 0.3s;
-}
+    /* Фоновая картинка плеера теперь растягивается под весь экран и лежит за всеми панелями */
+    .fp-bg {
+      position: fixed !important;
+      top: -50px; left: -50px; right: -50px; bottom: -50px;
+      width: calc(100vw + 100px);
+      height: calc(100vh + 100px);
+      z-index: 0 !important;
+    }
 
-@keyframes pulse-droplet {
-  0% { transform: scale(1) rotate(-45deg); }
-  50% { transform: scale(1.15) rotate(-45deg); }
-  100% { transform: scale(1) rotate(-45deg); }
-}
+    /* Левая колонка (Список станций) */
+    .sidebar-panel {
+      width: 320px !important;
+      background: var(--player-bg); /* Полупрозрачный фон */
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      z-index: 10;
+    }
 
-@keyframes fade-in-brand {
-  to { opacity: 1; transform: translateY(0); }
-}
+    /* Центральная колонка (Плеер) */
+    .full-player {
+      flex: 1;
+      height: 100%;
+      background: transparent !important; /* Прозрачный, чтобы было видно .fp-bg */
+      border-right: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
 
+    /* Правая колонка (Чат) */
+    .chat-panel {
+      display: flex;
+      width: 380px !important;
+      background: var(--player-bg); /* Полупрозрачный фон */
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 10;
+    }
+
+    /* Косметика для ПК */
+    .chat-area { background: transparent; }
+    .chat-msg { background: var(--surface); }
+    .chat-write-action { background: transparent; padding-bottom: 24px; }
+    .content-scroll { padding-bottom: 24px; }
+    .header h1 { font-size: 28px; }
+    
+    /* Увеличиваем визуальную часть плеера */
+    .fp-content { max-width: 500px; }
+    .fp-art-wrap { max-width: 380px; }
+    .fp-title { font-size: 32px; }
+
+    /* Скрываем мобильные элементы */
+    .fp-down, .mini-player, .chat-sheet, .sheet-backdrop { display: none !important; }
+    .fp-desktop-title { display: block !important; }
+  }
 </style>
 </head>
 <body>
+
+<div id="preloader">
+  <div class="droplet"></div>
+  <div class="preloader-brand">Radio Go</div>
+</div>
 
 <div class="app-layout">
   
@@ -318,9 +356,11 @@
         <button onclick="toggleCarMode()" id="carBtn" title="Режим авто">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg>
         </button>
-        <button onclick="openChatSheet()" id="headerChatBtn" title="Чат эфира">
+        <button onclick="openChatSheet()" id="headerChatBtn" title="Чат эфира" class="mobile-only-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>
+        <style> @media (min-width: 1024px) { .mobile-only-btn { display: none !important; } } </style>
+        
         <button onclick="toggleTheme()" id="themeBtn" title="Переключить тему">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -452,6 +492,24 @@
 <audio id="audio"></audio>
 
 <script>
+// --- ЗАГЛУШКА ДЛЯ ОБЫЧНОГО БРАУЗЕРА (ФИКС ОШИБКИ НА ПК) ---
+if (!window.Telegram || !window.Telegram.WebApp || Object.keys(window.Telegram.WebApp).length === 0) {
+    window.Telegram = {
+        WebApp: {
+            initDataUnsafe: { user: { first_name: "Гость", username: "guest" } },
+            ready: () => {},
+            expand: () => {},
+            colorScheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+            HapticFeedback: {
+                impactOccurred: () => {},
+                selectionChanged: () => {},
+                notificationOccurred: () => {}
+            },
+            openTelegramLink: (url) => { window.open(url, '_blank'); }
+        }
+    };
+}
+
 // ─── НАСТРОЙКИ БЭКЕНДА И ЧАТА ───
 const WORKER_URL = "https://radio-chat.deadked2011.workers.dev"; 
 const TELEGRAM_GROUP = "strmradiochat"; 
@@ -484,7 +542,7 @@ let stallCheckTimeout = null;
 let recoveryAttempts = 0;
 
 const tg = window.Telegram?.WebApp;
-if(tg) { tg.ready(); tg.expand(); }
+if(tg && tg.ready) { tg.ready(); tg.expand(); }
 
 // --- СИСТЕМА ЗАЩИТЫ ОТ СЛУЧАЙНОГО ЗАКРЫТИЯ ---
 function initCloseConfirmation() {
@@ -496,7 +554,7 @@ function initCloseConfirmation() {
     }
   });
 
-  if (tg) {
+  if (tg && tg.enableClosingConfirmation) {
     if (isPlaying) {
       tg.enableClosingConfirmation();
     } else {
@@ -675,7 +733,7 @@ function applyTheme() {
   const targetThemeColor = isDark ? '#1c1c1e' : '#ffffff';
   document.getElementById('themeColorMeta').setAttribute('content', targetThemeColor);
   
-  if (tg) {
+  if (tg && tg.setHeaderColor) {
     try {
       tg.setHeaderColor(isDark ? '#1c1c1e' : '#ffffff');
       tg.setBackgroundColor(isDark ? '#000000' : '#ffffff');
