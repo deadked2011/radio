@@ -70,10 +70,25 @@
   /* Правая панель (Чат для ПК) */
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
-
-  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
-  .tg-group-btn:active { opacity: 0.8; }
+  
+  /* Кастомный интерфейс чата */
+  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+  body.dark .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+  
+  .chat-msg { background: var(--bg); padding: 10px 14px; border-radius: 14px; max-width: 85%; width: fit-content; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .msg-user { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+  .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
+  .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
+  
+  .chat-input-row { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+  .chat-panel .chat-input-row { padding-bottom: 16px; } /* фикс для ПК версии */
+  .chat-input { flex: 1; background: var(--surface); border: none; padding: 10px 16px; border-radius: 20px; color: var(--text); font-size: 15px; outline: none; }
+  .chat-send-btn { background: var(--accent); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
+  .chat-send-btn:active { transform: scale(0.9); }
+  .chat-send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
 
   @media (min-width: 1024px) {
     .sidebar-panel { width: var(--sidebar-width); }
@@ -108,14 +123,13 @@
   .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 19999; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
   
-  .chat-sheet { position: fixed; bottom: 0; left: 0; right: 0; height: 80vh; background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 20000; display: flex; flex-direction: column; }
+  .chat-sheet { position: fixed; bottom: 0; left: 0; right: 0; height: 85vh; background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 20000; display: flex; flex-direction: column; }
   .chat-sheet.open { transform: translateY(0); }
   .sheet-handle { width: 36px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 8px auto 0; opacity: 0.4; flex-shrink: 0; }
   
-  .sheet-header { padding: 12px 20px 4px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
+  .sheet-header { padding: 12px 20px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
-  .sheet-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
 
   @media (min-width: 1024px) {
     .chat-sheet { left: 50%; right: auto; width: 450px; border-radius: 24px 24px 0 0; transform: translate(-50%, 100%); }
@@ -152,7 +166,7 @@
 
   .fp-art-wrap { 
     width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
-    border-radius: 50%; /* Делаем круглым как пластинку */
+    border-radius: 50%; 
     box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
     overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
@@ -160,13 +174,13 @@
   .fp-art { 
     width: 100%; height: 100%; object-fit: cover; 
     animation: record-spin 18s linear infinite;
-    animation-play-state: paused; /* По умолчанию остановлено */
+    animation-play-state: paused; 
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
-    transform: scale(0.9); /* Чуть меньше на паузе */
+    transform: scale(0.9); 
     filter: brightness(0.8);
   }
   .fp-art.playing { 
-    animation-play-state: running; /* Крутится когда играет */
+    animation-play-state: running; 
     transform: scale(1);
     filter: brightness(1);
   }
@@ -249,11 +263,12 @@
   <div class="sidebar-panel">
     <div class="header">
       <div class="header-left">
-    <h1 id="headerTitle">Радио</h1> <div class="live-status">
-        <span class="live-dot"></span>
-        <span id="liveClock">00:00:00</span>
-    </div>
-</div>
+        <h1 id="headerTitle">Радио</h1> 
+        <div class="live-status">
+            <span class="live-dot"></span>
+            <span id="liveClock">00:00:00</span>
+        </div>
+      </div>
       <div class="header-actions">
         <button onclick="toggleCarMode()" id="carBtn" title="Режим авто">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg>
@@ -342,11 +357,15 @@
 
   <div class="chat-panel">
     <div class="chat-header">Чат эфира</div>
-    <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-      Перейти в группу
-    </a>
-    <div class="chat-body" id="tgChatContainer"></div>
+    <div class="chat-area">
+      <div class="chat-messages" id="pcChatMessages"></div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="pcChatInput" placeholder="Сообщение в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('pc')">
+        <button class="chat-send-btn" onclick="sendChatMessage('pc')">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -358,11 +377,15 @@
     <div class="sheet-title">Чат эфира</div>
     <button class="sheet-close" onclick="closeChatSheet()">✕</button>
   </div>
-  <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-    Перейти в группу
-  </a>
-  <div class="sheet-body" id="mobileSheetChatContainer"></div>
+  <div class="chat-area">
+    <div class="chat-messages" id="mobileChatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="mobileChatInput" placeholder="Сообщение в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('mobile')">
+      <button class="chat-send-btn" onclick="sendChatMessage('mobile')">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
@@ -384,8 +407,8 @@
 <audio id="audio"></audio>
 
 <script>
-// ─── НАСТРОЙКИ ТЕЛЕГРАМ ЧАТА ───
-const TELEGRAM_CHANNEL = "strmradio"; 
+// ─── НАСТРОЙКИ БЭКЕНДА CLOUDFLARE ───
+const WORKER_URL = "https://radio-chat.deadked2011.workers.dev"; 
 
 // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
 const stations = window.stations || [];
@@ -401,6 +424,7 @@ audio.crossOrigin = "anonymous";
 
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let trackPoll = null;
+let chatPoll = null;
 
 let carMode = localStorage.getItem('radio_car') === '1';
 
@@ -411,6 +435,15 @@ let isVisualizerInit = false;
 
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
+
+// Определение пользователя для Cloudflare чата
+function getChatUser() {
+  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    const u = tg.initDataUnsafe.user;
+    return u.first_name + (u.last_name ? ' ' + u.last_name : '');
+  }
+  return "Слушатель";
+}
 
 // --- ЧАСЫ ОБНОВЛЕНИЯ ---
 function tick() {
@@ -478,7 +511,6 @@ function toggleTheme() {
   isDark = !isDark;
   localStorage.setItem('radio_dark', isDark ? '1' : '0');
   applyTheme();
-  loadTelegramChat();
   if(tg) tg.HapticFeedback?.impactOccurred('light');
 }
 
@@ -546,29 +578,78 @@ function renderList() {
   }).join('');
 }
 
-// --- ЧАТ ТЕЛЕГРАМ ---
-function loadTelegramChat() {
-  const isDesktop = window.innerWidth >= 1024;
-  const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
-  
-  document.getElementById('tgChatContainer').innerHTML = '';
-  document.getElementById('mobileSheetChatContainer').innerHTML = '';
-  
-  if (!isDesktop && !isSheetOpen) return;
-  
-  const containerId = isSheetOpen ? 'mobileSheetChatContainer' : 'tgChatContainer';
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = "https://telegram.org/js/telegram-widget.js?22";
-  script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
-  script.setAttribute('data-comments-limit', '20');
-  script.setAttribute('data-width', '100%');
-  if (isDark) script.setAttribute('data-dark', '1');
-  
-  container.appendChild(script);
+// ─── ЛОГИКА CLOUDFLARE ЧАТА ───
+async function loadChatMessages() {
+  try {
+    const res = await fetch(`${WORKER_URL}/get-messages`);
+    if (!res.ok) return;
+    const messages = await res.json();
+    
+    const isDesktop = window.innerWidth >= 1024;
+    const containerId = isDesktop ? 'pcChatMessages' : 'mobileChatMessages';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const oldScrollHeight = container.scrollHeight;
+    const oldScrollTop = container.scrollTop;
+    const isAtBottom = (oldScrollHeight - oldScrollTop - container.clientHeight) < 40 || oldScrollHeight === 0;
+
+    container.innerHTML = messages.map(msg => {
+      const timeStr = msg.time ? msg.time : new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      return `
+        <div class="chat-msg">
+          <div class="msg-user">${escapeHtml(msg.user || 'Слушатель')}</div>
+          <div class="msg-text">${escapeHtml(msg.text)}</div>
+          <div class="msg-time">${timeStr}</div>
+        </div>
+      `;
+    }).join('');
+
+    if (isAtBottom || oldScrollHeight === 0) {
+      container.scrollTop = container.scrollHeight;
+    }
+  } catch (e) {
+    console.error("Ошибка обновления чата", e);
+  }
+}
+
+async function sendChatMessage(type) {
+  const inputId = type === 'pc' ? 'pcChatInput' : 'mobileChatInput';
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  const user = getChatUser();
+
+  try {
+    input.value = '';
+    const res = await fetch(`${WORKER_URL}/send-message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, text })
+    });
+    if (res.ok) {
+      loadChatMessages();
+      if(tg) tg.HapticFeedback?.impactOccurred('light');
+    }
+  } catch (e) {
+    console.error("Не удалось отправить сообщение", e);
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function startChatPolling() {
+  if (chatPoll) clearInterval(chatPoll);
+  loadChatMessages();
+  chatPoll = setInterval(loadChatMessages, 4000);
+}
+
+function stopChatPolling() {
+  if (chatPoll) { clearInterval(chatPoll); chatPoll = null; }
 }
 
 function openChatSheet() {
@@ -579,7 +660,8 @@ function openChatSheet() {
   
   sheet.classList.add('open');
   document.getElementById('chatBackdrop').classList.add('open');
-  loadTelegramChat();
+  
+  startChatPolling();
   if(tg) tg.HapticFeedback?.impactOccurred('light');
 }
 
@@ -591,10 +673,7 @@ function closeChatSheet() {
   
   sheet.classList.remove('open');
   document.getElementById('chatBackdrop').classList.remove('open');
-  setTimeout(() => {
-    document.getElementById('mobileSheetChatContainer').innerHTML = '';
-    if (window.innerWidth >= 1024) loadTelegramChat();
-  }, 400);
+  stopChatPolling();
 }
 
 function initChatSheetGestures() {
@@ -602,8 +681,8 @@ function initChatSheetGestures() {
   let startY = 0, currentY = 0;
   sheet.addEventListener('touchstart', (e) => {
     if (window.innerWidth >= 1024) return;
-    const body = document.getElementById('mobileSheetChatContainer');
-    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
+    const body = document.getElementById('mobileChatMessages');
+    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle') || e.target.closest('.chat-input-row')) {
       startY = e.touches[0].clientY;
     } else startY = 0;
   }, { passive: true });
@@ -800,12 +879,11 @@ function updateUI() {
   }
   
   const s = stations[curIdx];
-  headerTitle.textContent = s.name; // Меняем название в шапке
+  headerTitle.textContent = s.name; 
   const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
   const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
   const isFav = favs.includes(s.name);
   
-  // ИСПРАВЛЕНИЕ БАГА: Принудительно возвращаем видимость кругу с обложкой
   const fArt = document.getElementById('fArt');
   fArt.style.opacity = "1";
   fArt.src = cover;
@@ -846,7 +924,7 @@ function updatePlayButtons() {
 function openFullPlayer() { 
   if (window.innerWidth < 1024 || carMode) {
     document.getElementById('fullPlayer').classList.add('open'); 
-    updateUI(); // Синхронизируем состояние анимации и обложки при открытии шторки
+    updateUI(); 
   }
 }
 function closeFullPlayer() { 
@@ -885,7 +963,7 @@ function toggleFav() {
 
 async function fetchTrack(url) {
   try {
-    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`${WORKER_URL}/now-playing?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     const track = data.title && data.title.trim() ? data.title : 'В эфире';
     const trackEl = document.getElementById('fTrack');
@@ -907,9 +985,16 @@ async function fetchTrack(url) {
 window.addEventListener('resize', () => {
   renderTabs();
   renderList();
-  if (window.innerWidth >= 1024) { closeFullPlayer(); closeChatSheet(); }
+  if (window.innerWidth >= 1024) { 
+    closeFullPlayer(); 
+    closeChatSheet(); 
+    startChatPolling(); // На ПК чат опрашивается постоянно
+  } else {
+    if (!document.getElementById('chatSheet').classList.contains('open')) {
+      stopChatPolling(); // На мобилке отключаем, если шторка закрыта
+    }
+  }
   applyCarMode();
-  loadTelegramChat();
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -922,7 +1007,10 @@ window.addEventListener('DOMContentLoaded', () => {
   updateUI();
   initSwipeGestures();
   initChatSheetGestures();
-  loadTelegramChat();
+  
+  if (window.innerWidth >= 1024) {
+    startChatPolling();
+  }
   tick();
 });
 </script>
