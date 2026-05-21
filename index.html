@@ -46,8 +46,8 @@
   .sidebar-panel { width: 100%; display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); flex-shrink: 0; background: var(--bg); position: relative; z-index: 10; }
   
   .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .header-left { display: flex; flex-direction: column; }
-  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .header-left { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 12px; }
+  .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
   /* Часы и Индикатор Прямого Эфира */
   .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-sec); font-weight: 600; margin-top: 2px; }
@@ -59,7 +59,7 @@
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
   }
 
-  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
   .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
   .header-actions button:active { opacity: 0.75; }
   .header-actions button.active { background: var(--text); color: var(--bg); }
@@ -71,7 +71,7 @@
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
   
-  /* Кастомный интерфейс чата (Только чтение) */
+  /* Интерфейс чата (Только чтение) */
   .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
   .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
   .chat-messages::-webkit-scrollbar { width: 4px; }
@@ -83,7 +83,7 @@
   .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
   .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
   
-  /* Кнопка перехода в группу Telegram (вместо инпута) */
+  /* Кнопка перехода в группу Telegram */
   .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
   .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
   .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
@@ -93,6 +93,7 @@
     .chat-panel { display: flex; }
     .content-scroll { padding-bottom: 24px; }
     .chat-write-action { padding-bottom: 16px; }
+    .header h1 { font-size: 28px; }
   }
 
   /* ─── ПОИСК И ВКЛАДКИ ─── */
@@ -146,9 +147,9 @@
   .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; }
   .btn-icon svg { width: 26px; height: 26px; fill: currentColor; }
 
-  /* ─── ПОЛНОЭКРАННЫЙ / ЦЕНТРАЛЬНЫЙ ПЛЕЕР ─── */
+  /* ─── ПОЛЬНОЭКРАННЫЙ / ЦЕНТРАЛЬНЫЙ ПЛЕЕР ─── */
   .full-player { background: var(--bg); display: flex; flex-direction: column; position: relative; }
-  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; }
+  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; transition: background-image 0.5s ease-in-out; }
   body.dark .fp-bg { opacity: 0.3; }
   .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; height: 100%; max-width: 440px; width: 100%; margin: 0 auto; padding: var(--safe-top) 24px calc(var(--safe-bottom) + 40px); }
   
@@ -187,7 +188,7 @@
   .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3vh; width: 100%; flex-shrink: 0; padding: 0 10px; }
   .fp-titles { flex: 1; min-width: 0; overflow: hidden; }
   
-  .marquee-container { overflow: hidden; white-space: nowrap; max-width: 78%; }
+  .marquee-container { overflow: hidden; white-space: nowrap; max-width: 90%; }
   .fp-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
   .fp-track-wrap { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; overflow: hidden; }
@@ -203,6 +204,7 @@
   .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(0.2); transition: transform 0.1s ease; }
 
   .fp-meta-info { display: flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; color: var(--text-sec); }
+  .fp-genre { font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; background: var(--surface); padding: 3px 8px; border-radius: 6px; }
   .fp-listeners { display: inline-flex; align-items: center; gap: 4px; }
 
   .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 0 0 4vh; padding: 0 20px; width: 100%; flex-shrink: 0; }
@@ -322,7 +324,7 @@
             </div>
           </div>
           <div class="fp-meta-info">
-            <span id="fGenre">Эфир</span>
+            <span class="fp-genre" id="fGenre">Эфир</span>
             <span class="fp-listeners" id="fListenersRow" style="display:none;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 5.42 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
               <span id="fListenersCount">0</span>
@@ -361,7 +363,7 @@
       <div class="chat-write-action">
         <button onclick="redirectToTelegramChat()" class="tg-group-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          Написать в чат
+          Перейти в чат
         </button>
       </div>
     </div>
@@ -381,7 +383,7 @@
     <div class="chat-write-action">
       <button onclick="redirectToTelegramChat()" class="tg-group-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        Написать в чат
+        Перейти в чат
       </button>
     </div>
   </div>
@@ -436,22 +438,55 @@ let isVisualizerInit = false;
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
 
-// Вспомогательная функция загрузки fallback-изображения
-function handleImageError(imgEl, stationName) {
-  if (imgEl.getAttribute('data-failed') === 'true') return; 
-  imgEl.setAttribute('data-failed', 'true');
-  const safeName = encodeURIComponent(stationName || 'Radio');
-  imgEl.src = `https://ui-avatars.com/api/?name=${safeName}&background=random&color=fff&bold=true`;
+// Генератор стильного ИИ-аватара для подмены сломанных картинок
+function getFallbackLogo(name) {
+  const safeName = encodeURIComponent(name || 'Radio');
+  return `https://ui-avatars.com/api/?name=${safeName}&background=fc3c44&color=fff&bold=true&size=256`;
 }
 
-// Умная очистка названия трека (убирает ссылки, теги, мусор)
-function sanitizeTrackName(name) {
-  if (!name) return "В эфире";
-  let clean = name.replace(/https?:\/\/[^\s]+/gi, ''); // удаляем URL
-  clean = clean.replace(/<[^>]*>?/gm, ''); // удаляем HTML теги
-  clean = clean.trim();
-  // Если осталось меньше 2 символов или только спецсимволы/цифры
-  if (clean.length < 2 || /^[\d\W_]+$/.test(clean)) return "В эфире";
+// Ультра-агрессивная очистка метаданных (Убирает ссылки, потоки, .mp3, icecast и рекламу)
+function sanitizeTrackName(name, stationName) {
+  if (!name) return "Прямой эфир";
+  
+  // Раскодируем HTML-сущности, если они есть
+  const txt = document.createElement("textarea");
+  txt.innerHTML = name;
+  let clean = txt.value;
+
+  // 1. Срезаем протоколы (http/https/ftp)
+  clean = clean.replace(/https?:\/\/[^\s]+/gi, '');
+  clean = clean.replace(/ftp:\/\/[^\s]+/gi, '');
+  
+  // 2. Срезаем доменные зоны и пути файлов (типа retroserver.ru:8043/stream.mp3)
+  clean = clean.replace(/[a-zA-Z0-9-]+\.[a-zA-Z]{2,6}(\/[^\s]*)*/gi, '');
+  clean = clean.replace(/\bwww\.[^\s]+/gi, '');
+  clean = clean.replace(/\/[a-zA-Z0-9-_]+\.(mp3|aac|ogg|m3u8)/gi, '');
+
+  // 3. Срезаем типичные ключевые слова технического вещания
+  const junkWords = [
+    'icecast', 'shoutcast', 'stream', 'live', 'online', 'playing', 
+    'advert', 'reklama', 'реклама', 'эфир', 'вещание', 'aac', 'mp3', 
+    '128kbps', '320kbps', 'kbps', 'mount', 'status', 'server'
+  ];
+  junkWords.forEach(word => {
+    const regex = new RegExp('\\b' + word + '\\b', 'gi');
+    clean = clean.replace(regex, '');
+  });
+
+  // 4. Убираем лишние знаки препинания и дефисы, оставшиеся по краям после очистки
+  clean = clean.replace(/^[_\-\s|*+:/]+|[_\-\s|*+:/]+$/g, '');
+  clean = clean.replace(/\s+/g, ' ');
+
+  // 5. Финальный вердикт: если строка пуста, коротка или состоит из одного мусора/цифр
+  if (!clean || clean.length < 3 || /^[\d\W_]+$/.test(clean)) {
+    return "Прямой эфир";
+  }
+  
+  // Если название трека дублирует название самой радиостанции
+  if (stationName && clean.toLowerCase() === stationName.toLowerCase()) {
+    return "Прямой эфир";
+  }
+
   return clean;
 }
 
@@ -475,7 +510,6 @@ function applyCarMode() {
     if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.add('open');
   } else {
     desktopTitle.textContent = "Сейчас играет";
-    // Если мы выходим из авторежима на телефоне, нужно плавно закрыть полноэкранный плеер (свернуть в мини)
     if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.remove('open');
   }
 }
@@ -490,15 +524,13 @@ function toggleCarMode() {
 // --- MEDIA SESSION ---
 function updateMediaSession(station, trackTitle = 'Прямой эфир') {
   if ('mediaSession' in navigator) {
-    const cover = station.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(station.name)}&background=random`;
+    const cover = station.logo && station.logo.trim() ? station.logo : getFallbackLogo(station.name);
     navigator.mediaSession.metadata = new MediaMetadata({
       title: station.name,
       artist: trackTitle,
       album: station.genre || 'Радио',
       artwork: [
-        { src: cover, sizes: '96x96', type: 'image/png' },
-        { src: cover, sizes: '192x192', type: 'image/png' },
-        { src: cover, sizes: '512x512', type: 'image/png' }
+        { src: cover, sizes: '256x256', type: 'image/png' }
       ]
     });
   }
@@ -567,11 +599,11 @@ function renderList() {
   listEl.innerHTML = filtered.map((s) => {
     const origIdx = stations.indexOf(s);
     const isActive = origIdx === curIdx;
-    const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
+    const cover = s.logo && s.logo.trim() ? s.logo : getFallbackLogo(s.name);
     
     return `
       <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
-        <img src="${cover}" class="station-img" loading="lazy" onerror="handleImageError(this, '${s.name.replace(/'/g, "\\'")}')">
+        <img src="${cover}" class="station-img" loading="lazy" onerror="this.onerror=null; this.src='${getFallbackLogo(s.name.replace(/'/g, "\\'"))}';">
         <div class="station-info">
           <div class="station-name">${s.name}</div>
           <div class="station-meta-row">
@@ -588,7 +620,7 @@ function renderList() {
   }).join('');
 }
 
-// ─── ЛОГИКА ЧАТА (БЕЗ ОТПРАВКИ ИЗ ВЕБ-АППА) ───
+// ─── ЛОГИКА ЧАТА ───
 async function loadChatMessages() {
   try {
     const res = await fetch(`${WORKER_URL}/get-messages`);
@@ -876,21 +908,11 @@ function updateUI() {
   const s = stations[curIdx];
   headerTitle.textContent = s.name; 
   
-  const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
+  const initialCover = s.logo && s.logo.trim() ? s.logo : getFallbackLogo(s.name);
   const isFav = favs.includes(s.name);
   
-  const fArt = document.getElementById('fArt');
-  fArt.style.opacity = "1";
-  fArt.src = cover;
-  fArt.setAttribute('data-failed', 'false'); // сброс флага ошибки
   favBtn.style.visibility = "visible";
-
-  const mArt = document.getElementById('mArt');
-  mArt.src = cover;
-  mArt.setAttribute('data-failed', 'false');
   document.getElementById('mTitle').textContent = s.name;
-  
-  document.getElementById('fBg').style.backgroundImage = `url(${cover})`;
   document.getElementById('fTitle').textContent = s.name;
   document.getElementById('fGenre').textContent = s.genre || 'Радио';
   
@@ -900,8 +922,22 @@ function updateUI() {
   } else {
     document.getElementById('fListenersRow').style.display = "none";
   }
+
+  // АСИНХРОННАЯ ПРОВЕРКА КАРТИНКИ (Защита от 404 и серых квадратов)
+  const imgTester = new Image();
+  imgTester.src = initialCover;
   
-  isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
+  const applyValidatedCover = (url) => {
+    const fArt = document.getElementById('fArt');
+    fArt.style.opacity = "1";
+    fArt.src = url;
+    document.getElementById('mArt').src = url;
+    document.getElementById('fBg').style.backgroundImage = `url(${url})`;
+    isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
+  };
+
+  imgTester.onload = () => applyValidatedCover(initialCover);
+  imgTester.onerror = () => applyValidatedCover(getFallbackLogo(s.name));
 
   favBtn.innerHTML = isFav 
     ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
@@ -962,8 +998,11 @@ async function fetchTrack(url) {
     const res = await fetch(`${WORKER_URL}/now-playing?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     
-    // Используем нашу функцию умной очистки трека от мусора
-    const track = sanitizeTrackName(data.title);
+    const currentStation = stations[curIdx];
+    const stationName = currentStation ? currentStation.name : "";
+    
+    // Прогоняем трек сквозь умную очистку
+    const track = sanitizeTrackName(data.title, stationName);
     
     const trackEl = document.getElementById('fTrack');
     trackEl.textContent = track;
@@ -997,18 +1036,6 @@ window.addEventListener('resize', () => {
   }
   applyCarMode();
 });
-
-// Глобальный перехватчик ошибок для всех картинок на странице
-document.addEventListener('error', function(e) {
-  if (e.target.tagName.toLowerCase() === 'img') {
-    // Пытаемся получить имя станции из соседнего блока или берем дефолтное
-    let name = "Radio";
-    const infoBlock = e.target.parentElement.querySelector('.station-name');
-    if (infoBlock) name = infoBlock.textContent;
-    else if (e.target.id === 'fArt' || e.target.id === 'mArt') name = document.getElementById('mTitle').textContent;
-    handleImageError(e.target, name);
-  }
-}, true);
 
 window.addEventListener('DOMContentLoaded', () => {
   applyTheme();
