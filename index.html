@@ -291,7 +291,11 @@
 
 <script>
 // ─── НАСТРОЙКИ ТЕЛЕГРАМ ЧАТА ───
-const TELEGRAM_GROUP = "strmradiochat"; 
+// ВАЖНО: Виджету обсуждений нужен юзернейм КАНАЛА, а не группы!
+// Указываем точное название вашего публичного канала (без @ и без ссылки t.me)
+const TELEGRAM_CHANNEL = "strmradio"; 
+// Юзернейм самой ГРУППЫ (чата) для переадресации по кнопке "Обсудим"
+const TELEGRAM_GROUP = "strmradiochat";
 
 // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
 const stations = window.stations || [];
