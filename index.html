@@ -72,7 +72,7 @@
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
   .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
 
-  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; border: none; width: calc(100% - 32px); cursor: pointer; }
   .tg-group-btn:active { opacity: 0.8; }
 
   @media (min-width: 1024px) {
@@ -152,7 +152,7 @@
 
   .fp-art-wrap { 
     width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
-    border-radius: 50%; /* Делаем круглым как пластинку */
+    border-radius: 50%;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
     overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
@@ -160,13 +160,13 @@
   .fp-art { 
     width: 100%; height: 100%; object-fit: cover; 
     animation: record-spin 18s linear infinite;
-    animation-play-state: paused; /* По умолчанию остановлено */
+    animation-play-state: paused; 
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
-    transform: scale(0.9); /* Чуть меньше на паузе */
+    transform: scale(0.9); 
     filter: brightness(0.8);
   }
   .fp-art.playing { 
-    animation-play-state: running; /* Крутится когда играет */
+    animation-play-state: running; 
     transform: scale(1);
     filter: brightness(1);
   }
@@ -240,15 +240,6 @@
   body.car .fp-down { display: none !important; }
   body.car .fp-header { display: flex !important; justify-content: center; padding-bottom: 10px; width: 100%; }
   body.car .fp-desktop-title { display: block !important; font-size: 16px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
-
-  /* ─── СТИЛИ ДЛЯ НАВТИВНОГО КАСТОМНОГО ЧАТА ─── */
-  .chat-messages { display: flex; flex-direction: column; gap: 10px; }
-  .chat-msg { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; max-width: 85%; }
-  .chat-msg-meta { font-size: 11px; font-weight: 700; color: var(--accent); padding-left: 4px; }
-  .chat-msg-text { background: var(--bg); color: var(--text); padding: 10px 14px; border-radius: 16px; border-top-left-radius: 4px; font-size: 14px; line-height: 1.4; border: 1px solid var(--border); word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-  .chat-msg.self { align-self: flex-end; align-items: flex-end; }
-  .chat-msg.self .chat-msg-text { background: var(--text); color: var(--bg); border-top-left-radius: 16px; border-top-right-radius: 4px; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-  .chat-msg.self .chat-msg-meta { color: var(--text-sec); padding-left: 0; padding-right: 4px; }
 </style>
 </head>
 <body>
@@ -351,19 +342,11 @@
 
   <div class="chat-panel">
     <div class="chat-header">Чат эфира</div>
-    <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
+    <button onclick="openExternalChat(event)" class="tg-group-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
       Перейти в группу
-    </a>
-    <div class="chat-body" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-      <div class="chat-messages" id="tgChatMessages" style="flex: 1; overflow-y: auto; padding: 16px;"></div>
-      <div class="chat-input-wrapper" style="padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center;">
-        <input type="text" id="tgChatInput" placeholder="Написать в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('tg')">
-        <button onclick="sendChatMessage('tg')" style="background: none; border: none; color: var(--accent); cursor: pointer; display: flex; align-items: center; padding: 4px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        </button>
-      </div>
-    </div>
+    </button>
+    <div class="chat-body" id="tgChatContainer"></div>
   </div>
 
 </div>
@@ -375,19 +358,11 @@
     <div class="sheet-title">Чат эфира</div>
     <button class="sheet-close" onclick="closeChatSheet()">✕</button>
   </div>
-  <a href="https://t.me/strmradio" target="_blank" class="tg-group-btn">
+  <button onclick="openExternalChat(event)" class="tg-group-btn">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
     Перейти в группу
-  </a>
-  <div class="sheet-body" style="display: flex; flex-direction: column; overflow: hidden; flex: 1; background: var(--surface);">
-    <div class="chat-messages" id="mobileSheetChatMessages" style="flex: 1; overflow-y: auto; padding: 16px;"></div>
-    <div class="chat-input-wrapper" style="padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; padding-bottom: calc(var(--safe-bottom) + 12px);">
-      <input type="text" id="mobileChatInput" placeholder="Написать в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('mobile')" style="flex: 1; border: none; background: var(--surface); padding: 10px 14px; border-radius: 10px; color: var(--text); font-size: 14px; outline: none;">
-      <button onclick="sendChatMessage('mobile')" style="background: none; border: none; color: var(--accent); cursor: pointer; display: flex; align-items: center; padding: 4px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      </button>
-    </div>
-  </div>
+  </button>
+  <div class="sheet-body" id="mobileSheetChatContainer"></div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
@@ -426,7 +401,6 @@ audio.crossOrigin = "anonymous";
 
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let trackPoll = null;
-let chatPoll = null;
 
 let carMode = localStorage.getItem('radio_car') === '1';
 
@@ -437,6 +411,16 @@ let isVisualizerInit = false;
 
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
+
+// --- ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ ССЫЛКИ НА ЧАТ ---
+function openExternalChat(e) {
+  if (e) e.preventDefault();
+  if (tg && tg.openTelegramLink) {
+    tg.openTelegramLink('https://t.me/' + TELEGRAM_CHANNEL);
+  } else {
+    window.open('https://t.me/' + TELEGRAM_CHANNEL, '_blank');
+  }
+}
 
 // --- ЧАСЫ ОБНОВЛЕНИЯ ---
 function tick() {
@@ -527,10 +511,7 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
-// Инпуты стиля для десктопа
-document.getElementById('tgChatInput').style.cssText = "flex: 1; border: none; background: var(--surface); padding: 10px 14px; border-radius: 10px; color: var(--text); font-size: 14px; outline: none;";
-
-function onSearchInput() { renderList(); }
+onSearchInput = function() { renderList(); }
 
 function renderList() {
   const listEl = document.getElementById('stationList');
@@ -574,112 +555,29 @@ function renderList() {
   }).join('');
 }
 
-// --- УПРАВЛЕНИЕ ПОЛЛИНГОМ И ОБНОВЛЕНИЕМ ЧАТА ---
+// --- ЧАТ ТЕЛЕГРАМ ---
 function loadTelegramChat() {
   const isDesktop = window.innerWidth >= 1024;
   const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
   
-  if (isDesktop || isSheetOpen) {
-    if (!chatPoll) {
-      fetchChatMessages();
-      chatPoll = setInterval(fetchChatMessages, 4000); 
-    }
-  } else {
-    if (chatPoll) {
-      clearInterval(chatPoll);
-      chatPoll = null;
-    }
-  }
-}
-
-async function fetchChatMessages() {
-  const isDesktop = window.innerWidth >= 1024;
-  const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
-  if (!isDesktop && !isSheetOpen) return;
-
-  try {
-    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/get-messages`);
-    if (!res.ok) return;
-    const messages = await res.json(); 
-    
-    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
-
-    const renderMessages = (containerId) => {
-      const el = document.getElementById(containerId);
-      if (!el) return;
-      
-      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
-
-      el.innerHTML = messages.map(msg => {
-        const isSelf = currentUserId && msg.user_id === currentUserId;
-        return `
-          <div class="chat-msg ${isSelf ? 'self' : ''}">
-            <div class="chat-msg-meta">${escapeHtml(msg.username || 'Слушатель')}</div>
-            <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
-          </div>
-        `;
-      }).join('');
-
-      if (isAtBottom || el.innerHTML === '' || !el.dataset.initScrolled) {
-        el.scrollTop = el.scrollHeight;
-        el.dataset.initScrolled = "true";
-      }
-    };
-
-    if (isDesktop) renderMessages('tgChatMessages');
-    if (isSheetOpen) renderMessages('mobileSheetChatMessages');
-
-  } catch (e) {
-    console.error("Ошибка при обновлении сообщений чата:", e);
-  }
-}
-
-async function sendChatMessage(type) {
-  const inputId = type === 'tg' ? 'tgChatInput' : 'mobileChatInput';
-  const input = document.getElementById(inputId);
-  if (!input) return;
+  document.getElementById('tgChatContainer').innerHTML = '';
+  document.getElementById('mobileSheetChatContainer').innerHTML = '';
   
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.disabled = true;
-
-  const user = window.Telegram?.WebApp?.initDataUnsafe?.user || { first_name: "Гость", username: "guest" };
-  const initData = window.Telegram?.WebApp?.initData || "";
-
-  try {
-    const res = await fetch(`https://radio-chat.deadked2011.workers.dev/send-message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: text,
-        user: user,
-        initData: initData
-      })
-    });
-
-    if (res.ok) {
-      input.value = '';
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      }
-      await fetchChatMessages();
-      
-      const containerId = type === 'tg' ? 'tgChatMessages' : 'mobileSheetChatMessages';
-      const container = document.getElementById(containerId);
-      if (container) container.scrollTop = container.scrollHeight;
-    }
-  } catch (e) {
-    console.error("Ошибка отправки:", e);
-  } finally {
-    input.disabled = false;
-    input.focus();
-  }
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  if (!isDesktop && !isSheetOpen) return;
+  
+  const containerId = isSheetOpen ? 'mobileSheetChatContainer' : 'tgChatContainer';
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = "https://telegram.org/js/telegram-widget.js?22";
+  script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
+  script.setAttribute('data-comments-limit', '20');
+  script.setAttribute('data-width', '100%');
+  if (isDark) script.setAttribute('data-dark', '1');
+  
+  container.appendChild(script);
 }
 
 function openChatSheet() {
@@ -690,10 +588,6 @@ function openChatSheet() {
   
   sheet.classList.add('open');
   document.getElementById('chatBackdrop').classList.add('open');
-  
-  const mobileContainer = document.getElementById('mobileSheetChatMessages');
-  if (mobileContainer) delete mobileContainer.dataset.initScrolled;
-  
   loadTelegramChat();
   if(tg) tg.HapticFeedback?.impactOccurred('light');
 }
@@ -707,7 +601,8 @@ function closeChatSheet() {
   sheet.classList.remove('open');
   document.getElementById('chatBackdrop').classList.remove('open');
   setTimeout(() => {
-    loadTelegramChat();
+    document.getElementById('mobileSheetChatContainer').innerHTML = '';
+    if (window.innerWidth >= 1024) loadTelegramChat();
   }, 400);
 }
 
@@ -716,8 +611,8 @@ function initChatSheetGestures() {
   let startY = 0, currentY = 0;
   sheet.addEventListener('touchstart', (e) => {
     if (window.innerWidth >= 1024) return;
-    const body = document.getElementById('mobileSheetChatMessages');
-    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle') || e.target.closest('.chat-input-wrapper')) {
+    const body = document.getElementById('mobileSheetChatContainer');
+    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
       startY = e.touches[0].clientY;
     } else startY = 0;
   }, { passive: true });
