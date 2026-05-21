@@ -43,7 +43,6 @@
   /* ─── ГЛАВНЫЙ МАКЕТ ─── */
   .app-layout { display: flex; width: 100%; height: 100%; overflow: hidden; position: relative; }
   
-  /* Левая панель */
   .sidebar-panel { width: 100%; display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); flex-shrink: 0; background: var(--bg); position: relative; z-index: 10; }
   
   .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -73,7 +72,6 @@
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
   .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
 
-  /* Кнопка перехода в группу Telegram */
   .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
   .tg-group-btn:active { opacity: 0.8; }
 
@@ -116,7 +114,6 @@
   
   .sheet-header { padding: 12px 20px 4px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-  
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
   .sheet-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
 
@@ -147,18 +144,39 @@
   .fp-down svg { width: 24px; height: 24px; }
   .fp-desktop-title { font-size: 18px; font-weight: 700; display: none; color: var(--text); text-align: center; width: 100%; }
 
-  .fp-art-wrap { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; }
-  .fp-art { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .fp-art:not(.playing) { transform: scale(0.85); border-radius: 24px; opacity: 0.9; }
+  /* АНИМАЦИЯ ПЛАСТИНКИ */
+  @keyframes record-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .fp-art-wrap { 
+    width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
+    border-radius: 50%; /* Делаем круглым как пластинку */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
+    overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
+    background: var(--surface);
+  }
+  .fp-art { 
+    width: 100%; height: 100%; object-fit: cover; 
+    animation: record-spin 18s linear infinite;
+    animation-play-state: paused; /* По умолчанию остановлено */
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
+    transform: scale(0.9); /* Чуть меньше на паузе */
+    filter: brightness(0.8);
+  }
+  .fp-art.playing { 
+    animation-play-state: running; /* Крутится когда играет */
+    transform: scale(1);
+    filter: brightness(1);
+  }
 
   .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3vh; width: 100%; flex-shrink: 0; padding: 0 10px; }
   .fp-titles { flex: 1; min-width: 0; overflow: hidden; }
   
-  /* Элементы бегущей строки */
   .marquee-container { overflow: hidden; white-space: nowrap; max-width: 78%; }
   .fp-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
-  /* Изменено на flex-start, чтобы привязать анимацию близко к названию трека подальше от сердечка */
   .fp-track-wrap { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; overflow: hidden; }
   .fp-track { font-size: 16px; color: var(--accent); font-weight: 500; display: inline-block; white-space: nowrap; }
   body.playing .fp-track.scrollable { animation: track-marquee 12s linear infinite; padding-left: 10px; }
@@ -168,7 +186,6 @@
     100% { transform: translateX(0); }
   }
 
-  /* Живой визуализатор управляемый из JS (без CSS анимаций движения) */
   .visualizer-bars { display: flex; gap: 3px; align-items: flex-end; height: 16px; width: 22px; flex-shrink: 0; opacity: 0.85; }
   .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(0.2); transition: transform 0.1s ease; }
 
@@ -187,7 +204,6 @@
   .fav-btn:active { transform: scale(0.8); }
   .fav-btn.active { color: var(--accent); }
 
-  /* Громкость */
   .vol-bar { display: flex; align-items: center; gap: 12px; color: var(--text-sec); width: 100%; padding: 0 10px; flex-shrink: 0; }
   .vol-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: rgba(128,128,128,0.3); outline: none; }
   .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
@@ -204,11 +220,11 @@
     .mini-player { display: none !important; }
   }
 
-  /* 🚗 КРУПНЫЙ И КРАСИВЫЙ ИНТЕРФЕЙС ДЛЯ РЕЖИМА АВТО (ИСПРАВЛЕНО РАСТЯГИВАНИЕ) 🚗 */
+  /* 🚗 КРУПНЫЙ ИНТЕРФЕЙС АВТОРЕЖИМА (CAR MODE) 🚗 */
   body.car .sidebar-panel, body.car .chat-panel, body.car .mini-player, body.car .sheet-backdrop, body.car .chat-sheet { display: none !important; }
   body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: var(--bg); }
   body.car .fp-content { max-width: 500px; padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 20px); justify-content: space-around; align-items: center; text-align: center; margin: 0 auto; width: 100%; }
-  body.car .fp-art-wrap { width: 200px; height: 200px; max-width: 200px; box-shadow: 0 12px 35px rgba(0,0,0,0.4); margin: 0 auto; }
+  body.car .fp-art-wrap { width: 220px; height: 220px; max-width: 220px; box-shadow: 0 12px 35px rgba(0,0,0,0.4); margin: 0 auto; }
   body.car .fp-title { font-size: 32px; text-align: center; font-weight: 900; width: 100%; }
   body.car .fp-track { font-size: 20px; text-align: center; }
   body.car .fp-track-wrap { justify-content: center; width: 100%; gap: 14px; }
@@ -380,23 +396,20 @@ let curIdx = -1;
 let isPlaying = false;
 let activeTab = "all";
 let hls = null;
+
 const audio = document.getElementById('audio');
-// Включаем CORS-режим для работы Web Audio API
 audio.crossOrigin = "anonymous"; 
 
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let trackPoll = null;
 
-// Состояние режима авто
 let carMode = localStorage.getItem('radio_car') === '1';
 
-// Состояние аудиоконтекста для визуализатора
 let audioCtx = null;
 let analyser = null;
 let audioSource = null;
 let isVisualizerInit = false;
 
-// Инициализация Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
 
@@ -405,13 +418,11 @@ function tick() {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   const clockEl = document.getElementById('liveClock');
-  if (clockEl) {
-    clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  }
+  if (clockEl) clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 setInterval(tick, 1000);
 
-// --- РЕЖИМ АВТО (CAR MODE) ---
+// --- РЕЖИМ АВТО ---
 function applyCarMode() {
   document.body.classList.toggle('car', carMode);
   document.getElementById('carBtn').classList.toggle('active', carMode);
@@ -432,7 +443,7 @@ function toggleCarMode() {
   if(tg) tg.HapticFeedback?.impactOccurred('medium');
 }
 
-// --- СИСТЕМНЫЕ МЕДИА-КЛАВИШИ (MediaSession API) ---
+// --- MEDIA SESSION ---
 function updateMediaSession(station, trackTitle = 'Прямой эфир') {
   if ('mediaSession' in navigator) {
     const cover = station.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(station.name)}&background=random`;
@@ -451,10 +462,10 @@ function updateMediaSession(station, trackTitle = 'Прямой эфир') {
 
 function initMediaSessionActions() {
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('play', () => { togglePlay(); });
-    navigator.mediaSession.setActionHandler('pause', () => { togglePlay(); });
-    navigator.mediaSession.setActionHandler('previoustrack', () => { prevStation(); });
-    navigator.mediaSession.setActionHandler('nexttrack', () => { nextStation(); });
+    navigator.mediaSession.setActionHandler('play', () => togglePlay());
+    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+    navigator.mediaSession.setActionHandler('previoustrack', () => prevStation());
+    navigator.mediaSession.setActionHandler('nexttrack', () => nextStation());
   }
 }
 
@@ -476,11 +487,9 @@ function toggleTheme() {
 function renderTabs() {
   const tabsEl = document.getElementById('genreTabs');
   let displayGenres = [...radioGenres];
-  
   if (!displayGenres.some(g => g.id === 'fav')) {
     displayGenres.splice(1, 0, {id: 'fav', label: 'Избранное'});
   }
-
   tabsEl.innerHTML = displayGenres.map(g => 
     `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>`
   ).join('');
@@ -493,10 +502,7 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
-// Поиск по названию
-function onSearchInput() {
-  renderList();
-}
+function onSearchInput() { renderList(); }
 
 function renderList() {
   const listEl = document.getElementById('stationList');
@@ -519,10 +525,11 @@ function renderList() {
     const origIdx = stations.indexOf(s);
     const isActive = origIdx === curIdx;
     const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random`;
+    const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
     
     return `
       <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
-        <img src="${cover}" class="station-img" loading="lazy">
+        <img src="${cover}" class="station-img" loading="lazy" onerror="${fallback}">
         <div class="station-info">
           <div class="station-name">${s.name}</div>
           <div class="station-meta-row">
@@ -539,7 +546,7 @@ function renderList() {
   }).join('');
 }
 
-// --- ИНИЦИАЛИЗАЦИЯ И ПОДГРУЗКА ОБСУЖДЕНИЙ ТЕЛЕГРАМ ---
+// --- ЧАТ ТЕЛЕГРАМ ---
 function loadTelegramChat() {
   const isDesktop = window.innerWidth >= 1024;
   const isSheetOpen = document.getElementById('chatSheet').classList.contains('open');
@@ -558,25 +565,17 @@ function loadTelegramChat() {
   script.src = "https://telegram.org/js/telegram-widget.js?22";
   script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
   script.setAttribute('data-comments-limit', '20');
-  script.setAttribute('data-width', '100%'); // Растягиваем на 100% ширины
-  
-  if (isDark) {
-    script.setAttribute('data-dark', '1');
-  }
+  script.setAttribute('data-width', '100%');
+  if (isDark) script.setAttribute('data-dark', '1');
   
   container.appendChild(script);
 }
 
-// ─── УПРАВЛЕНИЕ ШТОРКОЙ ЧАТА ───
 function openChatSheet() {
   const sheet = document.getElementById('chatSheet');
   sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  
-  if (window.innerWidth >= 1024) {
-    sheet.style.transform = 'translate(-50%, 0)';
-  } else {
-    sheet.style.transform = 'translateY(0)';
-  }
+  if (window.innerWidth >= 1024) sheet.style.transform = 'translate(-50%, 0)';
+  else sheet.style.transform = 'translateY(0)';
   
   sheet.classList.add('open');
   document.getElementById('chatBackdrop').classList.add('open');
@@ -587,12 +586,8 @@ function openChatSheet() {
 function closeChatSheet() {
   const sheet = document.getElementById('chatSheet');
   sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  
-  if (window.innerWidth >= 1024) {
-    sheet.style.transform = 'translate(-50%, 100%)';
-  } else {
-    sheet.style.transform = 'translateY(100%)';
-  }
+  if (window.innerWidth >= 1024) sheet.style.transform = 'translate(-50%, 100%)';
+  else sheet.style.transform = 'translateY(100%)';
   
   sheet.classList.remove('open');
   document.getElementById('chatBackdrop').classList.remove('open');
@@ -604,19 +599,14 @@ function closeChatSheet() {
 
 function initChatSheetGestures() {
   const sheet = document.getElementById('chatSheet');
-  let startY = 0;
-  let currentY = 0;
-
+  let startY = 0, currentY = 0;
   sheet.addEventListener('touchstart', (e) => {
     if (window.innerWidth >= 1024) return;
     const body = document.getElementById('mobileSheetChatContainer');
     if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
       startY = e.touches[0].clientY;
-    } else {
-      startY = 0;
-    }
+    } else startY = 0;
   }, { passive: true });
-
   sheet.addEventListener('touchmove', (e) => {
     if (!startY || window.innerWidth >= 1024) return;
     currentY = e.touches[0].clientY;
@@ -626,29 +616,24 @@ function initChatSheetGestures() {
       sheet.style.transition = 'none';
     }
   }, { passive: true });
-
   sheet.addEventListener('touchend', (e) => {
     if (!startY || !currentY || window.innerWidth >= 1024) return;
     let diffY = currentY - startY;
     sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-    
-    if (diffY > 120) {
-      closeChatSheet();
-    } else {
-      sheet.style.transform = 'translateY(0)';
-    }
+    if (diffY > 120) closeChatSheet();
+    else sheet.style.transform = 'translateY(0)';
     startY = 0; currentY = 0;
   }, { passive: true });
 }
 
-// ─── ИНИЦИАЛИЗАЦИЯ И ЛОГИКА РЕАЛЬНОГО ЗВУКОВОГО ВИЗУАЛИЗАТОРА ───
+// ─── РЕАЛЬНЫЙ АУДИО ВИЗУАЛИЗАТОРА ───
 function initAudioAnalyser() {
   if (isVisualizerInit) return;
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     audioCtx = new AudioContext();
     analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64; // Оптимальный размер буфера для 4-х полос
+    analyser.fftSize = 64;
     
     audioSource = audioCtx.createMediaElementSource(audio);
     audioSource.connect(analyser);
@@ -657,7 +642,6 @@ function initAudioAnalyser() {
     isVisualizerInit = true;
     startVisualizerRenderLoop();
   } catch (e) {
-    console.warn("Сбой AudioContext (возможно CORS ограничение). Включен процедурный фолбек визуализатора.", e);
     startProceduralFallbackLoop();
   }
 }
@@ -669,15 +653,11 @@ function startVisualizerRenderLoop() {
 
   function render() {
     requestAnimationFrame(render);
-    
     if (!isPlaying || audio.paused) {
       bars.forEach(b => b.style.transform = 'scaleY(0.2)');
       return;
     }
-    
     analyser.getByteFrequencyData(dataArray);
-    
-    // Проверка на тишину/блокировку CORS. Если поток пустой — запускаем мягкую симуляцию
     let checkSum = 0;
     for (let i = 0; i < dataArray.length; i++) checkSum += dataArray[i];
     
@@ -689,8 +669,6 @@ function startVisualizerRenderLoop() {
       });
       return;
     }
-
-    // Распределяем частоты по нашим 4 элементам индикатора
     const bins = [2, 5, 8, 12]; 
     bars.forEach((bar, i) => {
       let rawValue = dataArray[bins[i]] || 0;
@@ -737,15 +715,10 @@ function playStation(idx) {
   if (hls) { hls.destroy(); hls = null; }
   audio.pause();
   audio.src = '';
-  
-  // Включаем CORS повторно на смене источника
   audio.crossOrigin = "anonymous"; 
 
-  // Активируем контекст после пользовательского действия
   initAudioAnalyser();
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   
   if (s.stream && s.stream.includes('.m3u8') && Hls.isSupported()) {
     hls = new Hls({ lowLatencyMode: true });
@@ -774,11 +747,8 @@ function togglePlay() {
   if (curIdx === -1) return;
   
   if (tg) tg.HapticFeedback?.impactOccurred('light');
-  
   initAudioAnalyser();
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 
   if (isPlaying) { 
     audio.pause(); 
@@ -792,11 +762,7 @@ function togglePlay() {
   
   updatePlayButtons();
   updateUI();
-  
-  if (stations[curIdx]) {
-    const trackTxt = document.getElementById('fTrack').textContent;
-    updateMediaSession(stations[curIdx], trackTxt);
-  }
+  if (stations[curIdx]) updateMediaSession(stations[curIdx], document.getElementById('fTrack').textContent);
 }
 
 function nextStation() {
@@ -813,9 +779,7 @@ function prevStation() {
   playStation(prevIdx);
 }
 
-function changeVolume(val) {
-  audio.volume = val / 100;
-}
+function changeVolume(val) { audio.volume = val / 100; }
 
 function updateUI() {
   const favBtn = document.getElementById('fFavBtn');
@@ -835,20 +799,25 @@ function updateUI() {
   
   const s = stations[curIdx];
   const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random`;
+  const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
   const isFav = favs.includes(s.name);
   
   document.getElementById('fArt').style.opacity = "1";
   favBtn.style.visibility = "visible";
 
-  document.getElementById('mArt').src = cover;
+  const mArt = document.getElementById('mArt');
+  mArt.src = cover;
+  mArt.setAttribute('onerror', fallback);
   document.getElementById('mTitle').textContent = s.name;
   
   document.getElementById('fBg').style.backgroundImage = `url(${cover})`;
-  document.getElementById('fArt').src = cover;
+  
+  const fArt = document.getElementById('fArt');
+  fArt.src = cover;
+  fArt.setAttribute('onerror', fallback);
   document.getElementById('fTitle').textContent = s.name;
   document.getElementById('fGenre').textContent = s.genre || 'Радио';
   
-  // Количество слушателей
   if (s.listeners !== undefined) {
     document.getElementById('fListenersCount').textContent = s.listeners;
     document.getElementById('fListenersRow').style.display = "inline-flex";
@@ -856,7 +825,6 @@ function updateUI() {
     document.getElementById('fListenersRow').style.display = "none";
   }
   
-  const fArt = document.getElementById('fArt');
   isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
 
   favBtn.innerHTML = isFav 
@@ -878,75 +846,50 @@ function openFullPlayer() {
   }
 }
 function closeFullPlayer() { 
-  if (!carMode) {
-    document.getElementById('fullPlayer').classList.remove('open'); 
-  }
+  if (!carMode) document.getElementById('fullPlayer').classList.remove('open'); 
 }
 
 function initSwipeGestures() {
   const fp = document.getElementById('fullPlayer');
-  let startX = 0;
-  let startY = 0;
-
+  let startX = 0, startY = 0;
   fp.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
   }, { passive: true });
-
   fp.addEventListener('touchend', (e) => {
     if (!startX || !startY) return;
-    let endX = e.changedTouches[0].clientX;
-    let endY = e.changedTouches[0].clientY;
-
-    let diffX = startX - endX;
-    let diffY = startY - endY;
-
+    let endX = e.changedTouches[0].clientX, endY = e.changedTouches[0].clientY;
+    let diffX = startX - endX, diffY = startY - endY;
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
-      if (diffX > 0) nextStation();
-      else prevStation();
-    }
-    else if (window.innerWidth < 1024 && diffY < -80 && Math.abs(diffY) > Math.abs(diffX)) {
+      if (diffX > 0) nextStation(); else prevStation();
+    } else if (window.innerWidth < 1024 && diffY < -80 && Math.abs(diffY) > Math.abs(diffX)) {
       closeFullPlayer();
     }
     startX = 0; startY = 0;
   }, { passive: true });
 }
 
-// --- ИЗБРАННОЕ ---
 function toggleFav() {
   if (curIdx === -1) return;
   if(tg) tg.HapticFeedback?.notificationOccurred('success');
-  
   const name = stations[curIdx].name;
   const idx = favs.indexOf(name);
-  if (idx > -1) favs.splice(idx, 1);
-  else favs.push(name);
-  
+  if (idx > -1) favs.splice(idx, 1); else favs.push(name);
   localStorage.setItem('radio_favs', JSON.stringify(favs));
   updateUI();
   if (activeTab === 'fav') renderList();
 }
 
-// --- НАЗВАНИЕ ТРЕКА ИЗ API И АНИМАЦИЯ БЕГУЩЕЙ СТРОКИ ---
 async function fetchTrack(url) {
   try {
     const res = await fetch(`https://radio-chat.deadked2011.workers.dev/now-playing?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     const track = data.title && data.title.trim() ? data.title : 'В эфире';
-    
     const trackEl = document.getElementById('fTrack');
     trackEl.textContent = track;
     document.getElementById('mSub').textContent = track;
-    
-    if (track.length > 22) {
-      trackEl.classList.add('scrollable');
-    } else {
-      trackEl.classList.remove('scrollable');
-    }
-
-    if (curIdx !== -1 && stations[curIdx]) {
-      updateMediaSession(stations[curIdx], track);
-    }
+    if (track.length > 22) trackEl.classList.add('scrollable');
+    else trackEl.classList.remove('scrollable');
+    if (curIdx !== -1 && stations[curIdx]) updateMediaSession(stations[curIdx], track);
   } catch (e) {
     if (curIdx !== -1 && stations[curIdx]) {
       const fallback = stations[curIdx].genre || 'Радио';
@@ -957,19 +900,14 @@ async function fetchTrack(url) {
   }
 }
 
-// --- ДИНАМИЧЕСКИЙ РЕКАЛЬКУЛЯТОР ПРИ ИЗМЕНЕНИИ ЭКРАНА ---
 window.addEventListener('resize', () => {
   renderTabs();
   renderList();
-  if (window.innerWidth >= 1024) {
-    closeFullPlayer(); 
-    closeChatSheet();
-  }
+  if (window.innerWidth >= 1024) { closeFullPlayer(); closeChatSheet(); }
   applyCarMode();
   loadTelegramChat();
 });
 
-// --- СТАРТ ПРИЛОЖЕНИЯ ---
 window.addEventListener('DOMContentLoaded', () => {
   applyTheme();
   applyCarMode();
