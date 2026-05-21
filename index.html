@@ -71,7 +71,7 @@
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
   
-  /* Кастомный интерфейс чата */
+  /* Кастомный интерфейс чата (Только чтение) */
   .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
   .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
   .chat-messages::-webkit-scrollbar { width: 4px; }
@@ -83,17 +83,16 @@
   .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
   .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
   
-  .chat-input-row { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
-  .chat-panel .chat-input-row { padding-bottom: 16px; } /* фикс для ПК версии */
-  .chat-input { flex: 1; background: var(--surface); border: none; padding: 10px 16px; border-radius: 20px; color: var(--text); font-size: 15px; outline: none; }
-  .chat-send-btn { background: var(--accent); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
-  .chat-send-btn:active { transform: scale(0.9); }
-  .chat-send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
+  /* Кнопка перехода в группу Telegram (вместо инпута) */
+  .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
+  .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
 
   @media (min-width: 1024px) {
     .sidebar-panel { width: var(--sidebar-width); }
     .chat-panel { display: flex; }
     .content-scroll { padding-bottom: 24px; }
+    .chat-write-action { padding-bottom: 16px; }
   }
 
   /* ─── ПОИСК И ВКЛАДКИ ─── */
@@ -359,10 +358,10 @@
     <div class="chat-header">Чат эфира</div>
     <div class="chat-area">
       <div class="chat-messages" id="pcChatMessages"></div>
-      <div class="chat-input-row">
-        <input type="text" class="chat-input" id="pcChatInput" placeholder="Сообщение в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('pc')">
-        <button class="chat-send-btn" onclick="sendChatMessage('pc')">
-          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      <div class="chat-write-action">
+        <button onclick="redirectToTelegramChat()" class="tg-group-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          Написать в чат
         </button>
       </div>
     </div>
@@ -379,10 +378,10 @@
   </div>
   <div class="chat-area">
     <div class="chat-messages" id="mobileChatMessages"></div>
-    <div class="chat-input-row">
-      <input type="text" class="chat-input" id="mobileChatInput" placeholder="Сообщение в эфир..." onkeydown="if(event.key==='Enter') sendChatMessage('mobile')">
-      <button class="chat-send-btn" onclick="sendChatMessage('mobile')">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    <div class="chat-write-action">
+      <button onclick="redirectToTelegramChat()" class="tg-group-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Написать в чат
       </button>
     </div>
   </div>
@@ -407,8 +406,9 @@
 <audio id="audio"></audio>
 
 <script>
-// ─── НАСТРОЙКИ БЭКЕНДА CLOUDFLARE ───
+// ─── НАСТРОЙКИ БЭКЕНДА И ЧАТА ───
 const WORKER_URL = "https://radio-chat.deadked2011.workers.dev"; 
+const TELEGRAM_GROUP = "strmradiochat"; 
 
 // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
 const stations = window.stations || [];
@@ -436,13 +436,23 @@ let isVisualizerInit = false;
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
 
-// Определение пользователя для Cloudflare чата
-function getChatUser() {
-  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-    const u = tg.initDataUnsafe.user;
-    return u.first_name + (u.last_name ? ' ' + u.last_name : '');
-  }
-  return "Слушатель";
+// Вспомогательная функция загрузки fallback-изображения
+function handleImageError(imgEl, stationName) {
+  if (imgEl.getAttribute('data-failed') === 'true') return; 
+  imgEl.setAttribute('data-failed', 'true');
+  const safeName = encodeURIComponent(stationName || 'Radio');
+  imgEl.src = `https://ui-avatars.com/api/?name=${safeName}&background=random&color=fff&bold=true`;
+}
+
+// Умная очистка названия трека (убирает ссылки, теги, мусор)
+function sanitizeTrackName(name) {
+  if (!name) return "В эфире";
+  let clean = name.replace(/https?:\/\/[^\s]+/gi, ''); // удаляем URL
+  clean = clean.replace(/<[^>]*>?/gm, ''); // удаляем HTML теги
+  clean = clean.trim();
+  // Если осталось меньше 2 символов или только спецсимволы/цифры
+  if (clean.length < 2 || /^[\d\W_]+$/.test(clean)) return "В эфире";
+  return clean;
 }
 
 // --- ЧАСЫ ОБНОВЛЕНИЯ ---
@@ -462,9 +472,11 @@ function applyCarMode() {
   const desktopTitle = document.getElementById('fpDesktopTitle');
   if (carMode) {
     desktopTitle.textContent = "🚗 РЕЖИМ АВТО (ВЫЙТИ)";
-    if (window.innerWidth < 1024) openFullPlayer();
+    if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.add('open');
   } else {
     desktopTitle.textContent = "Сейчас играет";
+    // Если мы выходим из авторежима на телефоне, нужно плавно закрыть полноэкранный плеер (свернуть в мини)
+    if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.remove('open');
   }
 }
 
@@ -533,7 +545,6 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
-// --- ПОИСК ---
 function onSearchInput() { renderList(); }
 
 function renderList() {
@@ -556,12 +567,11 @@ function renderList() {
   listEl.innerHTML = filtered.map((s) => {
     const origIdx = stations.indexOf(s);
     const isActive = origIdx === curIdx;
-    const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random`;
-    const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
+    const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
     
     return `
       <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
-        <img src="${cover}" class="station-img" loading="lazy" onerror="${fallback}">
+        <img src="${cover}" class="station-img" loading="lazy" onerror="handleImageError(this, '${s.name.replace(/'/g, "\\'")}')">
         <div class="station-info">
           <div class="station-name">${s.name}</div>
           <div class="station-meta-row">
@@ -578,7 +588,7 @@ function renderList() {
   }).join('');
 }
 
-// ─── ЛОГИКА CLOUDFLARE ЧАТА ───
+// ─── ЛОГИКА ЧАТА (БЕЗ ОТПРАВКИ ИЗ ВЕБ-АППА) ───
 async function loadChatMessages() {
   try {
     const res = await fetch(`${WORKER_URL}/get-messages`);
@@ -613,31 +623,6 @@ async function loadChatMessages() {
   }
 }
 
-async function sendChatMessage(type) {
-  const inputId = type === 'pc' ? 'pcChatInput' : 'mobileChatInput';
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-
-  const user = getChatUser();
-
-  try {
-    input.value = '';
-    const res = await fetch(`${WORKER_URL}/send-message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user, text })
-    });
-    if (res.ok) {
-      loadChatMessages();
-      if(tg) tg.HapticFeedback?.impactOccurred('light');
-    }
-  } catch (e) {
-    console.error("Не удалось отправить сообщение", e);
-  }
-}
-
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
@@ -650,6 +635,16 @@ function startChatPolling() {
 
 function stopChatPolling() {
   if (chatPoll) { clearInterval(chatPoll); chatPoll = null; }
+}
+
+function redirectToTelegramChat() {
+  if(tg) tg.HapticFeedback?.impactOccurred('medium');
+  const chatUrl = 'https://t.me/' + TELEGRAM_GROUP;
+  if (window.Telegram?.WebApp && window.Telegram.WebApp.openTelegramLink) {
+    window.Telegram.WebApp.openTelegramLink(chatUrl);
+  } else {
+    window.open(chatUrl, '_blank');
+  }
 }
 
 function openChatSheet() {
@@ -682,7 +677,7 @@ function initChatSheetGestures() {
   sheet.addEventListener('touchstart', (e) => {
     if (window.innerWidth >= 1024) return;
     const body = document.getElementById('mobileChatMessages');
-    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle') || e.target.closest('.chat-input-row')) {
+    if (body.scrollTop <= 0 || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
       startY = e.touches[0].clientY;
     } else startY = 0;
   }, { passive: true });
@@ -705,7 +700,7 @@ function initChatSheetGestures() {
   }, { passive: true });
 }
 
-// ─── РЕАЛЬНЫЙ АУДИО ВИЗУАЛИЗАТОРА ───
+// ─── РЕАЛЬНЫЙ АУДИО ВИЗУАЛИЗАТОР ───
 function initAudioAnalyser() {
   if (isVisualizerInit) return;
   try {
@@ -880,19 +875,19 @@ function updateUI() {
   
   const s = stations[curIdx];
   headerTitle.textContent = s.name; 
+  
   const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
-  const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
   const isFav = favs.includes(s.name);
   
   const fArt = document.getElementById('fArt');
   fArt.style.opacity = "1";
   fArt.src = cover;
-  fArt.setAttribute('onerror', fallback);
+  fArt.setAttribute('data-failed', 'false'); // сброс флага ошибки
   favBtn.style.visibility = "visible";
 
   const mArt = document.getElementById('mArt');
   mArt.src = cover;
-  mArt.setAttribute('onerror', fallback);
+  mArt.setAttribute('data-failed', 'false');
   document.getElementById('mTitle').textContent = s.name;
   
   document.getElementById('fBg').style.backgroundImage = `url(${cover})`;
@@ -927,6 +922,7 @@ function openFullPlayer() {
     updateUI(); 
   }
 }
+
 function closeFullPlayer() { 
   if (!carMode) document.getElementById('fullPlayer').classList.remove('open'); 
 }
@@ -965,12 +961,17 @@ async function fetchTrack(url) {
   try {
     const res = await fetch(`${WORKER_URL}/now-playing?url=${encodeURIComponent(url)}`);
     const data = await res.json();
-    const track = data.title && data.title.trim() ? data.title : 'В эфире';
+    
+    // Используем нашу функцию умной очистки трека от мусора
+    const track = sanitizeTrackName(data.title);
+    
     const trackEl = document.getElementById('fTrack');
     trackEl.textContent = track;
     document.getElementById('mSub').textContent = track;
+    
     if (track.length > 22) trackEl.classList.add('scrollable');
     else trackEl.classList.remove('scrollable');
+    
     if (curIdx !== -1 && stations[curIdx]) updateMediaSession(stations[curIdx], track);
   } catch (e) {
     if (curIdx !== -1 && stations[curIdx]) {
@@ -988,14 +989,26 @@ window.addEventListener('resize', () => {
   if (window.innerWidth >= 1024) { 
     closeFullPlayer(); 
     closeChatSheet(); 
-    startChatPolling(); // На ПК чат опрашивается постоянно
+    startChatPolling(); 
   } else {
     if (!document.getElementById('chatSheet').classList.contains('open')) {
-      stopChatPolling(); // На мобилке отключаем, если шторка закрыта
+      stopChatPolling(); 
     }
   }
   applyCarMode();
 });
+
+// Глобальный перехватчик ошибок для всех картинок на странице
+document.addEventListener('error', function(e) {
+  if (e.target.tagName.toLowerCase() === 'img') {
+    // Пытаемся получить имя станции из соседнего блока или берем дефолтное
+    let name = "Radio";
+    const infoBlock = e.target.parentElement.querySelector('.station-name');
+    if (infoBlock) name = infoBlock.textContent;
+    else if (e.target.id === 'fArt' || e.target.id === 'mArt') name = document.getElementById('mTitle').textContent;
+    handleImageError(e.target, name);
+  }
+}, true);
 
 window.addEventListener('DOMContentLoaded', () => {
   applyTheme();
