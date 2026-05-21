@@ -49,12 +49,11 @@
   .header-left { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 12px; }
   .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
-  /* Часы и Индикатор Прямого Эфира */
   .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-sec); font-weight: 600; margin-top: 2px; }
   .live-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; display: inline-block; }
   body.playing .live-dot { animation: pulse-green 1.5s infinite; }
   @keyframes pulse-green {
-    0 { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
   }
@@ -67,11 +66,10 @@
   .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 100px); -webkit-overflow-scrolling: touch; }
   .content-scroll::-webkit-scrollbar { display: none; }
 
-  /* Правая панель (Чат для ПК) */
+  /* ─── ПАНЕЛЬ ЧАТА ─── */
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
   
-  /* Интерфейс чата (Только чтение) */
   .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
   .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
   .chat-messages::-webkit-scrollbar { width: 4px; }
@@ -83,7 +81,6 @@
   .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
   .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
   
-  /* Кнопка перехода в группу Telegram */
   .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
   .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
   .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
@@ -435,14 +432,15 @@ let analyser = null;
 let audioSource = null;
 let isVisualizerInit = false;
 
+// Таймер-сторож для обнаружения зависаний и счетчик попыток
 let stallCheckTimeout = null;
+let recoveryAttempts = 0;
 
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
 
-// --- СИСТЕМА ЗАЩИТЫ ОТ СЛУЧАЙНОГО ЗАКРЫТИЯ (NEW) ---
+// --- СИСТЕМА ЗАЩИТЫ ОТ СЛУЧАЙНОГО ЗАКРЫТИЯ ---
 function initCloseConfirmation() {
-  // 1. Для обычных браузеров и Safari
   window.addEventListener('beforeunload', (e) => {
     if (isPlaying) {
       e.preventDefault();
@@ -451,7 +449,6 @@ function initCloseConfirmation() {
     }
   });
 
-  // 2. Для Telegram WebApp (Блокирует свайп закрытия шторки вниз)
   if (tg) {
     if (isPlaying) {
       tg.enableClosingConfirmation();
@@ -461,37 +458,55 @@ function initCloseConfirmation() {
   }
 }
 
-// --- СИСТЕМА ЗАЩИТЫ ОТ КРАШЕЙ ПОТОКА (WATCHDOG) ---
+// --- СИСТЕМА AUTO-SKIP (АВТОПРОПУСК БИТЫХ СТАНЦИЙ) ---
 function initAudioWatchdog() {
   audio.addEventListener('stalled', () => {
-    if (isPlaying) triggerStreamRecovery("Поток заморожен сетью (stalled)");
+    if (isPlaying) triggerStreamRecovery("Поток заморожен (stalled)");
   });
 
   audio.addEventListener('waiting', () => {
     if (isPlaying) {
       clearTimeout(stallCheckTimeout);
       stallCheckTimeout = setTimeout(() => {
-        triggerStreamRecovery("Превышено время ожидания буфера (waiting)");
+        triggerStreamRecovery("Таймаут буфера (waiting)");
       }, 3500);
     }
   });
 
   audio.addEventListener('playing', () => {
     clearTimeout(stallCheckTimeout);
+    recoveryAttempts = 0; // Сбрасываем счетчик ошибок, если все ок
   });
 
   audio.addEventListener('error', (e) => {
-    console.error("Критическая ошибка тега audio:", e);
-    if (isPlaying) {
-      setTimeout(() => triggerStreamRecovery("Критическая ошибка аудио-движка"), 1000);
-    }
+    handleFatalStreamError();
   });
+}
+
+function handleFatalStreamError() {
+  console.warn("Поток недоступен или заблокирован.");
+  document.getElementById('fTrack').textContent = "Станция недоступна 😔";
+  document.getElementById('mSub').textContent = "Переключаем...";
+  
+  clearTimeout(stallCheckTimeout);
+  
+  // Делаем паузу и перелистываем на следующую станцию
+  setTimeout(() => {
+    if (isPlaying) nextStation();
+  }, 2500);
 }
 
 function triggerStreamRecovery(reason) {
   if (curIdx === -1 || !isPlaying) return;
-  console.warn(`[Реаниматор]: Выполняю перезапуск. Причина: ${reason}`);
+  recoveryAttempts++;
   
+  // Если мы попытались поднять поток больше 3 раз — считаем станцию мертвой
+  if (recoveryAttempts > 3) {
+     handleFatalStreamError();
+     return;
+  }
+  
+  console.warn(`[Реаниматор]: Попытка ${recoveryAttempts}. Причина: ${reason}`);
   const s = stations[curIdx];
   if (!s || !s.stream) return;
 
@@ -507,7 +522,10 @@ function triggerStreamRecovery(reason) {
     audio.src = s.stream;
     audio.load();
     audio.volume = currentVol;
-    audio.play().catch(err => console.error("Ошибка восстановления:", err));
+    audio.play().catch(err => {
+      // Если браузер выкинет ошибку DOMException (часто из-за HTTP vs HTTPS или CORS)
+      handleFatalStreamError();
+    });
   }
 }
 
@@ -545,11 +563,9 @@ function sanitizeTrackName(name, stationName) {
   if (!clean || clean.length < 3 || /^[\d\W_]+$/.test(clean)) {
     return "Прямой эфир";
   }
-  
   if (stationName && clean.toLowerCase() === stationName.toLowerCase()) {
     return "Прямой эфир";
   }
-
   return clean;
 }
 
@@ -605,17 +621,13 @@ function initMediaSessionActions() {
   }
 }
 
-// --- ТЕМИЗАЦИЯ И ИСПРАВЛЕНИЕ БЕЛОЙ ПОЛОСЫ (UPDATED) ---
 let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark');
 function applyTheme() {
   document.body.classList.toggle('dark', isDark);
   
-  // Рассчитываем цвет статус-бара: темно-серый (#1c1c1e) для темной темы лучше, чем чистый #000000, 
-  // так как Safari не сбрасывает его в белый.
   const targetThemeColor = isDark ? '#1c1c1e' : '#ffffff';
   document.getElementById('themeColorMeta').setAttribute('content', targetThemeColor);
   
-  // Дополнительно форсируем окрашивание заголовка в Telegram
   if (tg) {
     try {
       tg.setHeaderColor(isDark ? '#1c1c1e' : '#ffffff');
@@ -879,7 +891,11 @@ function playStation(idx) {
   }
   
   if (tg) tg.HapticFeedback?.impactOccurred('medium');
+  
+  // Сбрасываем сторожа перед новым потоком
   clearTimeout(stallCheckTimeout);
+  recoveryAttempts = 0;
+  
   curIdx = idx;
   const s = stations[idx];
   
@@ -904,7 +920,7 @@ function playStation(idx) {
     hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
   } else if(s.stream) {
     audio.src = s.stream;
-    audio.play().catch(()=>{});
+    audio.play().catch(err => handleFatalStreamError());
   }
   
   isPlaying = true;
@@ -918,7 +934,6 @@ function playStation(idx) {
   if (trackPoll) clearInterval(trackPoll);
   trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
   
-  // Включаем защиту от закрытия, так как музыка играет
   initCloseConfirmation();
 }
 
@@ -949,7 +964,6 @@ function togglePlay() {
   updateUI();
   if (stations[curIdx]) updateMediaSession(stations[curIdx], document.getElementById('fTrack').textContent);
   
-  // Обновляем статус подтверждения закрытия
   initCloseConfirmation();
 }
 
@@ -1121,7 +1135,7 @@ window.addEventListener('DOMContentLoaded', () => {
   applyCarMode();
   initMediaSessionActions();
   initAudioWatchdog();
-  initCloseConfirmation(); // Запуск проверки при первом открытии
+  initCloseConfirmation(); 
   audio.volume = 0.8;
   renderTabs();
   renderList();
