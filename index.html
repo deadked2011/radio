@@ -435,8 +435,66 @@ let analyser = null;
 let audioSource = null;
 let isVisualizerInit = false;
 
+// Таймер-сторож для обнаружения зависаний
+let stallCheckTimeout = null;
+
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
+
+// --- СИСТЕМА ЗАЩИТЫ ОТ КРАШЕЙ ПОТОКА (WATCHDOG) ---
+function initAudioWatchdog() {
+  // 1. Событие застревания буфера (сеть просела)
+  audio.addEventListener('stalled', () => {
+    if (isPlaying) triggerStreamRecovery("Поток заморожен сетью (stalled)");
+  });
+
+  audio.addEventListener('waiting', () => {
+    if (isPlaying) {
+      // Если плеер ждет данные дольше 3.5 секунд — реанимируем поток
+      clearTimeout(stallCheckTimeout);
+      stallCheckTimeout = setTimeout(() => {
+        triggerStreamRecovery("Превышено время ожидания буфера (waiting)");
+      }, 3500);
+    }
+  });
+
+  audio.addEventListener('playing', () => {
+    clearTimeout(stallCheckTimeout); // Все ок, данные пошли
+  });
+
+  // 2. Критическая ошибка декодирования или падение Icecast-сервера
+  audio.addEventListener('error', (e) => {
+    console.error("Критическая ошибка тега audio:", e);
+    if (isPlaying) {
+      setTimeout(() => triggerStreamRecovery("Критическая ошибка аудио-движка"), 1000);
+    }
+  });
+}
+
+function triggerStreamRecovery(reason) {
+  if (curIdx === -1 || !isPlaying) return;
+  console.warn(`[Реаниматор]: Выполняю перезапуск. Причина: ${reason}`);
+  
+  const s = stations[curIdx];
+  if (!s || !s.stream) return;
+
+  // Невидимый перезапуск стрима без сброса интерфейса плеера
+  if (hls) {
+    hls.destroy();
+    hls = new Hls({ lowLatencyMode: true });
+    hls.loadSource(s.stream);
+    hls.attachMedia(audio);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
+  } else {
+    // Сброс и перезаливка ссылки для обычных mp3/aac потоков
+    const currentVol = audio.volume;
+    audio.pause();
+    audio.src = s.stream;
+    audio.load();
+    audio.volume = currentVol;
+    audio.play().catch(err => console.error("Ошибка авто-воспроизведения при восстановлении:", err));
+  }
+}
 
 // Генератор стильного ИИ-аватара для подмены сломанных картинок
 function getFallbackLogo(name) {
@@ -448,21 +506,17 @@ function getFallbackLogo(name) {
 function sanitizeTrackName(name, stationName) {
   if (!name) return "Прямой эфир";
   
-  // Раскодируем HTML-сущности, если они есть
   const txt = document.createElement("textarea");
   txt.innerHTML = name;
   let clean = txt.value;
 
-  // 1. Срезаем протоколы (http/https/ftp)
   clean = clean.replace(/https?:\/\/[^\s]+/gi, '');
   clean = clean.replace(/ftp:\/\/[^\s]+/gi, '');
   
-  // 2. Срезаем доменные зоны и пути файлов (типа retroserver.ru:8043/stream.mp3)
   clean = clean.replace(/[a-zA-Z0-9-]+\.[a-zA-Z]{2,6}(\/[^\s]*)*/gi, '');
   clean = clean.replace(/\bwww\.[^\s]+/gi, '');
   clean = clean.replace(/\/[a-zA-Z0-9-_]+\.(mp3|aac|ogg|m3u8)/gi, '');
 
-  // 3. Срезаем типичные ключевые слова технического вещания
   const junkWords = [
     'icecast', 'shoutcast', 'stream', 'live', 'online', 'playing', 
     'advert', 'reklama', 'реклама', 'эфир', 'вещание', 'aac', 'mp3', 
@@ -473,16 +527,13 @@ function sanitizeTrackName(name, stationName) {
     clean = clean.replace(regex, '');
   });
 
-  // 4. Убираем лишние знаки препинания и дефисы, оставшиеся по краям после очистки
   clean = clean.replace(/^[_\-\s|*+:/]+|[_\-\s|*+:/]+$/g, '');
   clean = clean.replace(/\s+/g, ' ');
 
-  // 5. Финальный вердикт: если строка пуста, коротка или состоит из одного мусора/цифр
   if (!clean || clean.length < 3 || /^[\d\W_]+$/.test(clean)) {
     return "Прямой эфир";
   }
   
-  // Если название трека дублирует название самой радиостанции
   if (stationName && clean.toLowerCase() === stationName.toLowerCase()) {
     return "Прямой эфир";
   }
@@ -810,6 +861,7 @@ function playStation(idx) {
   }
   
   if (tg) tg.HapticFeedback?.impactOccurred('medium');
+  clearTimeout(stallCheckTimeout);
   curIdx = idx;
   const s = stations[idx];
   
@@ -821,6 +873,7 @@ function playStation(idx) {
   if (hls) { hls.destroy(); hls = null; }
   audio.pause();
   audio.src = '';
+  audio.load(); // Очищаем старый буфер из памяти полностью
   audio.crossOrigin = "anonymous"; 
 
   initAudioAnalyser();
@@ -853,6 +906,7 @@ function togglePlay() {
   if (curIdx === -1) return;
   
   if (tg) tg.HapticFeedback?.impactOccurred('light');
+  clearTimeout(stallCheckTimeout);
   initAudioAnalyser();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 
@@ -861,6 +915,11 @@ function togglePlay() {
     isPlaying = false; 
     document.body.classList.remove('playing');
   } else { 
+    // Защита от воспроизведения старого куска стрима: если плеер долго стоял на паузе
+    const s = stations[curIdx];
+    if (s && s.stream && !hls && (!audio.src || audio.src !== s.stream)) {
+       audio.src = s.stream;
+    }
     audio.play().catch(()=>{}); 
     isPlaying = true; 
     document.body.classList.add('playing');
@@ -923,7 +982,7 @@ function updateUI() {
     document.getElementById('fListenersRow').style.display = "none";
   }
 
-  // АСИНХРОННАЯ ПРОВЕРКА КАРТИНКИ (Защита от 404 и серых квадратов)
+  // АСИНХРОННАЯ ПРОВЕРКА КАРТИНКИ
   const imgTester = new Image();
   imgTester.src = initialCover;
   
@@ -952,6 +1011,7 @@ function updatePlayButtons() {
   document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
 }
 
+// Полноэкранный режим
 function openFullPlayer() { 
   if (window.innerWidth < 1024 || carMode) {
     document.getElementById('fullPlayer').classList.add('open'); 
@@ -1001,9 +1061,7 @@ async function fetchTrack(url) {
     const currentStation = stations[curIdx];
     const stationName = currentStation ? currentStation.name : "";
     
-    // Прогоняем трек сквозь умную очистку
     const track = sanitizeTrackName(data.title, stationName);
-    
     const trackEl = document.getElementById('fTrack');
     trackEl.textContent = track;
     document.getElementById('mSub').textContent = track;
@@ -1041,6 +1099,7 @@ window.addEventListener('DOMContentLoaded', () => {
   applyTheme();
   applyCarMode();
   initMediaSessionActions();
+  initAudioWatchdog(); // Запуск сторожевого таймера сети
   audio.volume = 0.8;
   renderTabs();
   renderList();
