@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Radio Go</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff" id="themeColorMeta">
+<meta name="theme-color" content="#ffffff" id="themeColorMeta" name="theme-color">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@
   .live-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; display: inline-block; }
   body.playing .live-dot { animation: pulse-green 1.5s infinite; }
   @keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
+    0 { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
   }
@@ -435,22 +435,40 @@ let analyser = null;
 let audioSource = null;
 let isVisualizerInit = false;
 
-// Таймер-сторож для обнаружения зависаний
 let stallCheckTimeout = null;
 
 const tg = window.Telegram?.WebApp;
 if(tg) { tg.ready(); tg.expand(); }
 
+// --- СИСТЕМА ЗАЩИТЫ ОТ СЛУЧАЙНОГО ЗАКРЫТИЯ (NEW) ---
+function initCloseConfirmation() {
+  // 1. Для обычных браузеров и Safari
+  window.addEventListener('beforeunload', (e) => {
+    if (isPlaying) {
+      e.preventDefault();
+      e.returnValue = 'Радио играет. Вы уверены, что хотите закрыть плеер?';
+      return e.returnValue;
+    }
+  });
+
+  // 2. Для Telegram WebApp (Блокирует свайп закрытия шторки вниз)
+  if (tg) {
+    if (isPlaying) {
+      tg.enableClosingConfirmation();
+    } else {
+      tg.disableClosingConfirmation();
+    }
+  }
+}
+
 // --- СИСТЕМА ЗАЩИТЫ ОТ КРАШЕЙ ПОТОКА (WATCHDOG) ---
 function initAudioWatchdog() {
-  // 1. Событие застревания буфера (сеть просела)
   audio.addEventListener('stalled', () => {
     if (isPlaying) triggerStreamRecovery("Поток заморожен сетью (stalled)");
   });
 
   audio.addEventListener('waiting', () => {
     if (isPlaying) {
-      // Если плеер ждет данные дольше 3.5 секунд — реанимируем поток
       clearTimeout(stallCheckTimeout);
       stallCheckTimeout = setTimeout(() => {
         triggerStreamRecovery("Превышено время ожидания буфера (waiting)");
@@ -459,10 +477,9 @@ function initAudioWatchdog() {
   });
 
   audio.addEventListener('playing', () => {
-    clearTimeout(stallCheckTimeout); // Все ок, данные пошли
+    clearTimeout(stallCheckTimeout);
   });
 
-  // 2. Критическая ошибка декодирования или падение Icecast-сервера
   audio.addEventListener('error', (e) => {
     console.error("Критическая ошибка тега audio:", e);
     if (isPlaying) {
@@ -478,7 +495,6 @@ function triggerStreamRecovery(reason) {
   const s = stations[curIdx];
   if (!s || !s.stream) return;
 
-  // Невидимый перезапуск стрима без сброса интерфейса плеера
   if (hls) {
     hls.destroy();
     hls = new Hls({ lowLatencyMode: true });
@@ -486,23 +502,20 @@ function triggerStreamRecovery(reason) {
     hls.attachMedia(audio);
     hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
   } else {
-    // Сброс и перезаливка ссылки для обычных mp3/aac потоков
     const currentVol = audio.volume;
     audio.pause();
     audio.src = s.stream;
     audio.load();
     audio.volume = currentVol;
-    audio.play().catch(err => console.error("Ошибка авто-воспроизведения при восстановлении:", err));
+    audio.play().catch(err => console.error("Ошибка восстановления:", err));
   }
 }
 
-// Генератор стильного ИИ-аватара для подмены сломанных картинок
 function getFallbackLogo(name) {
   const safeName = encodeURIComponent(name || 'Radio');
   return `https://ui-avatars.com/api/?name=${safeName}&background=fc3c44&color=fff&bold=true&size=256`;
 }
 
-// Ультра-агрессивная очистка метаданных (Убирает ссылки, потоки, .mp3, icecast и рекламу)
 function sanitizeTrackName(name, stationName) {
   if (!name) return "Прямой эфир";
   
@@ -512,7 +525,6 @@ function sanitizeTrackName(name, stationName) {
 
   clean = clean.replace(/https?:\/\/[^\s]+/gi, '');
   clean = clean.replace(/ftp:\/\/[^\s]+/gi, '');
-  
   clean = clean.replace(/[a-zA-Z0-9-]+\.[a-zA-Z]{2,6}(\/[^\s]*)*/gi, '');
   clean = clean.replace(/\bwww\.[^\s]+/gi, '');
   clean = clean.replace(/\/[a-zA-Z0-9-_]+\.(mp3|aac|ogg|m3u8)/gi, '');
@@ -541,7 +553,6 @@ function sanitizeTrackName(name, stationName) {
   return clean;
 }
 
-// --- ЧАСЫ ОБНОВЛЕНИЯ ---
 function tick() {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -550,7 +561,6 @@ function tick() {
 }
 setInterval(tick, 1000);
 
-// --- РЕЖИМ АВТО ---
 function applyCarMode() {
   document.body.classList.toggle('car', carMode);
   document.getElementById('carBtn').classList.toggle('active', carMode);
@@ -572,7 +582,6 @@ function toggleCarMode() {
   if(tg) tg.HapticFeedback?.impactOccurred('medium');
 }
 
-// --- MEDIA SESSION ---
 function updateMediaSession(station, trackTitle = 'Прямой эфир') {
   if ('mediaSession' in navigator) {
     const cover = station.logo && station.logo.trim() ? station.logo : getFallbackLogo(station.name);
@@ -596,12 +605,25 @@ function initMediaSessionActions() {
   }
 }
 
-// --- ТЕМИЗАЦИЯ ---
+// --- ТЕМИЗАЦИЯ И ИСПРАВЛЕНИЕ БЕЛОЙ ПОЛОСЫ (UPDATED) ---
 let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark');
 function applyTheme() {
   document.body.classList.toggle('dark', isDark);
-  document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#000000' : '#ffffff');
+  
+  // Рассчитываем цвет статус-бара: темно-серый (#1c1c1e) для темной темы лучше, чем чистый #000000, 
+  // так как Safari не сбрасывает его в белый.
+  const targetThemeColor = isDark ? '#1c1c1e' : '#ffffff';
+  document.getElementById('themeColorMeta').setAttribute('content', targetThemeColor);
+  
+  // Дополнительно форсируем окрашивание заголовка в Telegram
+  if (tg) {
+    try {
+      tg.setHeaderColor(isDark ? '#1c1c1e' : '#ffffff');
+      tg.setBackgroundColor(isDark ? '#000000' : '#ffffff');
+    } catch(e) { console.error(e); }
+  }
 }
+
 function toggleTheme() {
   isDark = !isDark;
   localStorage.setItem('radio_dark', isDark ? '1' : '0');
@@ -609,7 +631,6 @@ function toggleTheme() {
   if(tg) tg.HapticFeedback?.impactOccurred('light');
 }
 
-// --- РЕНДЕР ИНТЕРФЕЙСА ---
 function renderTabs() {
   const tabsEl = document.getElementById('genreTabs');
   let displayGenres = [...radioGenres];
@@ -671,7 +692,6 @@ function renderList() {
   }).join('');
 }
 
-// ─── ЛОГИКА ЧАТА ───
 async function loadChatMessages() {
   try {
     const res = await fetch(`${WORKER_URL}/get-messages`);
@@ -783,7 +803,6 @@ function initChatSheetGestures() {
   }, { passive: true });
 }
 
-// ─── РЕАЛЬНЫЙ АУДИО ВИЗУАЛИЗАТОР ───
 function initAudioAnalyser() {
   if (isVisualizerInit) return;
   try {
@@ -853,7 +872,6 @@ function startProceduralFallbackLoop() {
   render();
 }
 
-// --- УПРАВЛЕНИЕ АУДИОПОТОКОМ ---
 function playStation(idx) {
   if (curIdx === idx && isPlaying) {
     if (window.innerWidth < 1024) openFullPlayer();
@@ -873,7 +891,7 @@ function playStation(idx) {
   if (hls) { hls.destroy(); hls = null; }
   audio.pause();
   audio.src = '';
-  audio.load(); // Очищаем старый буфер из памяти полностью
+  audio.load();
   audio.crossOrigin = "anonymous"; 
 
   initAudioAnalyser();
@@ -899,6 +917,9 @@ function playStation(idx) {
   
   if (trackPoll) clearInterval(trackPoll);
   trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
+  
+  // Включаем защиту от закрытия, так как музыка играет
+  initCloseConfirmation();
 }
 
 function togglePlay() {
@@ -915,7 +936,6 @@ function togglePlay() {
     isPlaying = false; 
     document.body.classList.remove('playing');
   } else { 
-    // Защита от воспроизведения старого куска стрима: если плеер долго стоял на паузе
     const s = stations[curIdx];
     if (s && s.stream && !hls && (!audio.src || audio.src !== s.stream)) {
        audio.src = s.stream;
@@ -928,6 +948,9 @@ function togglePlay() {
   updatePlayButtons();
   updateUI();
   if (stations[curIdx]) updateMediaSession(stations[curIdx], document.getElementById('fTrack').textContent);
+  
+  // Обновляем статус подтверждения закрытия
+  initCloseConfirmation();
 }
 
 function nextStation() {
@@ -982,7 +1005,6 @@ function updateUI() {
     document.getElementById('fListenersRow').style.display = "none";
   }
 
-  // АСИНХРОННАЯ ПРОВЕРКА КАРТИНКИ
   const imgTester = new Image();
   imgTester.src = initialCover;
   
@@ -1011,7 +1033,6 @@ function updatePlayButtons() {
   document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
 }
 
-// Полноэкранный режим
 function openFullPlayer() { 
   if (window.innerWidth < 1024 || carMode) {
     document.getElementById('fullPlayer').classList.add('open'); 
@@ -1099,7 +1120,8 @@ window.addEventListener('DOMContentLoaded', () => {
   applyTheme();
   applyCarMode();
   initMediaSessionActions();
-  initAudioWatchdog(); // Запуск сторожевого таймера сети
+  initAudioWatchdog();
+  initCloseConfirmation(); // Запуск проверки при первом открытии
   audio.volume = 0.8;
   renderTabs();
   renderList();
