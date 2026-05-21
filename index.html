@@ -68,21 +68,12 @@
   .content-scroll::-webkit-scrollbar { display: none; }
 
   /* Правая панель (Чат для ПК) */
-  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; position: relative; }
+  .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
   .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  .chat-body { flex: 1; overflow-y: auto; padding: 0 0 65px 0; background: var(--surface); position: relative; width: 100%; }
+  .chat-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); position: relative; width: 100%; }
 
-  /* Хитрый трюк: прячем инпут, обрезая нижний край самого iframe */
-  .chat-body iframe, .sheet-body iframe {
-    display: block !important;
-    margin-bottom: -54px !important; 
-  }
-  
   .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; margin: 12px 16px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2); flex-shrink: 0; }
   .tg-group-btn:active { opacity: 0.8; }
-
-  /* Заглушка, закрывающая ввод комментариев */
-  .chat-input-mask { position: absolute; bottom: 0; left: 0; right: 0; height: 62px; background: var(--surface); z-index: 100; pointer-events: auto; border-top: 1px solid var(--border); }
 
   @media (min-width: 1024px) {
     .sidebar-panel { width: var(--sidebar-width); }
@@ -124,7 +115,7 @@
   .sheet-header { padding: 12px 20px 4px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
   .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
   .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
-  .sheet-body { flex: 1; overflow-y: auto; padding: 0 0 65px 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
+  .sheet-body { flex: 1; overflow-y: auto; padding: 0; background: var(--surface); -webkit-overflow-scrolling: touch; position: relative; }
 
   @media (min-width: 1024px) {
     .chat-sheet { left: 50%; right: auto; width: 450px; border-radius: 24px 24px 0 0; transform: translate(-50%, 100%); }
@@ -161,7 +152,7 @@
 
   .fp-art-wrap { 
     width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto 4vh; 
-    border-radius: 50%; 
+    border-radius: 50%; /* Делаем круглым как пластинку */
     box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
     overflow: hidden; flex-shrink: 0; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
@@ -169,13 +160,13 @@
   .fp-art { 
     width: 100%; height: 100%; object-fit: cover; 
     animation: record-spin 18s linear infinite;
-    animation-play-state: paused; 
+    animation-play-state: paused; /* По умолчанию остановлено */
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
-    transform: scale(0.9); 
+    transform: scale(0.9); /* Чуть меньше на паузе */
     filter: brightness(0.8);
   }
   .fp-art.playing { 
-    animation-play-state: running; 
+    animation-play-state: running; /* Крутится когда играет */
     transform: scale(1);
     filter: brightness(1);
   }
@@ -356,7 +347,6 @@
       Перейти в группу
     </a>
     <div class="chat-body" id="tgChatContainer"></div>
-    <div class="chat-input-mask"></div>
   </div>
 
 </div>
@@ -373,7 +363,6 @@
     Перейти в группу
   </a>
   <div class="sheet-body" id="mobileSheetChatContainer"></div>
-  <div class="chat-input-mask"></div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
@@ -512,6 +501,7 @@ function setTab(id) {
   if(tg) tg.HapticFeedback?.selectionChanged();
 }
 
+// --- ПОИСК ---
 function onSearchInput() { renderList(); }
 
 function renderList() {
@@ -810,12 +800,16 @@ function updateUI() {
   }
   
   const s = stations[curIdx];
-  headerTitle.textContent = s.name; 
+  headerTitle.textContent = s.name; // Меняем название в шапке
   const cover = s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&bold=true`;
   const fallback = `this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random';`;
   const isFav = favs.includes(s.name);
   
-  document.getElementById('fArt').src = cover;
+  // ИСПРАВЛЕНИЕ БАГА: Принудительно возвращаем видимость кругу с обложкой
+  const fArt = document.getElementById('fArt');
+  fArt.style.opacity = "1";
+  fArt.src = cover;
+  fArt.setAttribute('onerror', fallback);
   favBtn.style.visibility = "visible";
 
   const mArt = document.getElementById('mArt');
@@ -824,10 +818,6 @@ function updateUI() {
   document.getElementById('mTitle').textContent = s.name;
   
   document.getElementById('fBg').style.backgroundImage = `url(${cover})`;
-  
-  const fArt = document.getElementById('fArt');
-  fArt.src = cover;
-  fArt.setAttribute('onerror', fallback);
   document.getElementById('fTitle').textContent = s.name;
   document.getElementById('fGenre').textContent = s.genre || 'Радио';
   
@@ -853,10 +843,10 @@ function updatePlayButtons() {
   document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
 }
 
-// Изменено: Оставляем логику разворачивания плеера без изменений
 function openFullPlayer() { 
   if (window.innerWidth < 1024 || carMode) {
     document.getElementById('fullPlayer').classList.add('open'); 
+    updateUI(); // Синхронизируем состояние анимации и обложки при открытии шторки
   }
 }
 function closeFullPlayer() { 
