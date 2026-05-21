@@ -279,10 +279,6 @@
 
 <script>
 // ─── НАСТРОЙКИ ТЕЛЕГРАМ ЧАТА ───
-// ВАЖНО: Виджету обсуждений нужен юзернейм КАНАЛА, а не группы! 
-// Замените "СЮДА_ЮЗЕРНЕЙМ_КАНАЛА" на точное название вашего публичного канала (без @ и без ссылки t.me)
-const TELEGRAM_CHANNEL = "https://t.me/strmradio"; 
-// Юзернейм самой ГРУППЫ (чата) для переадресации по кнопке "Обсудим"
 const TELEGRAM_GROUP = "strmradiochat"; 
 
 // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
@@ -398,18 +394,22 @@ function loadTelegramChat() {
   const container = document.getElementById(containerId);
   
   if (!container) return;
-  container.innerHTML = ''; 
   
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = "https://telegram.org/js/telegram-widget.js?22";
-  // Подключаем виджет через имя публичного КАНАЛА
-  script.setAttribute('data-telegram-discussion', TELEGRAM_CHANNEL);
-  script.setAttribute('data-comments-limit', '10');
-  script.setAttribute('data-color', 'fc3c44');
-  script.setAttribute('data-dark', isDark ? '1' : '0');
-  
-  container.appendChild(script);
+  // Чтобы исключить агрессивные авто-редиректы и перехват кликов скриптами Telegram,
+  // мы рендерим красивый нативный блок с кнопкой. Переход в группу будет происходить СТРОГО по желанию пользователя.
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 24px; box-sizing: border-box;">
+      <div style="background: var(--surface); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3 style="color: var(--text); margin-bottom: 8px; font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">Чат нашего радио</h3>
+      <p style="font-size: 14px; color: var(--text-sec); margin-bottom: 24px; line-height: 1.4; max-width: 280px; margin-left: auto; margin-right: auto;">Присоединяйтесь к обсуждению эфира, общайтесь со слушателями и заказывайте любимые треки!</p>
+      <button onclick="redirectToTelegramChat()" style="background: var(--accent); color: #ffffff; border: none; padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(252, 60, 68, 0.2); width: 100%; transition: opacity 0.2s;">
+        <span>Открыть чат</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+  `;
 }
 
 // ─── УПРАВЛЕНИЕ ШТОРКОЙ ДЛЯ ТЕЛЕФОНОВ ───
@@ -437,7 +437,7 @@ function closeChatSheet() {
 function redirectToTelegramChat() {
   if(tg) tg.HapticFeedback?.impactOccurred('medium');
   const chatUrl = 'https://t.me/' + TELEGRAM_GROUP;
-  // Используем нативный метод WebApp для открытия ссылок внутри Telegram
+  // Используем нативный и безопасный метод WebApp для открытия ссылок внутри Telegram
   if (window.Telegram?.WebApp && window.Telegram.WebApp.openTelegramLink) {
     window.Telegram.WebApp.openTelegramLink(chatUrl);
   } else {
