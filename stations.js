@@ -8,7 +8,39 @@
 
 window.stations = [
   // DEEP HOUSE
-  {name:"SOUNDPARK DEEP",        genre:"Deep House",          tag:"deep",    logo:"https://radiopotok.ru/f/station/256/1260.png",stream:"https://h.getradio.me/spdeep/hls.m3u8",listeners:3317},
+  // stations.js
+window.stations = [
+  {
+    name: "SOUNDPARK DEEP",
+    genre: "Deep House",
+    tag: "deep",
+    logo: "https://radiopotok.ru/f/station/256/1260.png",
+    // ДОБАВЛЯЕМ МАССИВ ПОТОКОВ
+    streams: [
+      { name: "HLS (Основа)", url: "https://h.getradio.me/spdeep/hls.m3u8" },
+      { name: "AAC 128kbps", url: "https://h.getradio.me/spdeep/mp3" } // Пример другого потока
+    ],
+    listeners: 3317
+  },
+  {
+    name: "Record Deep",
+    genre: "Deep House",
+    tag: "deep",
+    logo: "https://radiorecord.ru/images/logos/deep.png",
+    streams: [
+      { name: "AAC 96kbps", url: "https://radiorecord.hostingradio.ru/deep96.aacp" }
+    ],
+    listeners: 2100
+  }
+];
+
+window.genres = [
+  {id:"all", label:"Все"},
+  {id:"deep", label:"Deep House"},
+  {id:"pop", label:"Поп"},
+  {id:"rock", label:"Рок"},
+  {id:"retro", label:"Ретро"}
+];
   {name:"Record Deep",           genre:"Deep House",          tag:"deep",    logo:"https://radiorecord.ru/images/logos/deep.png",stream:"https://radiorecord.hostingradio.ru/deep96.aacp",listeners:2100},
   {name:"SomaFM Groove Salad",   genre:"Ambient / Deep",      tag:"deep",    logo:"https://somafm.com/img3/groovesalad-400.jpg",stream:"https://ice1.somafm.com/groovesalad-128-mp3",listeners:8500},
   {name:"SomaFM Deep Space",     genre:"Space / Deep",        tag:"deep",    logo:"https://somafm.com/img3/deepspaceone-400.jpg",stream:"https://ice1.somafm.com/deepspaceone-128-mp3",listeners:4200},
