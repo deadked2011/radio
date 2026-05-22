@@ -249,6 +249,11 @@
     .vol-bar { display: none !important; }
   }
 
+  /* Разрешаем отображение громкости в мобильном режиме, если высота экрана позволяет (актуально для ноутбуков со скейлингом) */
+  @media (max-width: 1023px) and (min-height: 600px) {
+    .vol-bar { display: flex !important; }
+  }
+
   /* 🚗 КРУПНЫЙ ИНТЕРФЕЙС АВТОРЕЖИМА (CAR MODE) 🚗 */
   body.car .sidebar-panel, body.car .chat-panel, body.car .mini-player, body.car .sheet-backdrop, body.car .chat-sheet { display: none !important; }
   body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: var(--bg); }
@@ -274,10 +279,9 @@
   @media (min-width: 1024px) {
     .app-layout {
       flex-direction: row;
-      background: var(--bg); /* Базовый фон на случай долгой загрузки картинки */
+      background: var(--bg);
     }
 
-    /* Фоновая картинка плеера теперь растягивается под весь экран и лежит за всеми панелями */
     .fp-bg {
       position: fixed !important;
       top: -50px; left: -50px; right: -50px; bottom: -50px;
@@ -286,51 +290,72 @@
       z-index: 0 !important;
     }
 
-    /* Левая колонка (Список станций) */
     .sidebar-panel {
       width: 320px !important;
-      background: var(--player-bg); /* Полупрозрачный фон */
+      background: var(--player-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-right: 1px solid var(--border);
       z-index: 10;
     }
 
-    /* Центральная колонка (Плеер) */
     .full-player {
       flex: 1;
       height: 100%;
-      background: transparent !important; /* Прозрачный, чтобы было видно .fp-bg */
+      background: transparent !important;
       border-right: 1px solid var(--border);
       position: relative;
       z-index: 1;
     }
 
-    /* Правая колонка (Чат) */
     .chat-panel {
       display: flex;
       width: 380px !important;
-      background: var(--player-bg); /* Полупрозрачный фон */
+      background: var(--player-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       z-index: 10;
     }
 
-    /* Косметика для ПК */
     .chat-area { background: transparent; }
     .chat-msg { background: var(--surface); }
     .chat-write-action { background: transparent; padding-bottom: 24px; }
     .content-scroll { padding-bottom: 24px; }
     .header h1 { font-size: 28px; }
     
-    /* Увеличиваем визуальную часть плеера */
     .fp-content { max-width: 500px; }
     .fp-art-wrap { max-width: 380px; }
     .fp-title { font-size: 32px; }
 
-    /* Скрываем мобильные элементы */
     .fp-down, .mini-player, .chat-sheet, .sheet-backdrop { display: none !important; }
     .fp-desktop-title { display: block !important; }
+  }
+
+  /* 📐 УМНАЯ АДАПТИВНОСТЬ ПО ВЫСОТЕ ЭКРАНА (Для экранов ноутбуков 14" и компактных окон) */
+  @media (max-height: 840px) {
+    .fp-content { padding-top: 10px !important; padding-bottom: 20px !important; }
+    .fp-header { padding: 10px 0 16px !important; }
+    .fp-art-wrap { max-width: 250px !important; margin-bottom: 2vh !important; }
+    .fp-info-row { margin-bottom: 2vh !important; }
+    .fp-controls { margin-bottom: 2vh !important; }
+    .fp-title { font-size: 24px !important; }
+  }
+
+  @media (max-height: 690px) {
+    .fp-art-wrap { max-width: 170px !important; margin-bottom: 1.5vh !important; }
+    .fp-header { padding: 5px 0 10px !important; }
+    .fp-title { font-size: 20px !important; }
+    .fp-track { font-size: 14px !important; }
+    .fp-info-row { margin-bottom: 1.5vh !important; }
+    .fp-controls { margin-bottom: 1.5vh !important; }
+    .fp-main-btn { width: 58px !important; height: 58px !important; }
+    .fp-main-btn svg { width: 24px !important; height: 24px !important; }
+    .fp-sec-btn svg { width: 26px !important; height: 26px !important; }
+  }
+
+  @media (max-height: 540px) {
+    .fp-art-wrap { display: none !important; }
+    .fp-info-row { margin-top: 20px !important; }
   }
 </style>
 </head>
@@ -492,7 +517,6 @@
 <audio id="audio"></audio>
 
 <script>
-// --- ЗАГЛУШКА ДЛЯ ОБЫЧНОГО БРАУЗЕРА (ФИКС ОШИБКИ НА ПК) ---
 if (!window.Telegram || !window.Telegram.WebApp || Object.keys(window.Telegram.WebApp).length === 0) {
     window.Telegram = {
         WebApp: {
@@ -510,11 +534,9 @@ if (!window.Telegram || !window.Telegram.WebApp || Object.keys(window.Telegram.W
     };
 }
 
-// ─── НАСТРОЙКИ БЭКЕНДА И ЧАТА ───
 const WORKER_URL = "https://radio-chat.deadked2011.workers.dev"; 
 const TELEGRAM_GROUP = "strmradiochat"; 
 
-// --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
 const stations = window.stations || [];
 const radioGenres = window.genres || [{id:"all", label:"Все"}];
 
@@ -537,14 +559,12 @@ let analyser = null;
 let audioSource = null;
 let isVisualizerInit = false;
 
-// Таймер-сторож для обнаружения зависаний и счетчик попыток
 let stallCheckTimeout = null;
 let recoveryAttempts = 0;
 
 const tg = window.Telegram?.WebApp;
 if(tg && tg.ready) { tg.ready(); tg.expand(); }
 
-// --- СИСТЕМА ЗАЩИТЫ ОТ СЛУЧАЙНОГО ЗАКРЫТИЯ ---
 function initCloseConfirmation() {
   window.addEventListener('beforeunload', (e) => {
     if (isPlaying) {
@@ -563,7 +583,6 @@ function initCloseConfirmation() {
   }
 }
 
-// --- СИСТЕМА AUTO-SKIP (АВТОПРОПУСК БИТЫХ СТАНЦИЙ) ---
 function initAudioWatchdog() {
   audio.addEventListener('stalled', () => {
     if (isPlaying) triggerStreamRecovery("Поток заморожен (stalled)");
@@ -580,7 +599,7 @@ function initAudioWatchdog() {
 
   audio.addEventListener('playing', () => {
     clearTimeout(stallCheckTimeout);
-    recoveryAttempts = 0; // Сбрасываем счетчик ошибок, если все ок
+    recoveryAttempts = 0;
   });
 
   audio.addEventListener('error', (e) => {
@@ -595,7 +614,6 @@ function handleFatalStreamError() {
   
   clearTimeout(stallCheckTimeout);
   
-  // Делаем паузу и перелистываем на следующую станцию
   setTimeout(() => {
     if (isPlaying) nextStation();
   }, 2500);
@@ -605,7 +623,6 @@ function triggerStreamRecovery(reason) {
   if (curIdx === -1 || !isPlaying) return;
   recoveryAttempts++;
   
-  // Если мы попытались поднять поток больше 3 раз — считаем станцию мертвой
   if (recoveryAttempts > 3) {
      handleFatalStreamError();
      return;
@@ -628,7 +645,6 @@ function triggerStreamRecovery(reason) {
     audio.load();
     audio.volume = currentVol;
     audio.play().catch(err => {
-      // Если браузер выкинет ошибку DOMException (часто из-за HTTP vs HTTPS или CORS)
       handleFatalStreamError();
     });
   }
@@ -997,7 +1013,6 @@ function playStation(idx) {
   
   if (tg) tg.HapticFeedback?.impactOccurred('medium');
   
-  // Сбрасываем сторожа перед новым потоком
   clearTimeout(stallCheckTimeout);
   recoveryAttempts = 0;
   
@@ -1254,7 +1269,6 @@ window.addEventListener('DOMContentLoaded', () => {
   tick();
 });
 
-// Логика отключения прелоадера
 window.addEventListener('load', () => {
   const preloader = document.getElementById('preloader');
   if (preloader) {
@@ -1264,7 +1278,6 @@ window.addEventListener('load', () => {
     }, 600);
   }
 });
-  
 </script>
 </body>
 </html>
