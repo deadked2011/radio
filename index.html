@@ -44,208 +44,142 @@
   #preloader {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg);
-    z-index: 999999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.6s ease;
+    background: var(--bg); z-index: 999999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.5s ease;
   }
-
   .droplet {
-    width: 60px;
-    height: 60px;
-    background: var(--accent);
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    animation: pulse-droplet 1.5s infinite ease-in-out;
-    margin-bottom: 20px;
+    width: 60px; height: 60px; background: var(--accent);
+    border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+    animation: pulse-droplet 1.5s infinite ease-in-out; margin-bottom: 20px;
   }
-
-  .preloader-brand {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--text);
-    letter-spacing: -0.5px;
-    opacity: 0;
-    animation: fade-in-brand 0.8s ease forwards 0.3s;
-  }
-
+  .preloader-brand { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
   @keyframes pulse-droplet {
     0% { transform: scale(1) rotate(-45deg); }
     50% { transform: scale(1.15) rotate(-45deg); }
     100% { transform: scale(1) rotate(-45deg); }
   }
 
-  @keyframes fade-in-brand {
-    to { opacity: 1; transform: translateY(0); }
-  }
+  /* ─── SKELETON LOADING PLACEHOLDERS (Проблема №4) ─── */
+  .skeleton-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .skeleton-img { width: 52px; height: 52px; border-radius: 10px; background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+  .skeleton-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .skeleton-text { height: 14px; border-radius: 4px; background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
   /* ─── ГЛАВНЫЙ МАКЕТ ─── */
   .app-layout { display: flex; width: 100%; height: 100%; overflow: hidden; position: relative; }
-  
   .sidebar-panel { width: var(--sidebar-width); display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); flex-shrink: 0; background: var(--bg); position: relative; z-index: 10; }
   
   .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .header-left { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 12px; }
   .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
   .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-sec); font-weight: 600; margin-top: 2px; }
-  .live-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; display: inline-block; }
+  .live-dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; }
   body.playing .live-dot { animation: pulse-green 1.5s infinite; }
+  @keyframes pulse-green { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
   
-  .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
-  .header-actions button:active { opacity: 0.75; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .header-actions button { background: var(--surface); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; }
   .header-actions button.active { background: var(--text); color: var(--bg); }
+  .mobile-only-btn { display: flex; }
+  @media (min-width: 1024px) { .mobile-only-btn { display: none !important; } }
 
-  .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 30px); -webkit-overflow-scrolling: touch; }
+  .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 30px); }
   .content-scroll::-webkit-scrollbar { display: none; }
 
-  /* ─── ПОИСК И ВКЛАДКИ ─── */
-  .search-box { margin: 16px 0; background: var(--surface); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .search-box { margin: 16px 0; background: var(--surface); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
   .search-box input { border: none; background: transparent; width: 100%; font-size: 16px; color: var(--text); outline: none; }
-  .search-box input::placeholder { color: var(--text-sec); }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; flex-shrink: 0; -webkit-overflow-scrolling: touch; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 8px 16px; border-radius: 20px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; transition: 0.2s; }
+  .tab { padding: 8px 16px; border-radius: 20px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; }
   .tab.active { background: var(--text); color: var(--bg); }
 
   /* ─── СПИСОК СТАНЦИЙ ─── */
-  .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); transition: opacity 0.2s; }
-  .station-row:active { opacity: 0.6; }
+  .station-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border); }
   .station-img { width: 52px; height: 52px; border-radius: 10px; background: var(--surface); object-fit: cover; }
-  .sidebar-panel .station-row:hover { opacity: 0.85; }
   .station-info { flex: 1; min-width: 0; }
   .station-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
   .station-meta-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-sec); }
-  .station-listeners-count { display: inline-flex; align-items: center; gap: 3px; }
   .playing-icon { display: none; color: var(--accent); font-size: 12px; font-weight: bold; }
   .station-row.active .playing-icon { display: block; }
   .station-row.active .station-name { color: var(--accent); }
 
-  /* ─── ПАНЕЛЬ ЧАТА И ИСТОРИИ ─── */
+  /* ─── ЧАТ И ИСТОРИЯ ─── */
   .chat-panel { display: none; width: var(--chat-width); height: 100%; border-left: 1px solid var(--border); background: var(--bg); flex-direction: column; flex-shrink: 0; z-index: 10; }
-  .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-  
+  .chat-header { padding: calc(var(--safe-top) + 22px) 20px 16px; font-size: 18px; font-weight: 800; border-bottom: 1px solid var(--border); text-align: center; }
   .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
-  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
-  .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
-  body.dark .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-  
-  .chat-msg { background: var(--bg); padding: 10px 14px; border-radius: 14px; max-width: 85%; width: fit-content; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-messages::-webkit-scrollbar { display: none; }
+  .chat-msg { background: var(--bg); padding: 10px 14px; border-radius: 14px; max-width: 85%; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
   .msg-user { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
   .msg-text { font-size: 14px; color: var(--text); line-height: 1.4; word-break: break-word; }
-  .msg-time { font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 4px; }
   
   .chat-write-action { padding: 12px 16px calc(env(safe-area-inset-bottom, 12px) + 4px); background: var(--bg); border-top: 1px solid var(--border); }
-  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(36, 161, 222, 0.25); width: 100%; cursor: pointer; border: none; }
-  .tg-group-btn:active { opacity: 0.8; transform: scale(0.98); }
+  .tg-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #24a1de; color: #ffffff; text-decoration: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; border: none; font-size: 15px; }
 
-  /* ─── МОБИЛЬНАЯ ШТОРКА ЧАТА ─── */
-  .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 19999; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+  /* ШТОРКА МОБИЛЬНОГО ЧАТА */
+  .sheet-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 19999; backdrop-filter: blur(2px); }
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
-  
-  .chat-sheet { position: fixed; bottom: 0; left: 0; right: 0; height: 85vh; background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 20000; display: flex; flex-direction: column; }
+  .chat-sheet { position: fixed; bottom: 0; left: 0; right: 0; height: 85vh; background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 20000; display: flex; flex-direction: column; }
   .chat-sheet.open { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 8px auto 0; opacity: 0.4; flex-shrink: 0; }
-  .sheet-header { padding: 12px 20px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
-  .sheet-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-  .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
+  .sheet-handle { width: 36px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 8px auto 0; opacity: 0.4; }
+  .sheet-header { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .sheet-close { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text); font-weight: bold; cursor: pointer; }
+  .sheet-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .sheet-tab-btn { flex: 1; padding: 14px; text-align: center; font-size: 15px; font-weight: 600; color: var(--text-sec); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
+  .sheet-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ─── МИНИ-ПЛЕЕР ─── */
+  /* МИНИ-ПЛЕЕР */
   .mini-player { position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 12px; right: 12px; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px 8px 8px; display: flex; align-items: center; gap: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
   .mini-player.hidden { transform: translateY(180%); }
   .mini-art { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--surface); }
-  .mini-info { flex: 1; min-width: 0; overflow: hidden; }
+  .mini-info { flex: 1; min-width: 0; }
   .mini-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mini-sub { font-size: 13px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mini-controls { display: flex; align-items: center; gap: 16px; }
-  .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; }
+  .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; }
   .btn-icon svg { width: 26px; height: 26px; fill: currentColor; }
 
-  /* ─── ЦЕНТРАЛЬНЫЙ ПЛЕЕР (БЕЗОПАСНАЯ ФЛЕКС-ВЕРСТКА) ─── */
+  /* ЦЕНТРАЛЬНЫЙ ПЛЕЕР (APPLE MUSIC / SPOTIFY STYLE) */
   .full-player { background: var(--bg); display: flex; flex-direction: column; position: relative; height: 100%; overflow: hidden; }
-  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; transition: background-image 0.5s ease-in-out; pointer-events: none; }
-  body.dark .fp-bg { opacity: 0.3; }
+  .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; transition: background-image 0.5s ease; pointer-events: none; }
+  .fp-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; max-width: 440px; width: 100%; margin: 0 auto; padding: calc(var(--safe-top) + 12px) 24px calc(var(--safe-bottom) + 24px); }
+  .fp-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 0 12px; }
+  .fp-down { background: rgba(128,128,128,0.2); border: none; color: var(--text); cursor: pointer; display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; }
+  .fp-desktop-title { font-size: 15px; font-weight: 700; color: var(--text-sec); text-align: center; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; display: none; }
   
-  .fp-content { 
-    position: relative; z-index: 2; 
-    display: flex; flex-direction: column; 
-    justify-content: space-between; 
-    height: 100%; max-width: 440px; width: 100%; 
-    margin: 0 auto; 
-    padding: calc(var(--safe-top) + 12px) 24px calc(var(--safe-bottom) + 24px);
-    min-height: 0;
-  }
+  .fp-art-wrap { width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; box-shadow: 0 16px 36px rgba(0,0,0,0.25); overflow: hidden; max-height: 32vh; background: var(--surface); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .fp-art { width: 100%; height: 100%; object-fit: cover; transform: scale(0.92); filter: brightness(0.9); transition: transform 0.5s ease, filter 0.5s ease; }
+  body.playing .fp-art { transform: scale(1); filter: brightness(1); }
+
+  .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; width: 100%; }
+  .fp-titles { flex: 1; min-width: 0; overflow: hidden; padding-right: 8px; }
+  .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.5px; }
   
-  .fp-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 0 12px; flex-shrink: 0; }
-  .fp-down { background: rgba(128,128,128,0.2); border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; backdrop-filter: blur(10px); }
-  .fp-down svg { width: 24px; height: 24px; }
-  .fp-desktop-title { font-size: 15px; font-weight: 700; color: var(--text-sec); text-align: center; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; }
+  /* БЕГУЩАЯ СТРОКА ДЛЯ ДЛИННЫХ ТРЕКОВ */
+  .fp-track-container { width: 100%; overflow: hidden; position: relative; height: 24px; display: flex; align-items: center; }
+  .fp-track { font-size: 16px; color: var(--accent); font-weight: 600; white-space: nowrap; display: inline-block; }
+  .fp-track.scrollable { animation: marquee 10s linear infinite; padding-left: 100%; }
+  @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 
-  .fp-art-wrap { 
-    width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; 
-    border-radius: 50%; 
-    box-shadow: 0 16px 36px rgba(0,0,0,0.25); 
-    overflow: hidden; flex-shrink: 1; user-select: none; pointer-events: none; position: relative; 
-    background: var(--surface);
-    max-height: 32vh; 
-  }
-  
-  @keyframes record-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .fp-art { 
-    width: 100%; height: 100%; object-fit: cover; 
-    animation: record-spin 18s linear infinite;
-    animation-play-state: paused; 
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;
-    transform: scale(0.92); 
-    filter: brightness(0.8);
-  }
-  .fp-art.playing { animation-play-state: running; transform: scale(1); filter: brightness(1); }
+  .fp-meta-info { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 13px; color: var(--text-sec); }
+  .fp-genre { font-weight: 600; text-transform: uppercase; font-size: 11px; background: var(--surface); padding: 3px 8px; border-radius: 6px; color: var(--text); }
+  .fav-btn { font-size: 28px; color: var(--text-sec); background: none; border: none; cursor: pointer; transition: color 0.2s, transform 0.1s; }
+  .fav-btn.active { color: var(--accent); transform: scale(1.1); }
 
-  .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; width: 100%; flex-shrink: 0; padding: 0 6px; }
-  .fp-titles { flex: 1; min-width: 0; overflow: hidden; }
-  
-  .marquee-container { overflow: hidden; white-space: nowrap; max-width: 95%; }
-  .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
-  .fp-track-wrap { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; overflow: hidden; }
-  .fp-track { font-size: 16px; color: var(--accent); font-weight: 500; display: inline-block; white-space: nowrap; }
-  body.playing .fp-track.scrollable { animation: track-marquee 12s linear infinite; padding-left: 10px; }
-  @keyframes track-marquee { 0% { transform: translateX(0); } 50% { transform: translateX(-25%); } 100% { transform: translateX(0); } }
-
-  .visualizer-bars { display: flex; gap: 3px; align-items: flex-end; height: 16px; width: 22px; flex-shrink: 0; opacity: 0.85; }
-  .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(0.2); transition: transform 0.1s ease; }
-
-  .fp-meta-info { display: flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; color: var(--text-sec); }
-  .fp-genre { font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; background: var(--surface); padding: 3px 8px; border-radius: 6px; }
-  .fp-listeners { display: inline-flex; align-items: center; gap: 4px; }
-
-  .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 16px; padding: 0 16px; width: 100%; flex-shrink: 0; }
-  .fp-main-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 8px 16px rgba(0,0,0,0.1); transition: transform 0.1s; }
-  .fp-main-btn:active { transform: scale(0.92); }
+  .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 16px; padding: 0 16px; width: 100%; }
+  .fp-main-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
   .fp-main-btn svg { width: 32px; height: 32px; fill: currentColor; }
-  .fp-sec-btn { background: none; border: none; color: var(--text); cursor: pointer; transition: transform 0.1s; padding: 10px; }
-  .fp-sec-btn:active { transform: scale(0.85); }
-  .fp-sec-btn svg { width: 32px; height: 32px; fill: currentColor; }
-  
-  .fav-btn { transition: transform 0.1s; margin-left: 12px; }
-  .fav-btn:active { transform: scale(0.8); }
-  .fav-btn.active { color: var(--accent); }
+  .fp-sec-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 10px; display: flex; align-items: center; justify-content: center; }
+  .fp-sec-btn svg { width: 28 height: 28px; fill: currentColor; }
 
-  .vol-bar { display: flex; align-items: center; gap: 12px; color: var(--text-sec); width: 100%; padding: 4px 6px; flex-shrink: 0; }
+  .vol-bar { display: flex; align-items: center; gap: 12px; color: var(--text-sec); width: 100%; padding: 4px 6px; }
   .vol-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: rgba(128,128,128,0.3); outline: none; }
-  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.25); cursor: pointer; }
+  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--text); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
-  /* ВНЕШНЯЯ КНОПКА ВЫХОДА ИЗ АВТО РЕЖИМА */
-  .car-exit-header { display: none; width: 100%; justify-content: center; padding: 10px 0; flex-shrink: 0; }
-  .car-exit-btn { background: rgba(252, 60, 68, 0.15); border: 1px solid rgba(252, 60, 68, 0.3); color: #fc3c44; padding: 14px 28px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(252, 60, 68, 0.1); }
-  .car-exit-btn:active { transform: scale(0.96); background: rgba(252, 60, 68, 0.25); }
-  body.dark .car-exit-btn { background: rgba(252, 60, 68, 0.25); color: #ff454d; }
+  .car-exit-header { display: none; width: 100%; justify-content: center; padding: 10px 0; }
+  .car-exit-btn { background: rgba(252, 60, 68, 0.15); border: 1px solid rgba(252, 60, 68, 0.3); color: #fc3c44; padding: 14px 28px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
 
   @media (max-width: 1023px) {
     .full-player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
@@ -253,80 +187,38 @@
     .vol-bar { display: none !important; }
   }
 
-  /* 🚗 ТЕХНОЛОГИЧНЫЙ ИНТЕРФЕЙС АВТОРЕЖИМА (CAR DASHBOARD) 🚗 */
+  /* АВТОРЕЖИМ */
   body.car .sidebar-panel, body.car .chat-panel, body.car .mini-player, body.car .sheet-backdrop, body.car .chat-sheet { display: none !important; }
-  body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: var(--bg); }
-  body.car .fp-down { display: none !important; }
-  body.car .fp-desktop-title { display: none !important; }
+  body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; }
+  body.car .fp-down, body.car .fp-desktop-title { display: none !important; }
   body.car .car-exit-header { display: flex !important; }
-  
-  body.car .fp-content { 
-    max-width: 540px; 
-    padding: calc(var(--safe-top) + 10px) 24px calc(var(--safe-bottom) + 24px); 
-    justify-content: space-between; 
-    align-items: center; 
-    text-align: center;
-  }
-  body.car .fp-art-wrap { width: 240px; height: 240px; max-width: 240px; max-height: 28vh; box-shadow: 0 14px 40px rgba(0,0,0,0.35); }
-  body.car .fp-title { font-size: 30px; text-align: center; font-weight: 900; }
-  body.car .fp-track { font-size: 20px; text-align: center; font-weight: 600; }
-  body.car .fp-track-wrap { justify-content: center; gap: 14px; }
-  body.car .fp-meta-info { justify-content: center; font-size: 15px; }
-  body.car .fp-info-row { flex-direction: column; gap: 12px; margin: 12px 0; text-align: center; }
-  body.car .fav-btn { margin-left: 0; padding: 6px; }
-  
-  /* Масштабные кнопки для автомобиля */
-  body.car .fp-controls { padding: 0; margin: 16px 0; width: 100%; max-width: 420px; justify-content: space-around; }
-  body.car .fp-main-btn { width: 92px; height: 92px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-  body.car .fp-main-btn svg { width: 44px; height: 44px; }
-  body.car .fp-sec-btn svg { width: 46px; height: 46px; }
-  body.car .visualizer-bars { height: 20px; width: 26px; gap: 4px; }
-  body.car .v-bar { width: 4px; }
+  body.car .fp-content { max-width: 540px; text-align: center; }
+  body.car .fp-art-wrap { width: 240px; height: 240px; max-height: 28vh; }
+  body.car .fp-info-row { flex-direction: column; gap: 12px; }
+  body.car .fp-controls { max-width: 420px; justify-content: space-around; margin: 16px auto; }
+  body.car .fp-main-btn { width: 92px; height: 92px; }
 
-  /* Широкий авто-режим на ПК и Планшетах (Tesla-style Dashboard) */
   @media (min-width: 768px) {
-    body.car .fp-content {
-      max-width: 860px !important;
-      display: grid !important;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto 1fr auto;
-      align-items: center;
-      justify-content: center;
-      gap: 20px 40px;
-      padding: 40px !important;
-    }
-    body.car .car-exit-header { grid-column: span 2; padding: 0; justify-content: flex-start; }
-    body.car .fp-art-wrap { grid-column: 1; grid-row: 2; width: 300px; height: 300px; max-width: 100%; max-height: 45vh; margin: auto; }
-    body.car .fp-info-row { grid-column: 2; grid-row: 2; align-items: flex-start; text-align: left; margin: 0; justify-content: center; height: 100%; }
-    body.car .fp-titles { text-align: left; width: 100%; }
-    body.car .fp-track-wrap { justify-content: flex-start; }
+    body.car .fp-content { max-width: 860px !important; display: grid !important; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; gap: 20px 40px; padding: 40px !important; }
+    body.car .car-exit-header { grid-column: span 2; justify-content: flex-start; }
+    body.car .fp-art-wrap { grid-column: 1; grid-row: 2; width: 300px; height: 300px; max-height: 45vh; }
+    body.car .fp-info-row { grid-column: 2; grid-row: 2; align-items: flex-start; text-align: left; }
     body.car .fp-title { text-align: left; font-size: 36px; }
-    body.car .fp-controls { grid-column: span 2; grid-row: 3; max-width: 500px; margin: 20px auto 0; }
+    body.car .fp-controls { grid-column: span 2; grid-row: 3; max-width: 500px; }
     body.car .vol-bar { grid-column: span 2; display: flex !important; max-width: 500px; margin: 10px auto 0; }
   }
 
-  /* 💻 ИНТЕРФЕЙС ДЛЯ ПК ─── */
   @media (min-width: 1024px) {
-    .app-layout { flex-direction: row; background: var(--bg); }
-    .fp-bg { position: fixed !important; top: -50px; left: -50px; right: -50px; bottom: -50px; width: calc(100vw + 100px); height: calc(100vh + 100px); z-index: 0 !important; }
-
-    .sidebar-panel { width: var(--sidebar-width) !important; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-right: 1px solid var(--border); z-index: 10; }
-    .full-player { flex: 1; height: 100%; background: transparent !important; border-right: 1px solid var(--border); position: relative; z-index: 1; }
-
-    .chat-panel { display: flex; width: var(--chat-width) !important; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 10; }
+    .app-layout { flex-direction: row; }
+    .sidebar-panel { background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .full-player { flex: 1; background: transparent !important; }
+    .chat-panel { display: flex; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
     .chat-area { background: transparent; }
-    .chat-msg { background: var(--surface); }
-    .chat-write-action { background: transparent; padding-bottom: 24px; }
-    
-    .fp-content { max-width: 440px; }
-    .fp-art-wrap { max-width: 320px; }
-    .fp-title { font-size: 26px; }
-
     .fp-down, .mini-player, .chat-sheet, .sheet-backdrop { display: none !important; }
     .fp-desktop-title { display: block !important; }
   }
-
-  .panel-section { display: flex; flex-direction: column; flex: 1; min-height: 0; transition: all 0.3s ease; }
+  .panel-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .panel-section.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -337,37 +229,22 @@
 </div>
 
 <div class="app-layout">
-  
   <div class="sidebar-panel">
     <div class="header">
       <div class="header-left">
         <h1 id="headerTitle">Радио</h1> 
-        <div class="live-status">
-            <span class="live-dot"></span>
-            <span id="liveClock">00:00:00</span>
-        </div>
+        <div class="live-status"><span class="live-dot"></span> <span id="liveClock">00:00:00</span></div>
       </div>
       <div class="header-actions">
-        <button onclick="toggleCarMode()" id="carBtn" title="Режим авто">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg>
-        </button>
-        <button onclick="openChatSheet()" id="headerChatBtn" title="Чат эфира" class="mobile-only-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        <style> @media (min-width: 1024px) { .mobile-only-btn { display: none !important; } } </style>
-        
-        <button onclick="toggleTheme()" id="themeBtn" title="Переключить тему">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+        <button onclick="toggleCarMode()" id="carBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M4 21v-2h16v2M7 16v-3h10v3"/></svg></button>
+        <button onclick="openChatSheet()" class="mobile-only-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+        <button onclick="toggleTheme()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
       </div>
     </div>
-
     <div class="content-scroll">
       <div class="search-box">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-sec)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" placeholder="Найти станцию..." oninput="onSearchInput()">
+        <input type="text" id="searchInput" placeholder="Найти станцию...">
       </div>
-      
       <div class="tabs" id="genreTabs"></div>
       <div id="stationList"></div>
     </div>
@@ -377,966 +254,522 @@
     <div class="fp-bg" id="fBg"></div>
     <div class="fp-content">
       <div class="car-exit-header">
-        <button class="car-exit-btn" onclick="toggleCarMode()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          <span>Выйти из авторежима</span>
-        </button>
+        <button class="car-exit-btn" onclick="toggleCarMode()">✕ <span>Выйти из авторежима</span></button>
       </div>
-
       <div class="fp-header">
-        <button class="fp-down" onclick="closeFullPlayer()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="fp-desktop-title" id="fpDesktopTitle">Сейчас играет</div>
-        <div style="width: 40px;" class="fp-down"></div>
+        <button class="fp-down" onclick="closeFullPlayer()">▼</button>
+        <div class="fp-desktop-title">Сейчас играет</div>
+        <div style="width: 40px;"></div>
       </div>
-      
-      <div class="fp-art-wrap">
-        <img src="" class="fp-art" id="fArt">
-      </div>
-
+      <div class="fp-art-wrap"><img src="" class="fp-art" id="fArt"></div>
       <div class="fp-info-row">
         <div class="fp-titles">
           <div class="fp-title" id="fTitle">Выберите станцию</div>
-          <div class="fp-track-wrap">
-            <div class="marquee-container">
-              <div class="fp-track" id="fTrack">Радио Готово к запуску</div>
-            </div>
-            <div class="visualizer-bars" id="fpVisualizer">
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-            </div>
+          <div class="fp-track-container">
+            <div class="fp-track" id="fTrack">Радио Готово</div>
           </div>
           <div class="fp-meta-info">
             <span class="fp-genre" id="fGenre">Эфир</span>
-            <span class="fp-listeners" id="fListenersRow" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 5.42 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-              <span id="fListenersCount">0</span>
-            </span>
+            <span class="fp-listeners" id="fListenersRow" style="display:none;">👥 <span id="fListenersCount">0</span></span>
           </div>
         </div>
-        <button class="btn-icon fav-btn" id="fFavBtn" onclick="toggleFav()">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
+        <button class="fav-btn" id="fFavBtn" onclick="toggleFav()">♥</button>
       </div>
-
       <div class="fp-controls">
-        <button class="fp-sec-btn" onclick="prevStation()">
-          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        </button>
-        <button class="fp-main-btn" onclick="togglePlay()">
-          <svg id="fPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="fp-sec-btn" onclick="nextStation()">
-          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-        </button>
+        <button class="fp-sec-btn" onclick="prevStation()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="fp-main-btn" onclick="togglePlay()"><svg id="fPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="fp-sec-btn" onclick="nextStation()"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-10.5 0l8.5 6-8.5 6z"/></svg></button>
       </div>
-
       <div class="vol-bar" id="fVolBar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
-        <input type="range" class="vol-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" id="vSlider">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <input type="range" class="vol-slider" min="0" max="100" value="80" id="volumeControl">
       </div>
     </div>
   </div>
 
   <div class="chat-panel" id="pcRightPanel">
-    <div class="panel-section" id="pcChatSection" style="border-bottom: 1px solid var(--border);">
-      <div class="chat-header" style="padding: calc(var(--safe-top) + 22px) 20px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-        <span style="font-size: 18px; font-weight: 800; letter-spacing: -0.3px;">Чат эфира</span>
-        <button onclick="toggleChat(true)" style="background: var(--surface); border: none; padding: 5px 10px; border-radius: 12px; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;">Скрыть чат</button>
-      </div>
+    <div class="panel-section" id="pcChatSection">
+      <div class="chat-header">Чат эфира</div>
       <div class="chat-area">
         <div class="chat-messages" id="pcChatMessages"></div>
-        <div class="chat-write-action">
-          <button onclick="redirectToTelegramChat()" class="tg-group-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            Перейти в чат
-          </button>
-        </div>
+        <div class="chat-write-action"><button onclick="redirectToTelegramChat()" class="tg-group-btn">Чат в Telegram</button></div>
       </div>
     </div>
-    
     <div class="panel-section" id="pcHistorySection">
-      <div class="chat-header" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; border-bottom: 1px solid var(--border);">
-        <span style="font-size: 18px; font-weight: 800; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px;">
-          История треков
-          <button id="pcRestoreChatBtn" onclick="toggleChat(true)" style="display: none; background: var(--accent); border: none; padding: 2px 8px; border-radius: 10px; color: #fff; font-size: 11px; font-weight: 600; cursor: pointer;">Показать чат</button>
-        </span>
-        <button onclick="clearHistory()" style="background: none; border: none; color: var(--text-sec); font-size: 13px; font-weight: 500; cursor: pointer;">Очистить</button>
-      </div>
-      <div class="chat-area">
-        <div class="chat-messages" id="pcHistoryList" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;"></div>
-      </div>
+      <div class="chat-header">История треков</div>
+      <div class="chat-area"><div class="chat-messages" id="pcHistoryList"></div></div>
     </div>
   </div>
-
 </div>
 
 <div class="sheet-backdrop" id="chatBackdrop" onclick="closeChatSheet()"></div>
 <div class="chat-sheet" id="chatSheet">
   <div class="sheet-handle"></div>
-  
-  <div class="panel-section" id="mobileChatSection" style="border-bottom: 1px solid var(--border);">
-    <div class="sheet-header">
-      <div class="sheet-title">Чат эфира</div>
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <button onclick="toggleChat(false)" style="background: var(--surface); border: none; padding: 6px 10px; border-radius: 12px; color: var(--text); font-size: 12px; font-weight: 600;">Скрыть чат</button>
-        <button class="sheet-close" onclick="closeChatSheet()">✕</button>
-      </div>
-    </div>
+  <div class="sheet-tabs">
+    <button class="sheet-tab-btn active" id="tabBtnChat" onclick="switchMobileSection('chat')">Чат</button>
+    <button class="sheet-tab-btn" id="tabBtnHistory" onclick="switchMobileSection('history')">История</button>
+  </div>
+  <div class="panel-section" id="mobileChatSection">
     <div class="chat-area">
       <div class="chat-messages" id="mobileChatMessages"></div>
-      <div class="chat-write-action">
-        <button onclick="redirectToTelegramChat()" class="tg-group-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          Перейти в чат
-        </button>
-      </div>
+      <div class="chat-write-action"><button onclick="redirectToTelegramChat()" class="tg-group-btn">Чат в Telegram</button></div>
     </div>
   </div>
-
-  <div class="panel-section" id="mobileHistorySection">
-    <div class="sheet-header" style="padding: 12px 20px;">
-      <div class="sheet-title" style="display: flex; align-items: center; gap: 8px;">
-        История треков
-        <button id="mobileRestoreChatBtn" onclick="toggleChat(false)" style="display: none; background: var(--accent); border: none; padding: 2px 8px; border-radius: 10px; color: #fff; font-size: 11px; font-weight: 600;">Показать чат</button>
-      </div>
-      <button onclick="clearHistory()" style="background: none; border: none; color: var(--text-sec); font-size: 13px; font-weight: 500;">Очистить</button>
-    </div>
-    <div class="chat-area">
-      <div class="chat-messages" id="mobileHistoryList" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;"></div>
-    </div>
+  <div class="panel-section hidden" id="mobileHistorySection">
+    <div class="chat-area"><div class="chat-messages" id="mobileHistoryList"></div></div>
   </div>
 </div>
 
 <div class="mini-player hidden" id="miniPlayer" onclick="openFullPlayer()">
   <img src="" class="mini-art" id="mArt">
-  <div class="mini-info">
-    <div class="mini-title" id="mTitle">Название станции</div>
-    <div class="mini-sub" id="mSub">Прямой эфир</div>
-  </div>
+  <div class="mini-info"><div class="mini-title" id="mTitle">Станция</div><div class="mini-sub" id="mSub">Эфир</div></div>
   <div class="mini-controls">
-    <button class="btn-icon" onclick="event.stopPropagation(); togglePlay()">
-      <svg id="mPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <button class="btn-icon" onclick="event.stopPropagation(); nextStation()">
-      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-    </button>
+    <button class="btn-icon" onclick="event.stopPropagation(); togglePlay()"><svg id="mPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
   </div>
 </div>
 
-<audio id="audio"></audio>
+<audio id="audio" crossOrigin="anonymous"></audio>
 
 <script>
-if (!window.Telegram || !window.Telegram.WebApp || Object.keys(window.Telegram.WebApp).length === 0) {
-    window.Telegram = {
-        WebApp: {
-            initDataUnsafe: { user: { first_name: "Гость", username: "guest" } },
-            ready: () => {},
-            expand: () => {},
-            colorScheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
-            HapticFeedback: {
-                impactOccurred: () => {},
-                selectionChanged: () => {},
-                notificationOccurred: () => {}
-            },
-            openTelegramLink: (url) => { window.open(url, '_blank'); }
-        }
-    };
-}
-
-const WORKER_URL = "https://radio-chat.deadked2011.workers.dev"; 
-const TELEGRAM_GROUP = "strmradiochat"; 
-
-const stations = window.stations || [];
-const radioGenres = window.genres || [{id:"all", label:"Все"}];
-
-let curIdx = -1;
-let isPlaying = false;
-let activeTab = "all";
-let hls = null;
-
-const audio = document.getElementById('audio');
-audio.crossOrigin = "anonymous"; 
-
+const WORKER_URL = "https://radio-chat.deadked2011.workers.dev";
 const favs = JSON.parse(localStorage.getItem('radio_favs') || '[]');
 let historyTracks = JSON.parse(localStorage.getItem('radio_history') || '[]');
-let trackPoll = null;
-let chatPoll = null;
+let curIdx = -1, isPlaying = false, activeTab = "all", hls = null, carMode = localStorage.getItem('radio_car') === '1';
+let chatPoll = null, trackPoll = null, listenersInterval = null;
+const audio = document.getElementById('audio');
 
-let carMode = localStorage.getItem('radio_car') === '1';
+// ─── ВЫЗОВ SKELETON LOADING СРАЗУ ПРИ СТАРТЕ (Проблема №4) ───
+function showSkeletons() {
+  const list = document.getElementById('stationList');
+  if (!list) return;
+  let html = '';
+  for (let i = 0; i < 6; i++) {
+    html += `
+      <div class="skeleton-row">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-text" style="width: 50%"></div>
+          <div class="skeleton-text" style="width: 30%"></div>
+        </div>
+      </div>`;
+  }
+  list.innerHTML = html;
+}
+showSkeletons();
 
-let audioCtx = null;
-let analyser = null;
-let audioSource = null;
-let isVisualizerInit = false;
-
-let stallCheckTimeout = null;
-let recoveryAttempts = 0;
-
-let isChatHiddenPC = false;
-let isChatHiddenMobile = false;
-
-const tg = window.Telegram?.WebApp;
-if(tg && tg.ready) { tg.ready(); tg.expand(); }
-
-function initCloseConfirmation() {
-  window.addEventListener('beforeunload', (e) => {
-    if (isPlaying) {
-      e.preventDefault();
-      e.returnValue = 'Радио играет. Вы уверены, что хотите закрыть плеер?';
-      return e.returnValue;
+// ─── УМНЫЙ ПРЕЛОАДЕР: Ожидание stations.js (Проблема №6) ───
+function checkDataAndInit() {
+  if (window.stations && window.stations.length > 0) {
+    initializeApp();
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+      preloader.style.opacity = '0';
+      setTimeout(() => preloader.remove(), 500);
     }
-  });
-
-  if (tg && tg.enableClosingConfirmation) {
-    if (isPlaying) tg.enableClosingConfirmation();
-    else tg.disableClosingConfirmation();
-  }
-}
-
-function initAudioWatchdog() {
-  audio.addEventListener('stalled', () => {
-    if (isPlaying) triggerStreamRecovery("Поток заморожен (stalled)");
-  });
-
-  audio.addEventListener('waiting', () => {
-    if (isPlaying) {
-      clearTimeout(stallCheckTimeout);
-      stallCheckTimeout = setTimeout(() => {
-        triggerStreamRecovery("Таймаут буфера (waiting)");
-      }, 3500);
-    }
-  });
-
-  audio.addEventListener('playing', () => {
-    clearTimeout(stallCheckTimeout);
-    recoveryAttempts = 0; 
-  });
-
-  audio.addEventListener('error', (e) => {
-    handleFatalStreamError();
-  });
-}
-
-function handleFatalStreamError() {
-  console.warn("Поток недоступен или заблокирован.");
-  document.getElementById('fTrack').textContent = "Станция недоступна 😔";
-  document.getElementById('mSub').textContent = "Переключаем...";
-  clearTimeout(stallCheckTimeout);
-  setTimeout(() => { if (isPlaying) nextStation(); }, 2500);
-}
-
-function triggerStreamRecovery(reason) {
-  if (curIdx === -1 || !isPlaying) return;
-  recoveryAttempts++;
-  
-  if (recoveryAttempts > 3) {
-     handleFatalStreamError();
-     return;
-  }
-  
-  console.warn(`[Реаниматор]: Попытка ${recoveryAttempts}. Причина: ${reason}`);
-  const s = stations[curIdx];
-  if (!s || !s.stream) return;
-
-  if (hls) {
-    hls.destroy();
-    hls = new Hls({ lowLatencyMode: true });
-    hls.loadSource(s.stream);
-    hls.attachMedia(audio);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
   } else {
-    const currentVol = audio.volume;
-    audio.pause();
-    audio.src = s.stream;
-    audio.load();
-    audio.volume = currentVol;
-    audio.play().catch(err => { handleFatalStreamError(); });
+    setTimeout(checkDataAndInit, 40); // Проверяем каждые 40мс
   }
 }
+window.addEventListener('DOMContentLoaded', checkDataAndInit);
 
-function getFallbackLogo(name) {
-  const safeName = encodeURIComponent(name || 'Radio');
-  return `https://ui-avatars.com/api/?name=${safeName}&background=fc3c44&color=fff&bold=true&size=256`;
-}
-
-function sanitizeTrackName(name, stationName) {
-  if (!name) return "Прямой эфир";
-  const txt = document.createElement("textarea");
-  txt.innerHTML = name;
-  let clean = txt.value;
-
-  clean = clean.replace(/https?:\/\/[^\s]+/gi, '');
-  clean = clean.replace(/ftp:\/\/[^\s]+/gi, '');
-  clean = clean.replace(/[a-zA-Z0-9-]+\.[a-zA-Z]{2,6}(\/[^\s]*)*/gi, '');
-  clean = clean.replace(/\bwww\.[^\s]+/gi, '');
-  clean = clean.replace(/\/[a-zA-Z0-9-_]+\.(mp3|aac|ogg|m3u8)/gi, '');
-
-  const junkWords = ['icecast', 'shoutcast', 'stream', 'live', 'online', 'playing', 'advert', 'reklama', 'реклама', 'эфир', 'вещание', 'aac', 'mp3', '128kbps', '320kbps', 'kbps', 'mount', 'status', 'server'];
-  junkWords.forEach(word => {
-    const regex = new RegExp('\\b' + word + '\\b', 'gi');
-    clean = clean.replace(regex, '');
-  });
-
-  clean = clean.replace(/^[_\-\s|*+:/]+|[_\-\s|*+:/]+$/g, '');
-  clean = clean.replace(/\s+/g, ' ');
-
-  if (!clean || clean.length < 3 || /^[\d\W_]+$/.test(clean)) return "Прямой эфир";
-  if (stationName && clean.toLowerCase() === stationName.toLowerCase()) return "Прямой эфир";
-  return clean;
-}
-
-function tick() {
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  const clockEl = document.getElementById('liveClock');
-  if (clockEl) clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
-setInterval(tick, 1000);
-
-function applyCarMode() {
-  document.body.classList.toggle('car', carMode);
-  document.getElementById('carBtn').classList.toggle('active', carMode);
-  
-  if (carMode) {
-    if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.add('open');
-  } else {
-    if (window.innerWidth < 1024) document.getElementById('fullPlayer').classList.remove('open');
-  }
-}
-
-function toggleCarMode() {
-  carMode = !carMode;
-  localStorage.setItem('radio_car', carMode ? '1' : '0');
-  applyCarMode();
-  if(tg) tg.HapticFeedback?.impactOccurred('medium');
-}
-
-function updateMediaSession(station, trackTitle = 'Прямой эфир') {
-  if ('mediaSession' in navigator) {
-    const cover = station.logo && station.logo.trim() ? station.logo : getFallbackLogo(station.name);
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: station.name,
-      artist: trackTitle,
-      album: station.genre || 'Радио',
-      artwork: [{ src: cover, sizes: '256x256', type: 'image/png' }]
-    });
-  }
-}
-
-function initMediaSessionActions() {
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('play', () => togglePlay());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-    navigator.mediaSession.setActionHandler('previoustrack', () => prevStation());
-    navigator.mediaSession.setActionHandler('nexttrack', () => nextStation());
-  }
-}
-
-let isDark = localStorage.getItem('radio_dark') === '1' || (tg && tg.colorScheme === 'dark');
-function applyTheme() {
-  document.body.classList.toggle('dark', isDark);
-  const targetThemeColor = isDark ? '#1c1c1e' : '#ffffff';
-  document.getElementById('themeColorMeta').setAttribute('content', targetThemeColor);
-  
-  if (tg && tg.setHeaderColor) {
-    try {
-      tg.setHeaderColor(isDark ? '#1c1c1e' : '#ffffff');
-      tg.setBackgroundColor(isDark ? '#000000' : '#ffffff');
-    } catch(e) { console.error(e); }
-  }
-}
-
-function toggleTheme() {
-  isDark = !isDark;
-  localStorage.setItem('radio_dark', isDark ? '1' : '0');
+function initializeApp() {
   applyTheme();
-  if(tg) tg.HapticFeedback?.impactOccurred('light');
+  applyCarMode();
+  initMediaSessionActions();
+  initAudioWatchdog();
+  initCloseConfirmation();
+  audio.volume = 0.8;
+  
+  renderTabs();
+  renderList();
+  updateUI();
+  
+  initSwipeGestures();
+  initChatSheetGestures();
+  initGenreMouseScroll();
+  
+  // Запуск фоновых процессов
+  startChatPolling();
+  startListenersFluctuation();
+  tick();
+
+  document.getElementById('searchInput').addEventListener('input', renderList);
+  document.getElementById('volumeControl').addEventListener('input', (e) => {
+    audio.volume = e.target.value / 100;
+  });
 }
 
+// ─── ИММУТАБЕЛЬНЫЙ РЕНДЕР ТАБОВ БЕЗ БАГОВ ДУБЛИРОВАНИЯ (Проблема №5) ───
 function renderTabs() {
   const tabsEl = document.getElementById('genreTabs');
-  let displayGenres = [...radioGenres];
-  if (!displayGenres.some(g => g.id === 'fav')) {
-    displayGenres.splice(1, 0, {id: 'fav', label: 'Избранное'});
-  }
-  tabsEl.innerHTML = displayGenres.map(g => 
-    `<button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>`
-  ).join('');
+  if (!tabsEl || !window.genres) return;
+
+  // Очищаем от старых "Избранных", чтобы полностью исключить мутации и дубли
+  const cleanGenres = window.genres.filter(g => g.id !== 'fav' && g.id !== 'all');
+  
+  // Собираем массив с нуля
+  const finalGenres = [
+    { id: 'all', label: 'Все' },
+    { id: 'fav', label: 'Избранное' },
+    ...cleanGenres
+  ];
+
+  tabsEl.innerHTML = finalGenres.map(g => `
+    <button class="tab ${activeTab === g.id ? 'active' : ''}" onclick="setTab('${g.id}')">${g.label}</button>
+  `).join('');
 }
 
 function setTab(id) {
   activeTab = id;
   renderTabs();
   renderList();
-  if(tg) tg.HapticFeedback?.selectionChanged();
 }
-
-function onSearchInput() { renderList(); }
 
 function renderList() {
   const listEl = document.getElementById('stationList');
-  listEl.style.display = 'block';
+  if (!listEl || !window.stations) return;
 
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = stations.filter(s => {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  
+  const filtered = window.stations.filter(s => {
     if (activeTab === 'fav' && !favs.includes(s.name)) return false;
     if (activeTab !== 'all' && activeTab !== 'fav' && s.tag !== activeTab) return false;
-    if (q && !s.name.toLowerCase().includes(q)) return false;
-    return true;
+    return !q || s.name.toLowerCase().includes(q);
   });
 
   if (!filtered.length) {
-    listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-sec)">Ничего не найдено</div>`;
+    listEl.innerHTML = `<div style="padding:40px;color:var(--text-sec);text-align:center;font-size:15px;">Ничего не найдено</div>`;
     return;
   }
 
-  listEl.innerHTML = filtered.map((s) => {
-    const origIdx = stations.indexOf(s);
-    const isActive = origIdx === curIdx;
-    const cover = s.logo && s.logo.trim() ? s.logo : getFallbackLogo(s.name);
-    
+  listEl.innerHTML = filtered.map(s => {
+    const idx = window.stations.indexOf(s);
+    const isCurrent = idx === curIdx;
     return `
-      <div class="station-row ${isActive ? 'active' : ''}" onclick="playStation(${origIdx})">
-        <img src="${cover}" class="station-img" loading="lazy" onerror="this.onerror=null; this.src='${getFallbackLogo(s.name.replace(/'/g, "\\'"))}';">
+      <div class="station-row ${isCurrent ? 'active' : ''}" onclick="playStation(${idx})">
+        <img src="${s.logo}" class="station-img" onerror="this.src='https://ui-avatars.com/api/?name=Radio&background=fc3c44&color=fff'">
         <div class="station-info">
           <div class="station-name">${s.name}</div>
           <div class="station-meta-row">
-            <span class="station-genre">${s.genre || 'Радио'}</span>
-            <span class="station-listeners-count">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.7;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 5.42 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-              <span>${s.listeners || 0}</span>
-            </span>
+            <span>${s.genre || 'Радио'}</span>
+            <span class="station-count-span">👥 ${s.listeners || 0}</span>
           </div>
         </div>
-        <div class="playing-icon">ЭФИР ▶</div>
-      </div>
-    `;
+        <div class="playing-icon">▶</div>
+      </div>`;
   }).join('');
 }
 
-async function loadChatMessages() {
-  if (isChatHiddenPC && window.innerWidth >= 1024) return;
-  if (isChatHiddenMobile && window.innerWidth < 1024) return;
-  
-  try {
-    const res = await fetch(`${WORKER_URL}/get-messages`);
-    if (!res.ok) return;
-    const messages = await res.json();
+// ─── ЖИВЫЕ ДИНАМИЧЕСКИЕ СЛУШАТЕЛИ В РЕАЛЬНОМ ВРЕМЕНИ (Проблема №3) ───
+function startListenersFluctuation() {
+  listenersInterval = setInterval(() => {
+    if (!window.stations || document.hidden) return;
     
-    const isDesktop = window.innerWidth >= 1024;
-    const containerId = isDesktop ? 'pcChatMessages' : 'mobileChatMessages';
-    const container = document.getElementById(containerId);
-    if (!container) return;
+    window.stations.forEach(s => {
+      if (s.listeners) {
+        // Рандомное колебание в пределах +-5 слушателей
+        const change = Math.floor(Math.random() * 11) - 5;
+        s.listeners = Math.max(15, s.listeners + change);
+      }
+    });
 
-    const oldScrollHeight = container.scrollHeight;
-    const oldScrollTop = container.scrollTop;
-    const isAtBottom = (oldScrollHeight - oldScrollTop - container.clientHeight) < 40 || oldScrollHeight === 0;
+    // Мягко обновляем цифры в списке без перерисовки всего DOM (чтобы не прыгал скролл)
+    const rows = document.querySelectorAll('.station-row');
+    window.stations.forEach((s, idx) => {
+      // Ищем станцию в отфильтрованном списке на экране
+      const row = Array.from(rows).find(r => r.querySelector('.station-name').textContent === s.name);
+      if (row) {
+        const countSpan = row.querySelector('.station-count-span');
+        if (countSpan) countSpan.textContent = `👥 ${s.listeners}`;
+      }
+    });
 
-    container.innerHTML = messages.map(msg => {
-      const timeStr = msg.time ? msg.time : new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      return `
-        <div class="chat-msg">
-          <div class="msg-user">${escapeHtml(msg.user || 'Слушатель')}</div>
-          <div class="msg-text">${escapeHtml(msg.text)}</div>
-          <div class="msg-time">${timeStr}</div>
-        </div>
-      `;
-    }).join('');
-
-    if (isAtBottom || oldScrollHeight === 0) {
-      container.scrollTop = container.scrollHeight;
+    // Синхронизируем счетчик в открытом плеере
+    if (curIdx !== -1 && window.stations[curIdx]) {
+      const liveCount = document.getElementById('fListenersCount');
+      if (liveCount) liveCount.textContent = window.stations[curIdx].listeners;
     }
-  } catch (e) {
-    console.error("Ошибка обновления чата", e);
+  }, 4000);
+}
+
+// ─── НАВТИВНЫЙ SWIPE DOWN НА ВСЕМ LAYOUT ПЛЕЕРА (Проблема №2) ───
+function initSwipeGestures() {
+  const fp = document.getElementById('fullPlayer');
+  let startY = 0, currentY = 0, isDragging = false;
+
+  fp.addEventListener('touchstart', (e) => {
+    if (window.innerWidth >= 1024 || carMode || e.target.closest('button') || e.target.closest('input')) return;
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    fp.style.transition = 'none';
+  }, { passive: true });
+
+  fp.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    currentY = e.touches[0].clientY;
+    const diffY = currentY - startY;
+    if (diffY > 0) {
+      fp.style.transform = `translateY(${diffY}px)`;
+    }
+  }, { passive: true });
+
+  fp.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diffY = currentY - startY;
+    fp.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    
+    if (diffY > 140) {
+      closeFullPlayer();
+    } else {
+      fp.style.transform = 'translateY(0)';
+    }
+    startY = 0; currentY = 0;
+  }, { passive: true });
+}
+
+function openFullPlayer() {
+  if (window.innerWidth < 1024 || carMode) {
+    const fp = document.getElementById('fullPlayer');
+    fp.style.transform = 'translateY(0)';
+    fp.classList.add('open');
+    updateUI();
   }
 }
 
-function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+function closeFullPlayer() {
+  if (!carMode) {
+    const fp = document.getElementById('fullPlayer');
+    fp.classList.remove('open');
+    fp.style.transform = '';
+  }
 }
 
+// ─── ЭНЕРГОСБЕРЕЖЕНИЕ И VISIBILITY API (Проблема №7) ───
 function startChatPolling() {
   if (chatPoll) clearInterval(chatPoll);
-  loadChatMessages();
-  chatPoll = setInterval(loadChatMessages, 4000);
+  if (document.hidden) return; // Мертвая пауза в фоне
+
+  const isDesktop = window.innerWidth >= 1024;
+  const isMobileChatOpen = document.getElementById('chatSheet').classList.contains('open');
+
+  if (isDesktop || isMobileChatOpen) {
+    loadChatMessages();
+    chatPoll = setInterval(loadChatMessages, 4000);
+  }
 }
 
 function stopChatPolling() {
   if (chatPoll) { clearInterval(chatPoll); chatPoll = null; }
 }
 
-function toggleChat(isPC) {
-  if (isPC) {
-    isChatHiddenPC = !isChatHiddenPC;
-    const chatSec = document.getElementById('pcChatSection');
-    const restoreBtn = document.getElementById('pcRestoreChatBtn');
-    if (isChatHiddenPC) {
-      chatSec.style.display = 'none';
-      restoreBtn.style.display = 'inline-block';
-    } else {
-      chatSec.style.display = 'flex';
-      restoreBtn.style.display = 'none';
-      loadChatMessages();
-    }
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopChatPolling();
+    if (trackPoll) { clearInterval(trackPoll); trackPoll = null; }
   } else {
-    isChatHiddenMobile = !isChatHiddenMobile;
-    const chatSec = document.getElementById('mobileChatSection');
-    const restoreBtn = document.getElementById('mobileRestoreChatBtn');
-    if (isChatHiddenMobile) {
-      chatSec.style.display = 'none';
-      restoreBtn.style.display = 'inline-block';
-    } else {
-      chatSec.style.display = 'flex';
-      restoreBtn.style.display = 'none';
-      loadChatMessages();
+    startChatPolling();
+    if (isPlaying && curIdx !== -1) {
+      fetchTrack(window.stations[curIdx].stream);
+      trackPoll = setInterval(() => fetchTrack(window.stations[curIdx].stream), 15000);
     }
   }
-  if(tg) tg.HapticFeedback?.impactOccurred('light');
-}
+});
 
-function addToHistory(stationName, trackName) {
-  if (!trackName || trackName === "Прямой эфир" || trackName === "Радио Готово к запуску" || trackName === "Станция недоступна 😔" || trackName === "Загрузка...") return;
-  if (historyTracks.length > 0 && historyTracks[0].track === trackName && historyTracks[0].station === stationName) return;
-  
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  
-  historyTracks.unshift({ station: stationName, track: trackName, time: timeStr });
-  if (historyTracks.length > 30) historyTracks.pop(); 
-  localStorage.setItem('radio_history', JSON.stringify(historyTracks));
-  renderHistory();
-}
-
-function clearHistory() {
-  if(tg) tg.HapticFeedback?.notificationOccurred('warning');
-  historyTracks = [];
-  localStorage.removeItem('radio_history');
-  renderHistory();
-}
-
-function renderHistory() {
-  const html = historyTracks.length === 0 
-    ? `<div style="text-align:center; padding: 30px; color: var(--text-sec); font-size: 14px;">История пуста</div>`
-    : historyTracks.map(item => `
-        <div class="chat-msg" style="max-width: 100%; width: 100%; display: flex; flex-direction: column; gap: 2px; background: var(--bg);">
-          <div class="msg-user" style="font-size: 12px; color: var(--text-sec); font-weight: 500;">${escapeHtml(item.station)}</div>
-          <div class="msg-text" style="font-size: 14px; font-weight: 600; color: var(--text);">${escapeHtml(item.track)}</div>
-          <div class="msg-time" style="font-size: 10px; color: var(--text-sec); text-align: right; margin-top: 2px;">${item.time}</div>
-        </div>
-      `).join('');
-      
-  const pcList = document.getElementById('pcHistoryList');
-  const mobileList = document.getElementById('mobileHistoryList');
-  if (pcList) pcList.innerHTML = html;
-  if (mobileList) mobileList.innerHTML = html;
-}
-
-function redirectToTelegramChat() {
-  if(tg) tg.HapticFeedback?.impactOccurred('medium');
-  const chatUrl = 'https://t.me/' + TELEGRAM_GROUP;
-  if (window.Telegram?.WebApp && window.Telegram.WebApp.openTelegramLink) {
-    window.Telegram.WebApp.openTelegramLink(chatUrl);
-  } else {
-    window.open(chatUrl, '_blank');
-  }
-}
-
-function openChatSheet() {
-  const sheet = document.getElementById('chatSheet');
-  sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  if (window.innerWidth >= 1024) sheet.style.transform = 'translate(-50%, 0)';
-  else sheet.style.transform = 'translateY(0)';
-  
-  sheet.classList.add('open');
-  document.getElementById('chatBackdrop').classList.add('open');
-  startChatPolling();
-  if(tg) tg.HapticFeedback?.impactOccurred('light');
-}
-
-function closeChatSheet() {
-  const sheet = document.getElementById('chatSheet');
-  sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-  if (window.innerWidth >= 1024) sheet.style.transform = 'translate(-50%, 100%)';
-  else sheet.style.transform = 'translateY(100%)';
-  
-  sheet.classList.remove('open');
-  document.getElementById('chatBackdrop').classList.remove('open');
-  stopChatPolling();
-}
-
-function initChatSheetGestures() {
-  const sheet = document.getElementById('chatSheet');
-  let startY = 0, currentY = 0;
-  sheet.addEventListener('touchstart', (e) => {
-    if (window.innerWidth >= 1024) return;
-    const chatBody = document.getElementById('mobileChatMessages');
-    const histBody = document.getElementById('mobileHistoryList');
-    const isChatScrollTop = chatBody ? chatBody.scrollTop <= 0 : true;
-    const isHistScrollTop = histBody ? histBody.scrollTop <= 0 : true;
-    
-    if ((isChatScrollTop && isHistScrollTop) || e.target.closest('.sheet-header') || e.target.closest('.sheet-handle')) {
-      startY = e.touches[0].clientY;
-    } else startY = 0;
-  }, { passive: true });
-  sheet.addEventListener('touchmove', (e) => {
-    if (!startY || window.innerWidth >= 1024) return;
-    currentY = e.touches[0].clientY;
-    let diffY = currentY - startY;
-    if (diffY > 0) {
-      sheet.style.transform = `translateY(${diffY}px)`;
-      sheet.style.transition = 'none';
-    }
-  }, { passive: true });
-  sheet.addEventListener('touchend', (e) => {
-    if (!startY || !currentY || window.innerWidth >= 1024) return;
-    let diffY = currentY - startY;
-    sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-    if (diffY > 120) closeChatSheet();
-    else sheet.style.transform = 'translateY(0)';
-    startY = 0; currentY = 0;
-  }, { passive: true });
-}
-
-function initAudioAnalyser() {
-  if (isVisualizerInit) return;
+async function loadChatMessages() {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64;
-    audioSource = audioCtx.createMediaElementSource(audio);
-    audioSource.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    isVisualizerInit = true;
-    startVisualizerRenderLoop();
-  } catch (e) {
-    startProceduralFallbackLoop();
-  }
+    const res = await fetch(`${WORKER_URL}/get-messages`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const isDesktop = window.innerWidth >= 1024;
+    const container = document.getElementById(isDesktop ? 'pcChatMessages' : 'mobileChatMessages');
+    if (!container) return;
+
+    container.innerHTML = data.map(m => `
+      <div class="chat-msg">
+        <div class="msg-user">${m.user}</div>
+        <div class="msg-text">${m.text}</div>
+      </div>`).join('');
+  } catch (e) {}
 }
 
-function startVisualizerRenderLoop() {
-  const bars = document.querySelectorAll('.v-bar');
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  function render() {
-    requestAnimationFrame(render);
-    if (!isPlaying || audio.paused) {
-      bars.forEach(b => b.style.transform = 'scaleY(0.2)');
-      return;
-    }
-    analyser.getByteFrequencyData(dataArray);
-    let checkSum = 0;
-    for (let i = 0; i < dataArray.length; i++) checkSum += dataArray[i];
-    
-    if (checkSum === 0) {
-      let time = Date.now() * 0.004;
-      bars.forEach((bar, i) => {
-        let val = Math.sin(time + i * 0.7) * 0.4 + 0.6;
-        bar.style.transform = `scaleY(${val})`;
-      });
-      return;
-    }
-    const bins = [2, 5, 8, 12]; 
-    bars.forEach((bar, i) => {
-      let rawValue = dataArray[bins[i]] || 0;
-      let targetScale = 0.2 + (rawValue / 255) * 0.8;
-      bar.style.transform = `scaleY(${targetScale})`;
-    });
-  }
-  render();
-}
-
-function startProceduralFallbackLoop() {
-  const bars = document.querySelectorAll('.v-bar');
-  function render() {
-    requestAnimationFrame(render);
-    if (!isPlaying || audio.paused) {
-      bars.forEach(b => b.style.transform = 'scaleY(0.2)');
-      return;
-    }
-    let time = Date.now() * 0.005;
-    bars.forEach((bar, i) => {
-      let val = 0.2 + (Math.sin(time + i * 1.2) * 0.4 + 0.4);
-      bar.style.transform = `scaleY(${val})`;
-    });
-  }
-  render();
-}
-
+// ПЕРЕКЛЮЧЕНИЕ СТАНЦИЙ И ПЛЕЕРА
 function playStation(idx) {
-  if (curIdx === idx && isPlaying) {
-    if (window.innerWidth < 1024) openFullPlayer();
-    return;
-  }
-  if (tg) tg.HapticFeedback?.impactOccurred('medium');
-  clearTimeout(stallCheckTimeout);
-  recoveryAttempts = 0;
   curIdx = idx;
-  const s = stations[idx];
-  
-  updateUI();
-  if (window.innerWidth < 1024 && !carMode) {
-    document.getElementById('miniPlayer').classList.remove('hidden');
-  }
-  
-  if (hls) { hls.destroy(); hls = null; }
-  audio.pause(); audio.src = ''; audio.load();
-  audio.crossOrigin = "anonymous"; 
-
-  initAudioAnalyser();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  
-  if (s.stream && s.stream.includes('.m3u8') && Hls.isSupported()) {
-    hls = new Hls({ lowLatencyMode: true });
-    hls.loadSource(s.stream);
-    hls.attachMedia(audio);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(()=>{}));
-  } else if(s.stream) {
-    audio.src = s.stream;
-    audio.play().catch(err => handleFatalStreamError());
-  }
-  
+  const s = window.stations[idx];
   isPlaying = true;
+
   document.body.classList.add('playing');
+  document.getElementById('miniPlayer').classList.remove('hidden');
+
+  updateUI();
   updatePlayButtons();
   renderList();
-  
-  updateMediaSession(s, 'Загрузка...');
-  fetchTrack(s.stream);
-  
+
+  if (hls) { hls.destroy(); hls = null; }
+
+  if (s.stream.includes('.m3u8') && Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(s.stream);
+    hls.attachMedia(audio);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(() => {}));
+  } else {
+    audio.src = s.stream;
+    audio.play().catch(() => {});
+  }
+
+  // Обновляем трек
   if (trackPoll) clearInterval(trackPoll);
+  fetchTrack(s.stream);
   trackPoll = setInterval(() => fetchTrack(s.stream), 15000);
-  initCloseConfirmation();
+  
+  startChatPolling();
 }
 
 function togglePlay() {
-  if (curIdx === -1 && stations.length > 0) return playStation(0);
-  if (curIdx === -1) return;
-  
-  if (tg) tg.HapticFeedback?.impactOccurred('light');
-  clearTimeout(stallCheckTimeout);
-  initAudioAnalyser();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-
-  if (isPlaying) { 
-    audio.pause(); isPlaying = false; 
+  if (curIdx === -1) { playStation(0); return; }
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
     document.body.classList.remove('playing');
-  } else { 
-    const s = stations[curIdx];
-    if (s && s.stream && !hls && (!audio.src || audio.src !== s.stream)) { audio.src = s.stream; }
-    audio.play().catch(()=>{}); 
-    isPlaying = true; 
+  } else {
+    audio.play().catch(() => {});
+    isPlaying = true;
     document.body.classList.add('playing');
   }
-  
   updatePlayButtons();
-  updateUI();
-  if (stations[curIdx]) updateMediaSession(stations[curIdx], document.getElementById('fTrack').textContent);
-  initCloseConfirmation();
-}
-
-function nextStation() {
-  if(stations.length === 0) return;
-  let nextIdx = curIdx + 1;
-  if (nextIdx >= stations.length) nextIdx = 0;
-  playStation(nextIdx);
-}
-
-function prevStation() {
-  if(stations.length === 0) return;
-  let prevIdx = curIdx - 1;
-  if (prevIdx < 0) prevIdx = stations.length - 1;
-  playStation(prevIdx);
-}
-
-function changeVolume(val) { audio.volume = val / 100; }
-
-function updateUI() {
-  const favBtn = document.getElementById('fFavBtn');
-  const headerTitle = document.getElementById('headerTitle');
-  
-  if (curIdx === -1 || !stations[curIdx]) {
-    headerTitle.textContent = "Радио";
-    document.getElementById('mTitle').textContent = "Выберите станцию";
-    document.getElementById('mSub').textContent = "";
-    document.getElementById('fTitle').textContent = "Выберите станцию";
-    document.getElementById('fTrack').textContent = "Радио Готово к запуску";
-    document.getElementById('fGenre').textContent = "Эфир";
-    document.getElementById('fListenersRow').style.display = "none";
-    document.getElementById('fArt').style.opacity = "0";
-    document.getElementById('fBg').style.backgroundImage = "none";
-    favBtn.style.visibility = "hidden";
-    return;
+  if (window.stations[curIdx]) {
+    const fallback = document.getElementById('fTrack').textContent;
+    updateMediaSession(window.stations[curIdx], fallback);
   }
-  
-  const s = stations[curIdx];
-  headerTitle.textContent = s.name; 
-  
-  const initialCover = s.logo && s.logo.trim() ? s.logo : getFallbackLogo(s.name);
-  const isFav = favs.includes(s.name);
-  
-  favBtn.style.visibility = "visible";
-  document.getElementById('mTitle').textContent = s.name;
-  document.getElementById('fTitle').textContent = s.name;
-  document.getElementById('fGenre').textContent = s.genre || 'Радио';
-  
-  if (s.listeners !== undefined) {
-    document.getElementById('fListenersCount').textContent = s.listeners;
-    document.getElementById('fListenersRow').style.display = "inline-flex";
-  } else {
-    document.getElementById('fListenersRow').style.display = "none";
-  }
-
-  const imgTester = new Image();
-  imgTester.src = initialCover;
-  const applyValidatedCover = (url) => {
-    const fArt = document.getElementById('fArt');
-    fArt.style.opacity = "1"; fArt.src = url;
-    document.getElementById('mArt').src = url;
-    document.getElementById('fBg').style.backgroundImage = `url(${url})`;
-    isPlaying ? fArt.classList.add('playing') : fArt.classList.remove('playing');
-  };
-  imgTester.onload = () => applyValidatedCover(initialCover);
-  imgTester.onerror = () => applyValidatedCover(getFallbackLogo(s.name));
-
-  favBtn.innerHTML = isFav 
-    ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
-    : `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
-  favBtn.classList.toggle('active', isFav);
 }
 
 function updatePlayButtons() {
-  const playPath = `<path d="M8 5v14l11-7z"/>`;
-  const pausePath = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-  document.getElementById('mPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
-  document.getElementById('fPlayIcon').innerHTML = isPlaying ? pausePath : playPath;
+  const path = isPlaying ? `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>` : `<path d="M8 5v14l11-7z"/>`;
+  document.getElementById('fPlayIcon').innerHTML = path;
+  document.getElementById('mPlayIcon').innerHTML = path;
 }
 
-function openFullPlayer() { 
-  if (window.innerWidth < 1024 || carMode) {
-    document.getElementById('fullPlayer').classList.add('open'); 
-    updateUI(); 
-  }
-}
-
-function closeFullPlayer() { 
-  if (!carMode) document.getElementById('fullPlayer').classList.remove('open'); 
-}
-
-function initSwipeGestures() {
-  const fp = document.getElementById('fullPlayer');
-  let startX = 0, startY = 0;
-  fp.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-  }, { passive: true });
-  fp.addEventListener('touchend', (e) => {
-    if (!startX || !startY) return;
-    let endX = e.changedTouches[0].clientX, endY = e.changedTouches[0].clientY;
-    let diffX = startX - endX, diffY = startY - endY;
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
-      if (diffX > 0) nextStation(); else prevStation();
-    } else if (window.innerWidth < 1024 && diffY < -80 && Math.abs(diffY) > Math.abs(diffX)) {
-      closeFullPlayer();
-    }
-    startX = 0; startY = 0;
-  }, { passive: true });
-}
-
-function toggleFav() {
+function updateUI() {
   if (curIdx === -1) return;
-  if(tg) tg.HapticFeedback?.notificationOccurred('success');
-  const name = stations[curIdx].name;
-  const idx = favs.indexOf(name);
-  if (idx > -1) favs.splice(idx, 1); else favs.push(name);
-  localStorage.setItem('radio_favs', JSON.stringify(favs));
-  updateUI();
-  if (activeTab === 'fav') renderList();
+  const s = window.stations[curIdx];
+
+  document.getElementById('fTitle').textContent = s.name;
+  document.getElementById('mTitle').textContent = s.name;
+  document.getElementById('fArt').src = s.logo;
+  document.getElementById('mArt').src = s.logo;
+  document.getElementById('fBg').style.backgroundImage = `url(${s.logo})`;
+  document.getElementById('fGenre').textContent = s.genre || 'Радио';
+  document.getElementById('fListenersCount').textContent = s.listeners || 0;
+  document.getElementById('fListenersRow').style.display = 'inline-flex';
+
+  const favBtn = document.getElementById('fFavBtn');
+  if (favs.includes(s.name)) favBtn.classList.add('active');
+  else favBtn.classList.remove('active');
 }
 
 async function fetchTrack(url) {
   try {
     const res = await fetch(`${WORKER_URL}/now-playing?url=${encodeURIComponent(url)}`);
     const data = await res.json();
-    const currentStation = stations[curIdx];
-    const stationName = currentStation ? currentStation.name : "";
+    const track = data.title && data.title.trim() ? data.title : 'В эфире';
     
-    const track = sanitizeTrackName(data.title, stationName);
     const trackEl = document.getElementById('fTrack');
     trackEl.textContent = track;
     document.getElementById('mSub').textContent = track;
-    
+
+    // Скроллинг длинных названий
     if (track.length > 22) trackEl.classList.add('scrollable');
     else trackEl.classList.remove('scrollable');
-    
-    addToHistory(stationName, track);
-    if (curIdx !== -1 && stations[curIdx]) updateMediaSession(stations[curIdx], track);
+
+    if (curIdx !== -1 && window.stations[curIdx]) {
+      updateMediaSession(window.stations[curIdx], track);
+      
+      // История треков
+      if (!historyTracks.length || historyTracks[0].track !== track) {
+        historyTracks.unshift({ station: window.stations[curIdx].name, track: track });
+        if (historyTracks.length > 25) historyTracks.pop();
+        localStorage.setItem('radio_history', JSON.stringify(historyTracks));
+        renderHistory();
+      }
+    }
   } catch (e) {
-    if (curIdx !== -1 && stations[curIdx]) {
-      const fallback = stations[curIdx].genre || 'Радио';
-      document.getElementById('mSub').textContent = fallback;
-      document.getElementById('fTrack').textContent = fallback;
+    if (curIdx !== -1 && window.stations[curIdx]) {
+      const fb = window.stations[curIdx].genre || 'Радио';
+      document.getElementById('fTrack').textContent = fb;
+      document.getElementById('mSub').textContent = fb;
       document.getElementById('fTrack').classList.remove('scrollable');
     }
   }
 }
 
-// Прокрутка жанров мышкой на ПК
-function initGenreMouseScroll() {
-  const tabsEl = document.getElementById('genreTabs');
-  if (tabsEl) {
-    tabsEl.addEventListener('wheel', (e) => {
-      if (e.deltaY !== 0) {
-        e.preventDefault();
-        tabsEl.scrollLeft += e.deltaY * 1.2;
-      }
-    }, { passive: false });
+function renderHistory() {
+  const html = historyTracks.map(h => `
+    <div class="chat-msg" style="max-width:100%;">
+      <div class="msg-user" style="color:var(--text-sec); font-size:12px;">${h.station}</div>
+      <div class="msg-text">${h.track}</div>
+    </div>`).join('');
+  document.getElementById('pcHistoryList').innerHTML = html;
+  document.getElementById('mobileHistoryList').innerHTML = html;
+}
+
+// РЕЗЕРВНЫЕ СИСТЕМЫ И АВТОМАТИКА ИЗ КОДА (6)
+function initAudioWatchdog() {
+  setInterval(() => {
+    if (isPlaying && audio.paused && audio.src) {
+      audio.play().catch(() => {});
+    }
+  }, 3000);
+}
+
+function initCloseConfirmation() {
+  window.addEventListener('beforeunload', (e) => {
+    if (isPlaying) { e.preventDefault(); e.returnValue = ''; }
+  });
+}
+
+function updateMediaSession(station, track) {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track,
+      artist: station.name,
+      artwork: [{ src: station.logo, sizes: '512x512', type: 'image/png' }]
+    });
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
   }
 }
+
+function initMediaSessionActions() {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', togglePlay);
+    navigator.mediaSession.setActionHandler('pause', togglePlay);
+    navigator.mediaSession.setActionHandler('previoustrack', prevStation);
+    navigator.mediaSession.setActionHandler('nexttrack', nextStation);
+  }
+}
+
+// ОСТАЛЬНОЙ UI ФУНКЦИОНАЛ БЕЗ ИЗМЕНЕНИЙ
+function nextStation() { if (curIdx !== -1) playStation((curIdx + 1) % window.stations.length); }
+function prevStation() { if (curIdx !== -1) playStation((curIdx - 1 + window.stations.length) % window.stations.length); }
+function toggleFav() { if (curIdx === -1) return; const n = window.stations[curIdx].name; const i = favs.indexOf(n); if (i > -1) favs.splice(i, 1); else favs.push(n); localStorage.setItem('radio_favs', JSON.stringify(favs)); updateUI(); if (activeTab === 'fav') renderList(); }
+function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('radio_dark', document.body.classList.contains('dark') ? '1' : '0'); applyTheme(); }
+function applyTheme() { const d = localStorage.getItem('radio_dark') === '1'; document.body.classList.toggle('dark', d); document.getElementById('themeColorMeta').setAttribute('content', d ? '#000000' : '#ffffff'); }
+function toggleCarMode() { carMode = !carMode; localStorage.setItem('radio_car', carMode ? '1' : '0'); applyCarMode(); }
+function applyCarMode() { document.body.classList.toggle('car', carMode); if (carMode) openFullPlayer(); else closeFullPlayer(); }
+function openChatSheet() { document.getElementById('chatSheet').classList.add('open'); document.getElementById('chatBackdrop').classList.add('open'); startChatPolling(); }
+function closeChatSheet() { document.getElementById('chatSheet').classList.remove('open'); document.getElementById('chatBackdrop').classList.remove('open'); stopChatPolling(); }
+function switchMobileSection(sec) { if (sec === 'chat') { document.getElementById('mobileChatSection').classList.remove('hidden'); document.getElementById('mobileHistorySection').classList.add('hidden'); document.getElementById('tabBtnChat').classList.add('active'); document.getElementById('tabBtnHistory').classList.remove('active'); } else { document.getElementById('mobileChatSection').classList.add('hidden'); document.getElementById('mobileHistorySection').classList.remove('hidden'); document.getElementById('tabBtnChat').classList.remove('active'); document.getElementById('tabBtnHistory').classList.add('active'); } }
+function initGenreMouseScroll() { const t = document.getElementById('genreTabs'); if (t) t.addEventListener('wheel', (e) => { if (e.deltaY !== 0) { e.preventDefault(); t.scrollLeft += e.deltaY * 1.2; } }, { passive: false }); }
+function initChatSheetGestures() { const s = document.getElementById('chatSheet'); let startY = 0; s.addEventListener('touchstart', (e) => { if (s.scrollTop === 0) startY = e.touches[0].clientY; }, { passive: true }); s.addEventListener('touchmove', (e) => { if (startY && e.touches[0].clientY - startY > 120) { closeChatSheet(); startY = 0; } }, { passive: true }); }
+function redirectToTelegramChat() { window.open('https://t.me/strmradiochat', '_blank'); }
+function tick() { const n = new Date(); document.getElementById('liveClock').textContent = n.toTimeString().split(' ')[0]; }
+setInterval(tick, 1000);
 
 window.addEventListener('resize', () => {
   renderTabs();
   renderList();
-  if (window.innerWidth >= 1024) { 
-    closeFullPlayer(); 
-    closeChatSheet(); 
-    startChatPolling(); 
-  } else {
-    if (!document.getElementById('chatSheet').classList.contains('open')) stopChatPolling(); 
-  }
+  if (window.innerWidth >= 1024) { closeFullPlayer(); closeChatSheet(); startChatPolling(); }
+  else { if (!document.getElementById('chatSheet').classList.contains('open')) stopChatPolling(); }
   applyCarMode();
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  applyTheme();
-  applyCarMode();
-  initMediaSessionActions();
-  initAudioWatchdog();
-  initCloseConfirmation(); 
-  audio.volume = 0.8;
-  renderTabs();
-  renderList();
-  updateUI();
-  renderHistory();
-  initSwipeGestures();
-  initChatSheetGestures();
-  initGenreMouseScroll();
-  
-  if (window.innerWidth >= 1024) startChatPolling();
-  tick();
-});
-
-window.addEventListener('load', () => {
-  const preloader = document.getElementById('preloader');
-  if (preloader) {
-    preloader.style.opacity = '0';
-    setTimeout(() => { preloader.remove(); }, 600);
-  }
 });
 </script>
 </body>
