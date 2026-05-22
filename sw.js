@@ -5,7 +5,9 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './stations.js',
-  './sw.js'
+  './sw.js',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -34,7 +36,7 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(event.request.url);
 
-  // СТРОГИЙ ФИЛЬТР: Никакого медиа-контента и динамических эндпоинтов в кэше!
+  // СТРОГИЙ ФИЛЬТР: Игнорируем чанки стрима, плейлисты и динамические эндпоинты API
   if (
     url.pathname.endsWith('.m3u8') ||
     url.pathname.endsWith('.ts') ||
@@ -44,7 +46,7 @@ self.addEventListener('fetch', event => {
     url.hostname.includes('workers.dev') || 
     url.searchParams.has('url')
   ) {
-    return; // Пропускаем напрямую в сеть без интерцепта
+    return; // Пропускаем напрямую в сеть, кэш не трогаем
   }
 
   event.respondWith(
