@@ -106,7 +106,6 @@
   .header-actions button:active { opacity: 0.75; }
   .header-actions button.active { background: var(--text); color: var(--bg); }
 
-  /* Увеличен отступ снизу, чтобы мини-плеер не перекрывал последнюю станцию */
   .content-scroll { flex: 1; overflow-y: auto; padding: 0 20px calc(var(--safe-bottom) + 90px); -webkit-overflow-scrolling: touch; }
   .content-scroll::-webkit-scrollbar { display: none; }
 
@@ -182,25 +181,30 @@
   .fp-content { 
     position: relative; z-index: 2; 
     display: flex; flex-direction: column; 
-    justify-content: space-evenly; /* Улучшенное распределение для мобилок */
     height: 100%; max-width: 440px; width: 100%; 
     margin: 0 auto; 
-    padding: calc(var(--safe-top) + 12px) 24px calc(var(--safe-bottom) + 24px);
+    padding: calc(var(--safe-top) + 16px) 24px calc(var(--safe-bottom) + 32px);
     min-height: 0;
   }
   
-  .fp-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 0 12px; flex-shrink: 0; }
+  .fp-header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 4px 0 12px; flex-shrink: 0; 
+    margin-bottom: 2vh; 
+  }
   .fp-down { background: rgba(128,128,128,0.2); border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; backdrop-filter: blur(10px); }
   .fp-down svg { width: 24px; height: 24px; }
   .fp-desktop-title { font-size: 15px; font-weight: 700; color: var(--text-sec); text-align: center; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; }
 
+  /* ЖЕСТКОЕ ЦЕНТРИРОВАНИЕ ЧЕРЕЗ MARGIN: AUTO */
   .fp-art-wrap { 
-    width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; 
+    width: 100%; max-width: 320px; aspect-ratio: 1; 
+    margin: auto; 
     border-radius: 50%; 
     box-shadow: 0 16px 36px rgba(0,0,0,0.25); 
     overflow: hidden; flex-shrink: 1; user-select: none; pointer-events: none; position: relative; 
     background: var(--surface);
-    max-height: 40vh; /* Увеличено для лучшей адаптивности */
+    max-height: 38vh; 
   }
   
   @keyframes record-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -214,7 +218,10 @@
   }
   .fp-art.playing { animation-play-state: running; transform: scale(1); filter: brightness(1); }
 
-  .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; width: 100%; flex-shrink: 0; padding: 0 6px; }
+  .fp-info-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin: 3vh 0 16px; width: 100%; flex-shrink: 0; padding: 0 6px; 
+  }
   .fp-titles { flex: 1; min-width: 0; overflow: hidden; }
   
   .marquee-container { overflow: hidden; white-space: nowrap; max-width: 95%; }
@@ -232,7 +239,10 @@
   .fp-genre { font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; background: var(--surface); padding: 3px 8px; border-radius: 6px; }
   .fp-listeners { display: inline-flex; align-items: center; gap: 4px; }
 
-  .fp-controls { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 16px; padding: 0 16px; width: 100%; flex-shrink: 0; }
+  .fp-controls { 
+    display: flex; align-items: center; justify-content: space-between; 
+    margin: 0; padding: 0 16px 16px; width: 100%; flex-shrink: 0; 
+  }
   .fp-main-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 8px 16px rgba(0,0,0,0.1); transition: transform 0.1s; }
   .fp-main-btn:active { transform: scale(0.92); }
   .fp-main-btn svg { width: 32px; height: 32px; fill: currentColor; }
@@ -265,7 +275,7 @@
   body.car .full-player { display: flex !important; position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: var(--bg); }
   body.car .fp-down { display: none !important; }
   body.car .fp-desktop-title { display: none !important; }
-  body.car .car-exit-header { display: flex !important; }
+  body.car .car-exit-header { display: flex !important; margin-bottom: auto; }
   
   body.car .fp-content { 
     max-width: 540px; 
@@ -274,7 +284,7 @@
     align-items: center; 
     text-align: center;
   }
-  body.car .fp-art-wrap { width: 240px; height: 240px; max-width: 240px; max-height: 28vh; box-shadow: 0 14px 40px rgba(0,0,0,0.35); }
+  body.car .fp-art-wrap { margin: auto; width: 240px; height: 240px; max-width: 240px; max-height: 28vh; box-shadow: 0 14px 40px rgba(0,0,0,0.35); }
   body.car .fp-title { font-size: 30px; text-align: center; font-weight: 900; }
   body.car .fp-track { font-size: 20px; text-align: center; font-weight: 600; }
   body.car .fp-track-wrap { justify-content: center; gap: 14px; }
@@ -282,7 +292,7 @@
   body.car .fp-info-row { flex-direction: column; gap: 12px; margin: 12px 0; text-align: center; }
   body.car .fav-btn { margin-left: 0; padding: 6px; }
   
-  body.car .fp-controls { padding: 0; margin: 16px 0; width: 100%; max-width: 420px; justify-content: space-around; }
+  body.car .fp-controls { padding: 0; margin: 16px 0 0; width: 100%; max-width: 420px; justify-content: space-around; }
   body.car .fp-main-btn { width: 92px; height: 92px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
   body.car .fp-main-btn svg { width: 44px; height: 44px; }
   body.car .fp-sec-btn svg { width: 46px; height: 46px; }
@@ -300,7 +310,7 @@
       gap: 20px 40px;
       padding: 40px !important;
     }
-    body.car .car-exit-header { grid-column: span 2; padding: 0; justify-content: flex-start; }
+    body.car .car-exit-header { grid-column: span 2; padding: 0; justify-content: flex-start; margin-bottom: 0; }
     body.car .fp-art-wrap { grid-column: 1; grid-row: 2; width: 300px; height: 300px; max-width: 100%; max-height: 45vh; margin: auto; }
     body.car .fp-info-row { grid-column: 2; grid-row: 2; align-items: flex-start; text-align: left; margin: 0; justify-content: center; height: 100%; }
     body.car .fp-titles { text-align: left; width: 100%; }
@@ -613,7 +623,7 @@ function initAudioWatchdog() {
       clearTimeout(stallCheckTimeout);
       stallCheckTimeout = setTimeout(() => {
         triggerStreamRecovery("Таймаут буфера (waiting)");
-      }, 8000); /* Увеличено с 3.5 до 8 сек для стабильности на мобилках */
+      }, 8000); 
     }
   });
 
