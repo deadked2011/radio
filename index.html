@@ -85,7 +85,8 @@
   /* ─── ГЛАВНЫЙ МАКЕТ ─── */
   .app-layout { display: flex; width: 100%; height: 100%; overflow: hidden; position: relative; }
   
-  .sidebar-panel { width: var(--sidebar-width); display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); flex-shrink: 0; background: var(--bg); position: relative; z-index: 10; }
+  /* ИСПРАВЛЕНИЕ: Ширина 100% для мобильных устройств, без рамки */
+  .sidebar-panel { width: 100%; display: flex; flex-direction: column; height: 100%; border-right: none; flex-shrink: 0; background: var(--bg); position: relative; z-index: 10; }
   
   .header { padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .header-left { display: flex; flex-direction: column; min-width: 0; flex: 1; margin-right: 12px; }
@@ -173,7 +174,7 @@
   .btn-icon { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; }
   .btn-icon svg { width: 26px; height: 26px; fill: currentColor; }
 
-  /* ─── ЦЕНТРАЛЬНЫЙ ПЛЕЕР (БЕЗОПАСНАЯ ФЛЕКС-ВЕРСТКА) ─── */
+  /* ─── ЦЕНТРАЛЬНЫЙ ПЛЕЕР ─── */
   .full-player { background: var(--bg); display: flex; flex-direction: column; position: relative; height: 100%; overflow: hidden; }
   .fp-bg { position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background-size: cover; background-position: center; filter: blur(60px) brightness(0.6); z-index: 1; opacity: 0.5; transition: background-image 0.5s ease-in-out; pointer-events: none; }
   body.dark .fp-bg { opacity: 0.3; }
@@ -196,7 +197,6 @@
   .fp-down svg { width: 24px; height: 24px; }
   .fp-desktop-title { font-size: 15px; font-weight: 700; color: var(--text-sec); text-align: center; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; }
 
-  /* ЖЕСТКОЕ ЦЕНТРИРОВАНИЕ ЧЕРЕЗ MARGIN: AUTO */
   .fp-art-wrap { 
     width: 100%; max-width: 320px; aspect-ratio: 1; 
     margin: auto; 
@@ -325,6 +325,7 @@
     .app-layout { flex-direction: row; background: var(--bg); }
     .fp-bg { position: fixed !important; top: -50px; left: -50px; right: -50px; bottom: -50px; width: calc(100vw + 100px); height: calc(100vh + 100px); z-index: 0 !important; }
 
+    /* ВОЗВРАЩАЕМ ПРАВИЛЬНЫЙ РАЗМЕР И РАМКУ ДЛЯ ПК */
     .sidebar-panel { width: var(--sidebar-width) !important; background: var(--player-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-right: 1px solid var(--border); z-index: 10; }
     .full-player { flex: 1; height: 100%; background: transparent !important; border-right: 1px solid var(--border); position: relative; z-index: 1; }
 
