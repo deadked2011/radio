@@ -36,6 +36,104 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
+   ОБНОВЛЕННЫЕ ТОКЕНЫ В СТИЛЕ SPOTIFY (БЕЗ ЗЕЛЕНОГО ЦВЕТА)
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #ffffff;
+  --text: #121212;
+  --text-sec: #535353;
+  --surface: #f6f6f6;
+  --surface-hover: #efefef;
+  --accent: #fc3c44; /* Сохраняем ваш кастомный акцент */
+  --player-bg: #ffffff;
+  --border: rgba(0, 0, 0, 0.06);
+  --safe-t: env(safe-area-inset-top, 20px);
+  --safe-b: env(safe-area-inset-bottom, 20px);
+  --sidebar: 340px;
+  --chat: 380px;
+}
+
+body.dark {
+  --bg: #121212;          /* Фирменный глубокий черный фон Spotify */
+  --text: #ffffff;
+  --text-sec: #b3b3b3;    /* Приглушенный серый текст для мета-данных */
+  --surface: #181818;     /* Подложка для карточек и панелей */
+  --surface-hover: #2a2a2a; /* Цвет элемента при наведении (hover) */
+  --player-bg: #181818;
+  --border: rgba(255, 255, 255, 0.05);
+}
+
+/* ── СТИЛИЗАЦИЯ ИНТЕРФЕЙСА ПОД SPOTIFY ── */
+
+/* Округлая строка поиска */
+.search-box {
+  margin: 16px 0;
+  background: var(--surface);
+  border-radius: 50px !important; /* Овальная форма */
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.search-box:focus-within {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--surface-hover);
+}
+
+/* Вкладки-пиллы (Категории) */
+.tab {
+  padding: 8px 16px;
+  border-radius: 32px !important; /* Полностью округлые кнопки */
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700; /* Более жирный шрифт, как в Spotify */
+  border: none;
+  transition: background 0.2s, transform 0.1s;
+}
+.tab:hover {
+  background: var(--surface-hover);
+}
+body.dark .tab.active {
+  background: #ffffff !important; /* Активная вкладка в темной теме — контрастно белая */
+  color: #000000 !important;
+}
+
+/* Список станций (Медиатека) */
+.station-row {
+  padding: 8px 12px;
+  margin: 2px 0;
+  border-radius: 8px !important; /* Мягкое скругление ряда */
+  border-bottom: none !important; /* Убираем разделительные полосы */
+  transition: background 0.2s, opacity 0.2s;
+}
+.station-row:hover {
+  background: var(--surface-hover) !important;
+  opacity: 1 !important;
+}
+.station-img {
+  border-radius: 6px !important; /* Аккуратные квадратные обложки */
+}
+.station-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Нижний десктопный плеер в стиле Spotify */
+@media (min-width: 1024px) {
+  .mini-player {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    border-radius: 0 !important; /* На ПК плеер монолитно лежит на дне экрана */
+    border: none !important;
+    border-top: 1px solid var(--border) !important;
+    padding: 16px 32px !important;
+    background: var(--surface) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+  /* ═══════════════════════════════════════════════════════════
      БАЗА
   ═══════════════════════════════════════════════════════════ */
   *, *::before, *::after {
