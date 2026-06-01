@@ -518,6 +518,31 @@ body.dark .tab.active {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+  /* ... здесь будут твои старые стили оформления, ничего не удаляй! ... */
+  /* ... последняя строчка твоих старых стилей ... */
+
+  /* ── НАЧАЛО ВСТАВКИ: ПЛАВНОЕ ВРАЩЕНИЕ ОБЛОЖКИ ── */
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Когда радио играет, запускаем вращение обложек */
+  #fArt.playing, #mArt.playing {
+    animation: spin 20s linear infinite !important;
+    animation-play-state: running !important;
+  }
+
+  /* По умолчанию вращение стоит на паузе и застывает в текущей позиции */
+  #fArt, #mArt {
+    animation: spin 20s linear infinite;
+    animation-play-state: paused;
+    transition: transform 0.3s ease, border-radius 0.3s ease;
+  }
+  /* ── КОНЕЦ ВСТАВКИ ── */
+
+</style>
+</head>
 </style>
 </head>
 <body>
