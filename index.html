@@ -952,7 +952,6 @@ function initMS() {
 
 /* ── UI ── */
 function updateUI() {
-  function updateUI() {
   const mIcon = document.getElementById('miniPlayIcon');
   const fIcon = document.getElementById('fullPlayIcon');
   const fullCover = document.getElementById('mFullLogo'); // 1. Находим твою обложку
@@ -1206,24 +1205,37 @@ window.addEventListener('load',()=>{
 });
   /* ── ЭНЕРГОСБЕРЕЖЕНИЕ (PAGE VISIBILITY) ── */
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    // Приложение свернуто: останавливаем лишние запросы
-    if (chatPoll) clearInterval(chatPoll);
-    if (trackPoll) clearInterval(trackPoll);
-  } else {
-    // Приложение развернуто: восстанавливаем поллинг, если нужно
-    if (window.innerWidth >= 1024 && !isChatHiddenPC) {
-      startChatPoll();
-    } else if (window.innerWidth < 1024 && document.getElementById('chatSheet').classList.contains('open')) {
-      startChatPoll();
+  try {
+    // Определяем правильное имя переменной индекса (currentIndex или curIdx)
+    const activeIdx = typeof currentIndex !== 'undefined' ? currentIndex : (typeof curIdx !== 'undefined' ? curIdx : 0);
+    const stationsList = window.stations || (typeof stations !== 'undefined' ? stations : []);
+
+    if (document.hidden) {
+      // Приложение свернуто: безопасно останавливаем поллинг чата
+      if (typeof stopChatPolling === 'function') stopChatPolling();
+      if (typeof stopChatPoll === 'function') stopChatPoll();
+      
+      // Если у тебя есть таймер треков, очищаем его
+      if (typeof trackPoll !== 'undefined' && trackPoll) clearInterval(trackPoll);
+    } else {
+      // Приложение развернуто: восстанавливаем поллинг чата по твоей логике
+      if (window.innerWidth >= 1024) {
+        if (typeof startChatPolling === 'function') startChatPolling();
+      } else if (document.getElementById('chatSheet') && document.getElementById('chatSheet').classList.contains('open')) {
+        if (typeof startChatPolling === 'function') startChatPolling();
+      }
+      
+      // Восстанавливаем получение треков, если музыка играет
+      if (typeof isPlaying !== 'undefined' && isPlaying && stationsList[activeIdx]) {
+        if (typeof fetchTrack === 'function') {
+          fetchTrack(stationsList[activeIdx].stream);
+          if (typeof trackPoll !== 'undefined' && trackPoll) clearInterval(trackPoll);
+          trackPoll = setInterval(() => fetchTrack(stationsList[activeIdx].stream), 15000);
+        }
+      }
     }
-    
-    // Восстанавливаем получение треков, если играет музыка
-    if (isPlaying && stations[curIdx]) {
-      fetchTrack(stations[curIdx].stream);
-      if (trackPoll) clearInterval(trackPoll);
-      trackPoll = setInterval(() => fetchTrack(stations[curIdx].stream), 15000);
-    }
+  } catch (error) {
+    console.warn("Visibility API error handled safely:", error);
   }
 });
 </script>
