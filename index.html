@@ -952,47 +952,64 @@ function initMS() {
 
 /* ── UI ── */
 function updateUI() {
-  const mIcon = document.getElementById('miniPlayIcon');
-  const fIcon = document.getElementById('fullPlayIcon');
-  const fullCover = document.getElementById('mFullLogo'); // 1. Находим твою обложку
+  const activeIdx = (typeof curIdx !== 'undefined' ? curIdx : 0);
+  const stationsList = window.stations || [];
+  const s = stationsList[activeIdx];
+  if (!s) return;
 
-  if (isPlaying) {
-    mIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-    fIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-    if (fullCover) fullCover.classList.add('spinning');   // 2. Запускаем вращение
+  const favBtn = document.getElementById('favBtn');
+
+  // Обновляем текстовые метаданные
+  if (document.getElementById('mTitle')) document.getElementById('mTitle').textContent = s.name;
+  if (document.getElementById('fTitle')) document.getElementById('fTitle').textContent = s.name;
+  if (document.getElementById('fGenre')) document.getElementById('fGenre').textContent = s.genre || 'Радио';
+
+  if (favBtn) favBtn.style.visibility = 'visible';
+
+  // Счётчик слушателей
+  if (s.listeners !== undefined) {
+    if (document.getElementById('fListenersCount')) document.getElementById('fListenersCount').textContent = s.listeners;
+    if (document.getElementById('fListenersRow')) document.getElementById('fListenersRow').style.display = 'inline-flex';
   } else {
-    mIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
-    fIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
-    if (fullCover) fullCover.classList.remove('spinning'); // 3. Ставим на паузу
+    if (document.getElementById('fListenersRow')) document.getElementById('fListenersRow').style.display = 'none';
   }
-}
-  }
-  const s=(stations[curIdx]);
-  const cover=(s.logo&&s.logo.trim())?s.logo:fallbackLogo(s.name);
-  const isFav=favs.includes(s.name);
-  hdr.textContent=s.name;
-  document.getElementById('mTitle').textContent=s.name;
-  document.getElementById('fTitle').textContent=s.name;
-  document.getElementById('fGenre').textContent=s.genre||'Радио';
-  favBtn.style.visibility='visible';
-  if (s.listeners!==undefined) { document.getElementById('fListenersCount').textContent=s.listeners; document.getElementById('fListenersRow').style.display='inline-flex'; }
-  else document.getElementById('fListenersRow').style.display='none';
 
-  const img=new Image(); img.src=cover;
-  const apply=url=>{ const a=document.getElementById('fArt'); a.style.opacity='1'; a.src=url; document.getElementById('mArt').src=url; document.getElementById('fBg').style.backgroundImage=`url(${url})`; isPlaying?a.classList.add('playing'):a.classList.remove('playing'); };
-  img.onload=()=>apply(cover); img.onerror=()=>apply(fallbackLogo(s.name));
+  // Логика загрузки и обновления обложек
+  const cover = s.logo || 'icon-512.png';
+  const img = new Image();
+  img.src = cover;
 
-  favBtn.innerHTML=isFav
-    ?`<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`
-    :`<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" width="22" height="22"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
-  favBtn.classList.toggle('active',isFav);
-}
-function updateBtns() {
-  const pl=`<path d="M8 5v14l11-7z"/>`, pa=`<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-  document.getElementById('mPlayIcon').innerHTML=isPlaying?pa:pl;
-  document.getElementById('fPlayIcon').innerHTML=isPlaying?pa:pl;
-}
+  const apply = url => {
+    const fArt = document.getElementById('fArt');
+    const mArt = document.getElementById('mArt');
+    const fBg = document.getElementById('fBg');
 
+    if (fArt) {
+      fArt.style.opacity = '1';
+      fArt.src = url;
+      // Управляем классами анимации вращения
+      if (typeof isPlaying !== 'undefined' && isPlaying) {
+        fArt.classList.add('playing');
+      } else {
+        fArt.classList.remove('playing');
+      }
+    }
+
+    if (mArt) {
+      mArt.src = url;
+      if (typeof isPlaying !== 'undefined' && isPlaying) {
+        mArt.classList.add('playing');
+      } else {
+        mArt.classList.remove('playing');
+      }
+    }
+
+    if (fBg) fBg.style.backgroundImage = `url(${url})`;
+  };
+
+  img.onload = () => apply(cover);
+  img.onerror = () => apply('icon-512.png');
+}
 /* ── ПЛЕЕР OPEN/CLOSE ── */
 function openFullPlayer() { if (window.innerWidth<1024||carMode) { document.getElementById('fullPlayer').classList.add('open'); updateUI(); } }
 function closeFullPlayer() { if (!carMode) document.getElementById('fullPlayer').classList.remove('open'); }
