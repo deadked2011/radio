@@ -349,6 +349,7 @@ body.dark .tab.active {
     transform: scale(.92);
     filter: brightness(.8);
     transition: transform .4s cubic-bezier(.34,1.56,.64,1), filter .4s;
+    will-change: transform, filter; /* <-- ДОБАВИТЬ ЭТО */
   }
   .fp-art.playing { animation-play-state: running; transform: scale(1); filter: brightness(1); }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -363,7 +364,9 @@ body.dark .tab.active {
   @keyframes marquee { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-30%); } }
 
   .visualizer-bars { display: flex; gap: 3px; align-items: flex-end; height: 16px; width: 22px; flex-shrink: 0; opacity: .85; }
-  .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(.2); transition: transform .1s ease; }
+  .v-bar { width: 3px; height: 100%; background: var(--accent); border-radius: 1px; transform-origin: bottom; transform: scaleY(.2); transition: transform .1s ease; 
+         will-change: transform; /* <-- ДОБАВИТЬ ЭТО */
+         }
 
   .fp-meta-info { display: flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; color: var(--text-sec); }
   .fp-genre { font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; background: var(--surface); padding: 3px 8px; border-radius: 6px; }
@@ -788,7 +791,11 @@ function renderTabs() {
   ).join('');
 }
 function setTab(id) { activeTab=id; renderTabs(); renderList(); tg.HapticFeedback.selectionChanged(); }
-function onSearchInput() { renderList(); }
+let searchTO = null;
+function onSearchInput() { 
+  clearTimeout(searchTO); 
+  searchTO = setTimeout(renderList, 250); 
+}
 
 /* ── СПИСОК СТАНЦИЙ ── */
 function renderList() {
@@ -806,7 +813,7 @@ function renderList() {
     const cover = (s.logo && s.logo.trim()) ? s.logo : fallbackLogo(s.name);
     return `
       <div class="station-row ${idx===curIdx?'active':''}" onclick="playStation(${idx})">
-        <img src="${cover}" class="station-img" loading="lazy" onerror="this.onerror=null;this.src='${fallbackLogo(s.name.replace(/'/g,"\\'"))}'">
+        <img src="${cover}" class="station-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${fallbackLogo(s.name.replace(/'/g,"\\'"))}'">
         <div class="station-info">
           <div class="station-name">${esc(s.name)}</div>
           <div class="station-meta-row">
@@ -1174,6 +1181,28 @@ window.addEventListener('DOMContentLoaded',()=>{
 window.addEventListener('load',()=>{
   const p=document.getElementById('preloader');
   if(p){p.style.opacity='0';setTimeout(()=>p.remove(),600);}
+});
+  /* ── ЭНЕРГОСБЕРЕЖЕНИЕ (PAGE VISIBILITY) ── */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    // Приложение свернуто: останавливаем лишние запросы
+    if (chatPoll) clearInterval(chatPoll);
+    if (trackPoll) clearInterval(trackPoll);
+  } else {
+    // Приложение развернуто: восстанавливаем поллинг, если нужно
+    if (window.innerWidth >= 1024 && !isChatHiddenPC) {
+      startChatPoll();
+    } else if (window.innerWidth < 1024 && document.getElementById('chatSheet').classList.contains('open')) {
+      startChatPoll();
+    }
+    
+    // Восстанавливаем получение треков, если играет музыка
+    if (isPlaying && stations[curIdx]) {
+      fetchTrack(stations[curIdx].stream);
+      if (trackPoll) clearInterval(trackPoll);
+      trackPoll = setInterval(() => fetchTrack(stations[curIdx].stream), 15000);
+    }
+  }
 });
 </script>
 </body>
