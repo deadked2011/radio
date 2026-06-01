@@ -499,6 +499,25 @@ body.dark .tab.active {
   }
 
   .panel-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  /* ── ВРАЩЕНИЕ ОРИГИНАЛЬНОЙ ОБЛОЖКИ ── */
+.big-cover {
+  /* Задаем бесконечное вращение, но по умолчанию ставим его на паузу */
+  animation: spotify-spin 25s linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+  transition: border-radius 0.4s ease; /* Плавный переход формы, если решишь сделать круг */
+}
+
+/* Класс, который будет активировать вращение */
+.big-cover.spinning {
+  animation-play-state: running;
+  /* border-radius: 50%; */ /* <--- Раскомментируй, если хочешь круглую пластинку при проигрывании */
+}
+
+@keyframes spotify-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
@@ -933,18 +952,21 @@ function initMS() {
 
 /* ── UI ── */
 function updateUI() {
-  const favBtn = document.getElementById('fFavBtn');
-  const hdr    = document.getElementById('headerTitle');
-  if (curIdx===-1 || !stations[curIdx]) {
-    hdr.textContent='Радио';
-    ['mTitle','fTitle'].forEach(id=>document.getElementById(id).textContent='Выберите станцию');
-    document.getElementById('mSub').textContent='';
-    document.getElementById('fTrack').textContent='Radio Go';
-    document.getElementById('fGenre').textContent='Эфир';
-    document.getElementById('fListenersRow').style.display='none';
-    document.getElementById('fArt').style.opacity='0';
-    document.getElementById('fBg').style.backgroundImage='none';
-    favBtn.style.visibility='hidden'; return;
+  function updateUI() {
+  const mIcon = document.getElementById('miniPlayIcon');
+  const fIcon = document.getElementById('fullPlayIcon');
+  const fullCover = document.getElementById('mFullLogo'); // 1. Находим твою обложку
+
+  if (isPlaying) {
+    mIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+    fIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+    if (fullCover) fullCover.classList.add('spinning');   // 2. Запускаем вращение
+  } else {
+    mIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+    fIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+    if (fullCover) fullCover.classList.remove('spinning'); // 3. Ставим на паузу
+  }
+}
   }
   const s=(stations[curIdx]);
   const cover=(s.logo&&s.logo.trim())?s.logo:fallbackLogo(s.name);
