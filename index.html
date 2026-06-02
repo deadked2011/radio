@@ -999,6 +999,22 @@ function updateUI() {
     if (document.getElementById('fListenersRow')) document.getElementById('fListenersRow').style.display = 'none';
   }
 
+  // ── ИКОНКИ PLAY / PAUSE (ВОЗВРАЩЕНО И ИСПРАВЛЕНО) ──
+  const mIcon = document.getElementById('miniPlayIcon');
+  const fIcon = document.getElementById('fullPlayIcon');
+  const playingStatus = (typeof isPlaying !== 'undefined' && isPlaying);
+
+  if (mIcon) {
+    mIcon.innerHTML = playingStatus 
+      ? `<svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`
+      : `<svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  }
+  if (fIcon) {
+    fIcon.innerHTML = playingStatus 
+      ? `<svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`
+      : `<svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  }
+
   // Логика загрузки и обновления обложек
   const cover = s.logo || 'icon-512.png';
   const img = new Image();
@@ -1012,21 +1028,14 @@ function updateUI() {
     if (fArt) {
       fArt.style.opacity = '1';
       fArt.src = url;
-      // Управляем классами анимации вращения
-      if (typeof isPlaying !== 'undefined' && isPlaying) {
-        fArt.classList.add('playing');
-      } else {
-        fArt.classList.remove('playing');
-      }
+      if (playingStatus) fArt.classList.add('playing');
+      else fArt.classList.remove('playing');
     }
 
     if (mArt) {
       mArt.src = url;
-      if (typeof isPlaying !== 'undefined' && isPlaying) {
-        mArt.classList.add('playing');
-      } else {
-        mArt.classList.remove('playing');
-      }
+      if (playingStatus) mArt.classList.add('playing');
+      else mArt.classList.remove('playing');
     }
 
     if (fBg) fBg.style.backgroundImage = `url(${url})`;
