@@ -1290,5 +1290,61 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 </script>
+  <script>
+(() => {
+  // Находим нативный элемент аудиопотока
+  const audioEl = window.audio || document.querySelector('audio');
+  if (!audioEl) return;
+
+  const syncPlayPauseUI = () => {
+    // Определяем реальный статус: играет ли аудио в данный момент
+    const isPlaying = !audioEl.paused && !audioEl.ended && audioEl.currentTime > 0;
+
+    // 1. УПРАВЛЕНИЕ АНИМАЦИЕЙ ОБЛОЖЕК
+    const covers = [
+      document.getElementById('fArt'),
+      document.getElementById('mArt'),
+      document.getElementById('mFullLogo')
+    ];
+    covers.forEach(cover => {
+      if (cover) {
+        if (isPlaying) {
+          cover.classList.add('playing');
+        } else {
+          cover.classList.remove('playing');
+        }
+      }
+    });
+
+    // 2. УПРАВЛЕНИЕ ИКОНКАМИ КНОПОК (ПОДДЕРЖКА ЛЮБЫХ ID)
+    const miniButtons = [document.getElementById('miniPlayIcon'), document.getElementById('miniPlayBtn')];
+    const fullButtons = [document.getElementById('fullPlayIcon'), document.getElementById('fullPlayBtn')];
+
+    const playSVG = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+    const pauseSVG = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+    miniButtons.forEach(btn => {
+      if (btn) {
+        const targetSVG = isPlaying ? pauseSVG : playSVG;
+        if (btn.innerHTML !== targetSVG) btn.innerHTML = targetSVG;
+      }
+    });
+
+    fullButtons.forEach(btn => {
+      if (btn) {
+        const targetSVG = isPlaying ? pauseSVG : playSVG;
+        if (btn.innerHTML !== targetSVG) btn.innerHTML = targetSVG;
+      }
+    });
+  };
+
+  // Слушаем абсолютно все триггеры аудио-движка браузера
+  const audioEvents = ['play', 'playing', 'pause', 'waiting', 'stalled', 'suspend', 'ended', 'emptied'];
+  audioEvents.forEach(event => audioEl.addEventListener(event, syncPlayPauseUI));
+
+  // Фоновый микро-интервал (раз в 200мс) для гарантированной синхронизации при перебоях сети
+  setInterval(syncPlayPauseUI, 200);
+})();
+</script>
 </body>
 </html>
