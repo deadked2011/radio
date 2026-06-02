@@ -1346,5 +1346,68 @@ document.addEventListener("visibilitychange", () => {
   setInterval(syncPlayPauseUI, 200);
 })();
 </script>
+  <script>
+(() => {
+  // Находим аудиопоток (поддерживаем и глобальную переменную audio, и тег)
+  const audioEl = window.audio || document.querySelector('audio');
+  if (!audioEl) return;
+
+  function syncPlayPauseUI() {
+    // Проверяем, играет ли аудио физически в данный момент
+    const isPlaying = !audioEl.paused && !audioEl.ended && audioEl.currentTime > 0;
+
+    // 1. Переключаем класс на всем документе для поддержки CSS-стилей оформления
+    if (isPlaying) {
+      document.body.classList.add('playing');
+    } else {
+      document.body.classList.remove('playing');
+    }
+
+    // 2. Умный поиск всех элементов управления по маске "play" и "toggle"
+    const controls = document.querySelectorAll('[id*="play" i], [class*="play" i], [id*="toggle" i]');
+    
+    controls.forEach(el => {
+      // Управляем классами состояний для анимации вращения обложек и кнопок
+      if (isPlaying) {
+        el.classList.add('playing');
+        el.classList.remove('paused');
+      } else {
+        el.classList.remove('playing');
+        el.classList.add('paused');
+      }
+
+      // 3. Автоматическая подмена контура внутри SVG-иконок
+      // Находим SVG внутри кнопки или проверяем, не является ли сам элемент SVG
+      const svg = el.tagName.toLowerCase() === 'svg' ? el : el.querySelector('svg');
+      if (svg) {
+        let path = svg.querySelector('path');
+        if (!path) {
+          // Если внутри SVG почему-то нет тега path, создаем его
+          path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('fill', 'currentColor');
+          svg.appendChild(path);
+        }
+
+        // Чистые векторные контуры кнопок Play и Pause (Material / Fluent Design)
+        const playPath = "M8 5v14l11-7z";
+        const pausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+
+        // Меняем только внутреннее свойство "d", сохраняя исходные размеры, цвета и viewBox вашей иконки
+        const targetD = isPlaying ? pausePath : playPath;
+        if (path.getAttribute('d') !== targetD) {
+          path.setAttribute('d', targetD);
+        }
+      }
+    });
+  }
+
+  // Привязываемся ко всем ключевым событиям аудио-движка браузера
+  const audioEvents = ['play', 'playing', 'pause', 'waiting', 'stalled', 'ended', 'emptied'];
+  audioEvents.forEach(event => audioEl.addEventListener(event, syncPlayPauseUI));
+
+  // Микро-интервал синхронизации (раз в 250мс) для мгновенного подхвата состояний при буферизации сетевого потока
+  setInterval(syncPlayPauseUI, 250);
+})();
+</script>
 </body>
 </html>
