@@ -1,5 +1,5 @@
 (function(){
-  // player-fixes.js — sync play/pause; single reconnect attempt; prevent auto-next on failure
+  // player-fixes.js — sync play/pause; single reconnect attempt; prevent auto-next
   const audioEl = window.audio || document.getElementById('audio');
   const fullPlayBtn = document.querySelector('.fp-main-btn');
   const fullPlayIcon = document.getElementById('fPlayIcon');
