@@ -1,4 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Radio</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="icon" href="icon-192.png"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="stylesheet" href="player-fixes.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242424;
+      --surface2: #2e2e2e;
+      --accent: #7c5cfc;
+      --text: #f0f0f0;
+      --text2: #aaa;
+      --mini-h: 64px;
+      --player-bg: #1a1a1a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: var(--mini-h);
+    }
 
-</script>
-<script src="player-fixes.js"></script>
+    /* ── Genre filter ── */
+    .genre-bar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--bg);
+      padding: 12px 16px;
+      display: flex; gap: 8px;
+      overflow-x: auto; scrollbar-width: none;
+      border-bottom: 1px solid #333;
+    }
+    .genre-bar::-webkit-scrollbar { display: none; }
+    .genre-btn {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #444;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .genre-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .genre-btn:hover:not(.active) { background: rgba(255,255,255,.08); }
+
+    /* ── Station list ── */
+    .station-list {
+      padding: 12px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      max-width: 700px; margin: 0 auto;
+    }
+    .station-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px;
+      background: var(--surface);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .15s;
+      border: 2px solid transparent;
+    }
+    .station-card:hover { background: var(--surface2); }
+    .station-card.active { border-color: var(--accent); }
+    .station-logo {
+      width: 48px; height: 48px;
+      border-radius: 10px; object-fit: contain;
+      background: #333; flex-shrink: 0;
+    }
+    .station-info { flex: 1; min-width: 0; }
+    .station-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .station-genre { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .station-listeners { font-size: 12px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
+
+    /* ── Mini player ── */
+    .mini-player {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--mini-h);
+      background: var(--surface);
+      border-top: 1px solid #333;
+      display: none; align-items: center;
+      padding: 0 16px; gap: 12px;
+      z-index: 100; cursor: pointer;
+    }
+    .mini-player.visible { display: flex; }
+    .mini-logo { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; background: #333; flex-shrink: 0; }
+    .mini-info { flex: 1; min-width: 0; }
+    .mini-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-status { font-size: 11px; color: var(--text2); }
+    .mini-play-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: none; background: var(--accent); color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .btn-icon svg { width: 22px; height: 22px; fill: currentColor; display: block; }
+
+    /* ── Full player ── */
+    .full-player {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--player-bg);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      overflow: hidden;
+    }
+    .full-player.open { transform: translateY(0); }
+    .fp-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: blur(56px) brightness(.45);
+      transform: scale(1.1);
+      z-index: 0; pointer-events: none;
+    }
+    .fp-close {
+      position: absolute; top: 20px; right: 20px; z-index: 2;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: none; background: rgba(255,255,255,.15);
+      color: #fff; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fp-close:hover { background: rgba(255,255,255,.25); }
+    .fp-content {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 20px;
+      padding: 40px 24px; width: 100%; max-width: 400px;
+    }
+    .fp-logo {
+      width: 180px; height: 180px; border-radius: 20px;
+      object-fit: contain; background: rgba(255,255,255,.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    }
+    .fp-station-name { font-size: 22px; font-weight: 700; text-align: center; }
+    .fp-genre { font-size: 14px; color: rgba(255,255,255,.6); }
+    #fTrack { font-size: 13px; color: rgba(255,255,255,.5); text-align: center; min-height: 18px; transition: color .25s; }
+    .fp-controls { display: flex; align-items: center; }
+    .fp-main-btn {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: none; background: rgba(255,255,255,.2);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; padding: 18px;
+    }
+    .fp-main-btn:hover { background: rgba(255,255,255,.3); }
+    .fp-main-btn svg { width: 100%; height: 100%; fill: currentColor; }
+    .fp-volume { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .fp-volume svg { width: 20px; height: 20px; fill: rgba(255,255,255,.6); flex-shrink: 0; }
+    .fp-volume input[type=range] { flex: 1; height: 4px; accent-color: var(--accent); cursor: pointer; }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 100%; height: 100%;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    .spin-sm {
+      width: 22px; height: 22px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+  <audio id="audio" preload="none"></audio>
+
+  <div class="genre-bar" id="genreBar"></div>
+  <div class="station-list" id="stationList"></div>
+
+  <!-- Mini player -->
+  <div class="mini-player" id="miniPlayer" onclick="openFullPlayer()">
+    <img class="mini-logo" id="mLogo" src="" alt=""/>
+    <div class="mini-info">
+      <div class="mini-name" id="mName">—</div>
+      <div class="mini-status" id="mStatus"></div>
+    </div>
+    <button class="mini-play-btn btn-icon" onclick="event.stopPropagation(); togglePlay()">
+      <svg viewBox="0 0 24 24"><path id="mPlayIcon" d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+
+  <!-- Full player -->
+  <div class="full-player" id="fullPlayer">
+    <div class="fp-bg" id="fpBg"></div>
+    <button class="fp-close" onclick="closeFullPlayer()">✕</button>
+    <div class="fp-content">
+      <img class="fp-logo" id="fLogo" src="" alt="" onerror="this.src=''"/>
+      <div class="fp-station-name" id="fName">—</div>
+      <div class="fp-genre" id="fGenreLabel"></div>
+      <div id="fTrack">В эфире</div>
+      <div class="fp-controls">
+        <button class="fp-main-btn" id="fpMainBtn" onclick="togglePlay()">
+          <svg viewBox="0 0 24 24"><path id="fPlayIcon" d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <div class="fp-volume">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        <input type="range" id="volSlider" min="0" max="1" step="0.02" value="0.8" oninput="setVolume(this.value)"/>
+      </div>
+    </div>
+  </div>
+
+  <script src="stations.js"></script>
+  <script>
+    // ── State ──────────────────────────────────────────
+    var audio = document.getElementById('audio');
+    window.audio = audio;
+    var curIdx = -1;
+    window.curIdx = -1;
+    var isPlaying = false;
+    window.isPlaying = false;
+    var hls = null;
+    window.hls = null;
+    var curGenre = 'all';
+    var reconnectAttempted = false;
+    var reconnectTimer = null;
+    var waitingTimer = null;
+
+    // ── Service Worker ─────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+
+    // ── Icons ──────────────────────────────────────────
+    var PLAY_PATH  = 'M8 5v14l11-7z';
+    var PAUSE_PATH = 'M6 19h4V5H6v14zM14 5v14h4V5h-4z';
+
+    function setPlayIcons(playing) {
+      var p = playing ? PAUSE_PATH : PLAY_PATH;
+      var fi = document.getElementById('fPlayIcon');
+      var mi = document.getElementById('mPlayIcon');
+      if (fi) fi.setAttribute('d', p);
+      if (mi) mi.setAttribute('d', p);
+      document.body.classList.toggle('playing', !!playing);
+      var btn = document.getElementById('fpMainBtn');
+      if (btn) btn.classList.toggle('playing', !!playing);
+    }
+
+    function setLoading(on) {
+      var btn = document.getElementById('fpMainBtn');
+      var mini = document.querySelector('.mini-play-btn');
+      if (!btn) return;
+      if (on) {
+        btn.innerHTML = '<div class="spinner"></div>';
+        if (mini) mini.innerHTML = '<div class="spin-sm"></div>';
+      } else {
+        var p = isPlaying ? PAUSE_PATH : PLAY_PATH;
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path id="fPlayIcon" d="' + p + '"/></svg>';
+        if (mini) mini.innerHTML = '<svg viewBox="0 0 24 24"><path id="mPlayIcon" d="' + p + '"/></svg>';
+      }
+    }
+
+    function setStatus(msg) {
+      var el = document.getElementById('fTrack');
+      var ms = document.getElementById('mStatus');
+      if (el) el.textContent = msg || 'В эфире';
+      if (ms) ms.textContent = msg || '';
+    }
+
+    // ── Fatal / Recover ────────────────────────────────
+    window.fatalError = function() {
+      reconnectAttempted = false;
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+      if (waitingTimer)   { clearTimeout(waitingTimer);   waitingTimer = null; }
+      setStatus('Радио сейчас недоступно');
+      setLoading(false);
+      try { audio.pause(); } catch(e) {}
+      isPlaying = false; window.isPlaying = false;
+      setPlayIcons(false);
+    };
+
+    window.recover = function(reason) {
+      if (curIdx === -1 || !isPlaying) return;
+      if (reconnectAttempted) { window.fatalError(); return; }
+      reconnectAttempted = true;
+      setStatus('Соединение потеряно. Повторная попытка через 5 сек...');
+
+      reconnectTimer = setTimeout(function() {
+        var s = stations[curIdx];
+        if (!s || !s.stream) { window.fatalError(); return; }
+        try {
+          if (typeof Hls !== 'undefined' && Hls.isSupported() && s.stream.includes('.m3u8')) {
+            if (hls) { try { hls.destroy(); } catch(_){} }
+            hls = new Hls({ enableWorker: true, lowLatencyMode: false, maxBufferLength: 30 });
+            window.hls = hls;
+            hls.loadSource(s.stream);
+            hls.attachMedia(audio);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+              audio.play().catch(function() { window.fatalError(); });
+            });
+          } else {
+            var vol = audio.volume || 0.8;
+            audio.pause();
+            audio.src = s.stream;
+            audio.load();
+            audio.volume = vol;
+            audio.play().catch(function() { window.fatalError(); });
+          }
+          reconnectAttempted = false;
+        } catch(err) {
+          window.fatalError();
+        }
+      }, 5000);
+    };
+
+    // ── Play station ───────────────────────────────────
+    window.playStation = function(idx) {
+      var s = stations[idx];
+      if (!s) return;
+
+      if (hls) { try { hls.destroy(); } catch(_){} hls = null; window.hls = null; }
+      audio.pause();
+      audio.src = '';
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+      if (waitingTimer)   { clearTimeout(waitingTimer);   waitingTimer = null; }
+      reconnectAttempted = false;
+
+      curIdx = idx; window.curIdx = idx;
+      isPlaying = true; window.isPlaying = true;
+
+      // Update mini player
+      var mp = document.getElementById('miniPlayer');
+      if (mp) mp.classList.add('visible');
+      var ml = document.getElementById('mLogo');
+      var mn = document.getElementById('mName');
+      var ms = document.getElementById('mStatus');
+      if (ml) ml.src = s.logo;
+      if (mn) mn.textContent = s.name;
+      if (ms) ms.textContent = s.genre;
+
+      // Update full player
+      document.getElementById('fLogo').src = s.logo;
+      document.getElementById('fpBg').style.backgroundImage = "url('" + s.logo + "')";
+      document.getElementById('fName').textContent = s.name;
+      document.getElementById('fGenreLabel').textContent = s.genre;
+      setStatus('В эфире');
+      setLoading(true);
+      setPlayIcons(true);
+
+      // Update active card
+      document.querySelectorAll('.station-card').forEach(function(c) {
+        c.classList.toggle('active', parseInt(c.dataset.idx) === idx);
+      });
+
+      audio.volume = parseFloat(document.getElementById('volSlider').value || 0.8);
+
+      if (typeof Hls !== 'undefined' && Hls.isSupported() && s.stream.includes('.m3u8')) {
+        hls = new Hls({ enableWorker: true, lowLatencyMode: false, maxBufferLength: 30 });
+        window.hls = hls;
+        hls.loadSource(s.stream);
+        hls.attachMedia(audio);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          audio.play().catch(function() { window.fatalError(); });
+        });
+        hls.on(Hls.Events.ERROR, function(e, data) {
+          if (data.fatal) window.fatalError();
+        });
+      } else if (audio.canPlayType('application/vnd.apple.mpegurl') && s.stream.includes('.m3u8')) {
+        audio.src = s.stream;
+        audio.load();
+        audio.play().catch(function() { window.fatalError(); });
+      } else {
+        audio.src = s.stream;
+        audio.load();
+        audio.play().catch(function() { window.fatalError(); });
+      }
+    };
+
+    // ── Toggle play ────────────────────────────────────
+    window.togglePlay = function() {
+      if (curIdx === -1) {
+        playStation(0);
+        openFullPlayer();
+        return;
+      }
+      if (audio.paused) {
+        audio.play().catch(function() { window.fatalError(); });
+        isPlaying = true; window.isPlaying = true;
+        setPlayIcons(true);
+      } else {
+        audio.pause();
+        isPlaying = false; window.isPlaying = false;
+        setPlayIcons(false);
+      }
+    };
+
+    function setVolume(v) {
+      audio.volume = parseFloat(v);
+    }
+
+    // ── Audio events ───────────────────────────────────
+    audio.addEventListener('playing', function() {
+      setLoading(false);
+      isPlaying = true; window.isPlaying = true;
+      setPlayIcons(true);
+      reconnectAttempted = false;
+      if (waitingTimer) { clearTimeout(waitingTimer); waitingTimer = null; }
+      setStatus('В эфире');
+    });
+    audio.addEventListener('pause', function() {
+      isPlaying = false; window.isPlaying = false;
+      setLoading(false);
+      setPlayIcons(false);
+    });
+    audio.addEventListener('waiting', function() {
+      if (!audio.paused) {
+        setLoading(true);
+        if (waitingTimer) clearTimeout(waitingTimer);
+        waitingTimer = setTimeout(function() { window.recover('waiting'); }, 8000);
+      }
+    });
+    audio.addEventListener('stalled', function() {
+      if (!audio.paused) window.recover('stalled');
+    });
+    audio.addEventListener('error', function() {
+      window.fatalError();
+    });
+
+    // ── Full player open/close ─────────────────────────
+    function openFullPlayer() {
+      document.getElementById('fullPlayer').classList.add('open');
+    }
+    function closeFullPlayer() {
+      document.getElementById('fullPlayer').classList.remove('open');
+    }
+    window.openFullPlayer  = openFullPlayer;
+    window.closeFullPlayer = closeFullPlayer;
+
+    // ── Genre filter ───────────────────────────────────
+    var genreBar = document.getElementById('genreBar');
+    genres.forEach(function(g) {
+      var btn = document.createElement('button');
+      btn.className = 'genre-btn' + (g.id === 'all' ? ' active' : '');
+      btn.textContent = g.label;
+      btn.dataset.genre = g.id;
+      btn.onclick = function() { filterGenre(g.id); };
+      genreBar.appendChild(btn);
+    });
+
+    function filterGenre(genreId) {
+      curGenre = genreId;
+      document.querySelectorAll('.genre-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.genre === genreId);
+      });
+      renderStations();
+    }
+
+    // ── Station list render ────────────────────────────
+    function renderStations() {
+      var list = document.getElementById('stationList');
+      var filtered = curGenre === 'all'
+        ? stations
+        : stations.filter(function(s) { return s.tag === curGenre; });
+
+      list.innerHTML = '';
+      filtered.forEach(function(s) {
+        var idx = stations.indexOf(s);
+        var card = document.createElement('div');
+        card.className = 'station-card' + (idx === curIdx ? ' active' : '');
+        card.dataset.idx = idx;
+
+        var listeners = (s.listeners / 1000).toFixed(1) + 'K';
+        card.innerHTML =
+          '<img class="station-logo" src="' + s.logo + '" alt="" onerror="this.src=\'icon-192.png\'"/>' +
+          '<div class="station-info">' +
+            '<div class="station-name">' + s.name + '</div>' +
+            '<div class="station-genre">' + s.genre + '</div>' +
+          '</div>' +
+          '<div class="station-listeners">' +
+            '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">' +
+              '<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>' +
+            '</svg>' +
+            listeners +
+          '</div>';
+
+        card.onclick = function() { playStation(idx); openFullPlayer(); };
+        list.appendChild(card);
+      });
+    }
+
+    renderStations();
+  </script>
+  <script src="player-fixes.js"></script>
 </body>
+</html>
