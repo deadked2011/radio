@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Radio</title>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#1C1B1F"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+  <link rel="stylesheet" href="player-fixes.css"/>
+  <style>
+    :root{--bg:#1C1B1F;--sur:#211F26;--sur2:#2B2930;--sur3:#36343B;--out:#49454F;--pr:#D0BCFF;--prC:#4F378A;--onPr:#381E72;--txt:#E6E1E5;--txt2:#CAC4D0;--txt3:#938F99;--safe-t:env(safe-area-inset-top);--safe-b:env(safe-area-inset-bottom)}
+    body.light{--bg:#FFFBFE;--sur:#F7F2FA;--sur2:#ECE6F0;--sur3:#E6DFF0;--out:#79747E;--pr:#6750A4;--prC:#EADDFF;--onPr:#fff;--txt:#1C1B1F;--txt2:#49454F;--txt3:#79747E}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overscroll-behavior:none}
+    body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;padding-bottom:calc(152px + var(--safe-b));transition:background .3s,color .3s}
+    ::-webkit-scrollbar{display:none}
+    audio{display:none}
+    @keyframes spin-logo{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes md-spin{to{transform:rotate(360deg)}}
+    @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .spinning{animation:spin-logo 10s linear infinite}
+    .ripple{position:relative;overflow:hidden}
+    .ripple:active::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.07);border-radius:inherit}
+    input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;background:var(--sur3);width:100%}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--pr);cursor:pointer}
+    textarea{outline:none;resize:none;font-family:inherit}
+    button{cursor:pointer;font-family:inherit}
+    /* Header */
+    .hdr{position:sticky;top:0;z-index:60;background:var(--bg);padding-top:var(--safe-t)}
+    .hdr-top{display:flex;align-items:center;height:64px;padding:0 8px 0 16px;gap:8px}
+    .hdr-title{font-size:22px;font-weight:700;flex:1;letter-spacing:-.3px}
+    .auto-btn{padding:6px 14px;border-radius:20px;border:none;font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .15s}
+    .auto-btn.on{background:var(--pr);color:var(--onPr)}
+    .auto-btn.off{background:var(--sur2);color:var(--txt3)}
+    .theme-btn{width:44px;height:44px;border-radius:50%;border:none;background:transparent;color:var(--txt2);font-size:20px;display:flex;align-items:center;justify-content:center}
+    .chips{display:flex;gap:8px;padding:4px 16px 12px;overflow-x:auto;scrollbar-width:none}
+    .chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;font-size:13px;transition:all .15s;border:1px solid var(--out);background:transparent;color:var(--txt3)}
+    .chip.active{background:var(--pr);color:var(--onPr);border-color:transparent;font-weight:500}
+    /* Content */
+    .content{padding:8px 16px;display:flex;flex-direction:column;gap:6px;animation:fade-in .2s ease}
+    .station-card{display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--sur);border-radius:16px;border:1.5px solid transparent;transition:background .15s,border-color .15s;cursor:pointer}
+    .station-card.active{border-color:var(--pr);background:var(--prC)}
+    .station-card:active{background:var(--sur2)}
+    .s-logo-wrap{position:relative;flex-shrink:0}
+    .s-logo{width:52px;height:52px;border-radius:50%;object-fit:contain;background:var(--sur2)}
+    .s-ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--pr);opacity:.5;animation:spin-logo 3s linear infinite;display:none}
+    .station-card.active.playing .s-ring{display:block}
+    .s-info{flex:1;min-width:0}
+    .s-name{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .active .s-name{color:var(--pr)}
+    .s-genre{font-size:12px;color:var(--txt3);margin-top:2px}
+    .s-track{font-size:11px;color:var(--pr);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .s-play{width:36px;height:36px;border-radius:50%;border:none;background:var(--pr);color:var(--onPr);display:flex;align-items:center;justify-content:center;padding:9px;flex-shrink:0}
+    /* History & Comments */
+    .card-item{background:var(--sur);border-radius:14px;padding:12px 16px;display:flex;gap:12px;animation:fade-in .2s ease}
+    .empty-state{text-align:center;color:var(--txt3);padding:56px 0;font-size:15px}
+    .empty-ico{font-size:48px;margin-bottom:12px}
+    .h-time{font-size:12px;color:var(--pr);font-weight:700;flex-shrink:0;margin-top:1px}
+    .h-track{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .h-station{font-size:12px;color:var(--txt3);margin-top:2px}
+    .cm-input-card{background:var(--sur);border-radius:16px;padding:14px;margin-bottom:8px}
+    .cm-label{font-size:13px;color:var(--txt3);margin-bottom:10px}
+    .cm-ta{width:100%;background:var(--sur2);border:1px solid var(--out);border-radius:12px;padding:10px 14px;color:var(--txt);font-size:14px}
+    .cm-send{margin-top:8px;padding:10px 20px;border-radius:24px;border:none;background:var(--pr);color:var(--onPr);font-size:14px;font-weight:500}
+    .cm-item{background:var(--sur);border-radius:14px;padding:12px 14px;animation:fade-in .2s ease}
+    .cm-avatar{width:32px;height:32px;border-radius:50%;background:var(--pr);color:var(--onPr);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+    .cm-text{font-size:14px;line-height:1.5;margin-top:8px}
+    /* Mini player */
+    .mini{position:fixed;left:8px;right:8px;bottom:calc(80px + var(--safe-b));z-index:70;background:var(--sur3);border-radius:20px;padding:10px 10px 10px 14px;display:none;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.3);cursor:pointer}
+    .mini.visible{display:flex}
+    .mini-logo{width:44px;height:44px;border-radius:50%;object-fit:contain;background:var(--sur2);flex-shrink:0}
+    .mini-info{flex:1;min-width:0}
+    .mini-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mini-track{font-size:11px;color:var(--txt3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+    .m-ctrl{width:40px;height:40px;border-radius:50%;border:none;background:transparent;color:var(--txt2);display:flex;align-items:center;justify-content:center;padding:10px}
+    .m-ctrl:disabled{color:transparent}
+    .m-ctrl:not(:disabled):active{background:var(--sur2)}
+    .m-play{width:44px;height:44px;border-radius:50%;border:none;background:var(--pr);color:var(--onPr);display:flex;align-items:center;justify-content:center;padding:11px;flex-shrink:0}
+    /* Bottom nav */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:80;background:var(--sur);border-top:1px solid rgba(73,69,79,.2);padding-bottom:var(--safe-b)}
+    .nav-inner{display:flex;height:80px}
+    .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:transparent;color:var(--txt3);font-size:11px}
+    .nav-btn.active{color:var(--pr)}
+    .nav-pill{width:64px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background .15s}
+    .nav-btn.active .nav-pill{background:var(--prC)}
+    /* Full player sheet */
+    .fp{position:fixed;inset:0;z-index:200;overflow-y:auto;overscroll-behavior:contain;transform:translateY(100%);transition:transform .36s cubic-bezier(.32,.72,0,1)}
+    .fp.open{transform:translateY(0)}
+    .fp-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+    .fp-bg img{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);object-fit:cover;filter:blur(60px) brightness(.28) saturate(1.8)}
+    .fp-bg-overlay{position:absolute;inset:0}
+    .fp-wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:max(52px,var(--safe-t)) 24px max(32px,var(--safe-b))}
+    .fp-close-btn{position:absolute;top:max(14px,var(--safe-t));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;display:flex;align-items:center;justify-content:center}
+    .fp-pill{position:absolute;top:calc(max(14px,var(--safe-t)) + 8px);left:50%;transform:translateX(-50%);width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
+    .fp-art-wrap{position:relative;margin:24px 0}
+    .fp-art{border-radius:50%;object-fit:contain;background:rgba(255,255,255,.07);box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06);width:min(240px,56vw);height:min(240px,56vw);display:block}
+    .fp-ring{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(208,188,255,.6);animation:spin-logo 4s linear infinite;display:none;pointer-events:none}
+    .fp-ring.on{display:block}
+    .fp-name{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px;text-align:center}
+    .fp-genre{font-size:14px;color:rgba(255,255,255,.6);margin-top:4px}
+    .fp-track{font-size:13px;color:rgba(255,255,255,.55);margin-top:10px;min-height:18px;text-align:center;padding:0 16px}
+    .auto-badge{margin-top:12px;padding:5px 14px;border-radius:20px;background:rgba(208,188,255,.15);border:1px solid rgba(208,188,255,.4);color:#D0BCFF;font-size:12px;font-weight:600}
+    .fp-ctrls{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px;width:100%;max-width:320px}
+    .fp-ctrl{width:52px;height:52px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;padding:14px}
+    .fp-ctrl.on{background:rgba(255,255,255,.12);color:#fff}
+    .fp-ctrl.off{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2)}
+    .fp-main{width:72px;height:72px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;padding:20px;box-shadow:0 4px 20px rgba(208,188,255,.4)}
+    .fp-vol{display:flex;align-items:center;gap:12px;margin-top:28px;width:100%;max-width:320px}
+    .fp-vol svg{width:20px;height:20px;fill:rgba(255,255,255,.6);flex-shrink:0}
+    .fp-hist{width:100%;max-width:340px;margin-top:28px}
+    .fp-hist-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+    .fp-hist-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+    .fp-hist-time{font-size:11px;color:var(--pr);flex-shrink:0}
+    .fp-hist-name{font-size:13px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .spinner{border:2.5px solid transparent;border-top-color:currentColor;border-radius:50%;animation:md-spin .7s linear infinite;flex-shrink:0}
+  </style>
+</head>
+<body>
+<audio id="audio" preload="none"></audio>
+
+<!-- Header -->
+<div class="hdr">
+  <div class="hdr-top">
+    <span class="hdr-title">📻 Радио</span>
+    <button class="auto-btn off" id="autoBtn" onclick="toggleAuto()">AUTO</button>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+  </div>
+  <div class="chips" id="chipBar"></div>
+</div>
+
+<!-- Content -->
+<div id="mainContent"></div>
+
+<!-- Mini player -->
+<div class="mini" id="mini" onclick="openFP()">
+  <img class="mini-logo" id="mLogo" src="" alt=""/>
+  <div class="mini-info">
+    <div class="mini-name" id="mName">—</div>
+    <div class="mini-track" id="mTrack">В эфире</div>
+  </div>
+  <button class="m-ctrl" id="mPrev" onclick="event.stopPropagation();goPrev()" disabled>
+    <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+  </button>
+  <button class="m-play" id="mPlayBtn" onclick="event.stopPropagation();togglePlay()">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path id="mPlayIco" d="M8 5v14l11-7z"/></svg>
+  </button>
+  <button class="m-ctrl" id="mNext" onclick="event.stopPropagation();goNext()" disabled>
+    <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+  </button>
+</div>
+
+<!-- Bottom nav -->
+<div class="bottom-nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-tab="stations" onclick="switchTab('stations')">
+      <div class="nav-pill">📻</div><span>Станции</span>
+    </button>
+    <button class="nav-btn" data-tab="history" onclick="switchTab('history')">
+      <div class="nav-pill">🕐</div><span>История</span>
+    </button>
+    <button class="nav-btn" data-tab="comments" onclick="switchTab('comments')">
+      <div class="nav-pill">💬</div><span>Комменты</span>
+    </button>
+  </div>
+</div>
+
+<!-- Full player -->
+<div class="fp" id="fp">
+  <div class="fp-bg">
+    <img id="fpBgImg" src="" alt=""/>
+    <div class="fp-bg-overlay" id="fpOverlay" style="background:rgba(28,27,31,.55)"></div>
+  </div>
+  <div class="fp-wrap">
+    <div class="fp-pill"></div>
+    <button class="fp-close-btn" onclick="closeFP()">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+    </button>
+    <div class="fp-art-wrap">
+      <img class="fp-art" id="fpArt" src="" alt=""/>
+      <div class="fp-ring" id="fpRing"></div>
+    </div>
+    <div class="fp-name" id="fpName">—</div>
+    <div class="fp-genre" id="fpGenre"></div>
+    <div class="fp-track" id="fpTrack">В эфире</div>
+    <div class="auto-badge" id="autoBadge" style="display:none">⚡ Авторежим включён</div>
+    <div class="fp-ctrls">
+      <button class="fp-ctrl off" id="fpPrev" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="fp-main" id="fpMainBtn" onclick="togglePlay()" style="background:var(--pr);color:var(--onPr)">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path id="fpPlayIco" d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="fp-ctrl off" id="fpNext" onclick="goNext()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+    </div>
+    <div class="fp-vol">
+      <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      <input type="range" id="volRange" min="0" max="1" step="0.02" value="0.8" oninput="setVol(this.value)"/>
+    </div>
+    <div class="fp-hist" id="fpHistWrap" style="display:none">
+      <div class="fp-hist-title">Недавние треки</div>
+      <div id="fpHistList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="stations.js"></script>
+<script>
+var audio = document.getElementById('audio');
+var curIdx = -1, isPlaying = false, hls = null;
+var curGenre = 'all', activeTab = 'stations';
+var autoMode = false, currentTrack = 'В эфире', lastTrack = '';
+var historyData = lsGet('radio_history', []);
+var commentsData = lsGet('radio_comments', []);
+var timers = {};
+
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function nowStr(){var d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+function clearT(k){if(timers[k]){clearTimeout(timers[k]);delete timers[k]}}
+function setT(k,fn,ms){clearT(k);timers[k]=setTimeout(fn,ms)}
+
+// Theme
+var theme = lsGet('radio_theme','dark');
+applyTheme(theme);
+function applyTheme(t){
+  theme=t;
+  document.body.classList.toggle('light',t==='light');
+  document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';
+  document.getElementById('fpOverlay').style.background=t==='dark'?'rgba(28,27,31,.55)':'rgba(255,251,254,.55)';
+  lsSet('radio_theme',t);
+}
+function toggleTheme(){applyTheme(theme==='dark'?'light':'dark')}
+
+// Auto mode
+function toggleAuto(){
+  autoMode=!autoMode;
+  var b=document.getElementById('autoBtn');
+  b.className='auto-btn '+(autoMode?'on':'off');
+  document.getElementById('autoBadge').style.display=autoMode?'block':'none';
+}
+
+// Genres
+(function(){
+  var bar=document.getElementById('chipBar');
+  var gs=[
+    {id:'all',label:'Все',icon:'🎵'},{id:'pop',label:'Поп',icon:'🌟'},
+    {id:'deep',label:'Deep House',icon:'🎧'},{id:'edm',label:'Электро',icon:'⚡'},
+    {id:'chill',label:'Чилаут',icon:'🌊'},{id:'rap',label:'Рэп',icon:'🎤'},
+    {id:'rock',label:'Рок',icon:'🎸'},{id:'trance',label:'Транс',icon:'🌀'},
+    {id:'techno',label:'Техно',icon:'🔊'},{id:'dnb',label:'DnB',icon:'🥁'},
+    {id:'retro',label:'Ретро',icon:'📻'},{id:'shanson',label:'Шансон',icon:'🎼'},
+    {id:'jazz',label:'Джаз',icon:'🎷'},{id:'classic',label:'Классика',icon:'🎻'},
+    {id:'news',label:'Новости',icon:'📰'},{id:'foreign',label:'Зарубежное',icon:'🌍'}
+  ];
+  gs.forEach(function(g){
+    var b=document.createElement('button');
+    b.className='chip ripple'+(g.id==='all'?' active':'');
+    b.dataset.genre=g.id;
+    b.innerHTML='<span style="font-size:14px">'+g.icon+'</span>'+g.label;
+    b.onclick=function(){filterGenre(g.id)};
+    bar.appendChild(b);
+  });
+})();
+
+function filterGenre(id){
+  curGenre=id;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('active',c.dataset.genre===id)});
+  updateNav();
+  if(activeTab==='stations') renderContent();
+}
+
+function getFiltered(){return curGenre==='all'?stations:stations.filter(function(s){return s.tag===curGenre})}
+function getFilteredIdx(){if(curIdx<0)return -1;var f=getFiltered();return f.indexOf(stations[curIdx])}
+
+function updateNav(){
+  var fi=getFilteredIdx(),f=getFiltered();
+  var hp=fi>0,hn=fi>=0&&fi<f.length-1;
+  document.getElementById('fpPrev').className='fp-ctrl '+(hp?'on':'off');
+  document.getElementById('fpNext').className='fp-ctrl '+(hn?'on':'off');
+  document.getElementById('mPrev').disabled=!hp;
+  document.getElementById('mNext').disabled=!hn;
+}
+function goPrev(){var fi=getFilteredIdx(),f=getFiltered();if(fi>0)playStation(stations.indexOf(f[fi-1]))}
+function goNext(){var fi=getFilteredIdx(),f=getFiltered();if(fi>=0&&fi<f.length-1)playStation(stations.indexOf(f[fi+1]))}
+
+// Track meta
+function fetchMeta(idx){
+  clearT('meta');
+  var s=stations[idx]; if(!s)return;
+  var m=(s.logo.match(/\/(\d+)\.png$/)||[])[1]; if(!m)return;
+  fetch('https://radiopotok.ru/ajax/track?id='+m)
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var t=(d&&(d.track||d.title))||'';
+      if(t&&t!==lastTrack){
+        lastTrack=t; setTrack(t);
+        historyData.unshift({stationName:s.name,track:t,time:nowStr()});
+        if(historyData.length>50)historyData=historyData.slice(0,50);
+        lsSet('radio_history',historyData);
+        renderFpHist();
+        if(activeTab==='history')renderContent();
+      }
+    }).catch(function(){});
+  setT('meta',function(){fetchMeta(idx)},15000);
+}
+
+function setTrack(t){
+  currentTrack=t;
+  var ft=document.getElementById('fpTrack'),mt=document.getElementById('mTrack');
+  if(ft)ft.textContent=t!=='В эфире'&&t!=='Нет сигнала'?'🎵 '+t:t;
+  if(mt)mt.textContent=t;
+}
+
+// Loading state
+var PLAY_D='M8 5v14l11-7z', PAUSE_D='M6 19h4V5H6v14zM14 5v14h4V5h-4z';
+function setIcons(playing){
+  var d=playing?PAUSE_D:PLAY_D;
+  var fi=document.getElementById('fpPlayIco'),mi=document.getElementById('mPlayIco');
+  if(fi)fi.setAttribute('d',d); if(mi)mi.setAttribute('d',d);
+  var art=document.getElementById('fpArt'),ml=document.getElementById('mLogo');
+  if(art)art.classList.toggle('spinning',!!playing);
+  if(ml)ml.classList.toggle('spinning',!!playing);
+  var ring=document.getElementById('fpRing');
+  if(ring)ring.classList.toggle('on',!!playing);
+  var card=document.querySelector('.station-card.active');
+  if(card)card.classList.toggle('playing',!!playing);
+}
+function setLoading(on){
+  var fpBtn=document.getElementById('fpMainBtn'),mBtn=document.getElementById('mPlayBtn');
+  if(!fpBtn)return;
+  if(on){
+    var sp='<div class="spinner" style="width:28px;height:28px;color:var(--onPr)"></div>';
+    var sps='<div class="spinner" style="width:22px;height:22px;color:var(--onPr)"></div>';
+    fpBtn.innerHTML=sp; mBtn.innerHTML=sps;
+  } else {
+    var d=isPlaying?PAUSE_D:PLAY_D;
+    fpBtn.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path id="fpPlayIco" d="'+d+'"/></svg>';
+    mBtn.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path id="mPlayIco" d="'+d+'"/></svg>';
+  }
+}
+
+// Fatal / reconnect
+var reconnAttempted=false;
+function onFatal(){
+  if(autoMode&&curIdx>=0){
+    setTrack('Нет сигнала — переключение...');
+    setT('auto',function(){var n=curIdx+1<stations.length?curIdx+1:0;playStation(n)},3000);
+  } else {
+    setTrack('Нет сигнала'); isPlaying=false; setLoading(false); setIcons(false);
+  }
+}
+function recover(){
+  if(!reconnAttempted){
+    reconnAttempted=true; setTrack('Переподключение...');
+    setT('reconnect',function(){startStream(curIdx)},3000);
+  } else onFatal();
+}
+
+// Stream
+function startStream(idx){
+  var s=stations[idx]; if(!s)return;
+  if(hls){try{hls.destroy()}catch(e){}hls=null}
+  audio.pause(); audio.src='';
+  audio.volume=parseFloat(document.getElementById('volRange').value||0.8);
+  if(typeof Hls!=='undefined'&&Hls.isSupported()&&s.stream.includes('.m3u8')){
+    hls=new Hls({enableWorker:true,lowLatencyMode:false,maxBufferLength:30});
+    hls.loadSource(s.stream); hls.attachMedia(audio);
+    hls.on(Hls.Events.MANIFEST_PARSED,function(){audio.play().catch(onFatal)});
+    hls.on(Hls.Events.ERROR,function(e,d){if(d.fatal)onFatal()});
+  } else if(audio.canPlayType('application/vnd.apple.mpegurl')&&s.stream.includes('.m3u8')){
+    audio.src=s.stream; audio.load(); audio.play().catch(onFatal);
+  } else {
+    audio.src=s.stream; audio.load(); audio.play().catch(onFatal);
+  }
+}
+
+function playStation(idx){
+  var s=stations[idx]; if(!s)return;
+  Object.keys(timers).forEach(clearT);
+  reconnAttempted=false; lastTrack='';
+  curIdx=idx; isPlaying=true;
+  // Mini
+  document.getElementById('mini').classList.add('visible');
+  document.getElementById('mLogo').src=s.logo;
+  document.getElementById('mName').textContent=s.name;
+  setTrack('В эфире');
+  // Full
+  document.getElementById('fpArt').src=s.logo;
+  document.getElementById('fpBgImg').src=s.logo;
+  document.getElementById('fpName').textContent=s.name;
+  document.getElementById('fpGenre').textContent=s.genre;
+  setLoading(true); setIcons(true); updateNav();
+  // Cards
+  document.querySelectorAll('.station-card').forEach(function(c){
+    c.classList.toggle('active',parseInt(c.dataset.idx)===idx);
+    c.classList.remove('playing');
+  });
+  startStream(idx); fetchMeta(idx);
+}
+
+function togglePlay(){
+  if(curIdx===-1){playStation(0);openFP();return}
+  if(audio.paused){audio.play().catch(onFatal);isPlaying=true;setIcons(true)}
+  else{audio.pause();isPlaying=false;setIcons(false)}
+}
+function setVol(v){audio.volume=parseFloat(v)}
+
+audio.addEventListener('playing',function(){setLoading(false);isPlaying=true;setIcons(true);reconnAttempted=false;clearT('wait')});
+audio.addEventListener('pause',function(){isPlaying=false;setLoading(false);setIcons(false)});
+audio.addEventListener('waiting',function(){if(!audio.paused){setLoading(true);setT('wait',function(){recover()},8000)}});
+audio.addEventListener('stalled',function(){if(!audio.paused)recover()});
+audio.addEventListener('error',function(){onFatal()});
+
+// Full player
+function openFP(){document.getElementById('fp').classList.add('open')}
+function closeFP(){document.getElementById('fp').classList.remove('open')}
+
+// Tabs
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab)});
+  renderContent();
+}
+
+// Render
+function renderContent(){
+  var el=document.getElementById('mainContent');
+  el.innerHTML='';
+  var wrap=document.createElement('div');
+  wrap.className='content';
+  if(activeTab==='stations'){
+    var f=getFiltered();
+    f.forEach(function(s){
+      var idx=stations.indexOf(s);
+      var active=idx===curIdx;
+      var card=document.createElement('div');
+      card.className='station-card ripple'+(active?' active':'')+(active&&isPlaying?' playing':'');
+      card.dataset.idx=idx;
+      card.innerHTML=
+        '<div class="s-logo-wrap">'+
+          '<img class="s-logo'+(active&&isPlaying?' spinning':'\')+'" src="'+s.logo+'" alt="" onerror="this.src=\'icon-192.png\'"/>'+
+          '<div class="s-ring"></div>'+
+        '</div>'+
+        '<div class="s-info">'+
+          '<div class="s-name">'+s.name+'</div>'+
+          '<div class="s-genre">'+s.genre+'</div>'+
+          (active?'<div class="s-track">🎵 '+currentTrack+'</div>':'')+
+        '</div>'+
+        (active?'<div class="s-play"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="'+(isPlaying?PAUSE_D:PLAY_D)+'"/></svg></div>':'');
+      card.onclick=function(){playStation(idx);openFP()};
+      wrap.appendChild(card);
+    });
+  } else if(activeTab==='history'){
+    if(!historyData.length){
+      wrap.innerHTML='<div class="empty-state"><div class="empty-ico">🎵</div>История появится во время прослушивания</div>';
+    } else {
+      historyData.forEach(function(h){
+        var d=document.createElement('div');
+        d.className='card-item';
+        d.innerHTML='<div class="h-time">'+h.time+'</div><div style="flex:1;min-width:0"><div class="h-track">'+h.track+'</div><div class="h-station">'+h.stationName+'</div></div>';
+        wrap.appendChild(d);
+      });
+    }
+  } else {
+    var st=curIdx>=0?stations[curIdx]:null;
+    var stCms=commentsData.filter(function(c){return c.stIdx===curIdx});
+    if(!st){
+      wrap.innerHTML='<div class="empty-state"><div class="empty-ico">💬</div>Выберите станцию для комментариев</div>';
+    } else {
+      var inp=document.createElement('div');
+      inp.className='cm-input-card';
+      inp.innerHTML='<div class="cm-label">Комментарии к <strong>'+st.name+'</strong></div>'+
+        '<textarea class="cm-ta" id="cmInput" rows="3" placeholder="Написать комментарий..."></textarea>'+
+        '<button class="cm-send" onclick="sendComment()">Отправить</button>';
+      wrap.appendChild(inp);
+      var ta=inp.querySelector('#cmInput');
+      if(ta)ta.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendComment()}});
+    }
+    stCms.forEach(function(c){
+      var d=document.createElement('div');
+      d.className='cm-item';
+      var letter=(c.text[0]||'?').toUpperCase();
+      d.innerHTML='<div style="display:flex;gap:10px;margin-bottom:4px"><div class="cm-avatar">'+letter+'</div><div style="display:flex;align-items:center"><span style="font-size:11px;color:var(--txt3)">'+c.time+'</span></div></div><div class="cm-text">'+c.text.replace(/</g,'&lt;')+'</div>';
+      wrap.appendChild(d);
+    });
+  }
+  el.appendChild(wrap);
+}
+
+function sendComment(){
+  var el=document.getElementById('cmInput'); if(!el)return;
+  var t=el.value.trim(); if(!t)return;
+  commentsData.unshift({id:Date.now(),stIdx:curIdx,text:t,time:nowStr()});
+  if(commentsData.length>100)commentsData=commentsData.slice(0,100);
+  lsSet('radio_comments',commentsData);
+  el.value=''; renderContent();
+}
+
+function renderFpHist(){
+  var w=document.getElementById('fpHistWrap'),l=document.getElementById('fpHistList');
+  if(!historyData.length){w.style.display='none';return}
+  w.style.display='block';
+  l.innerHTML=historyData.slice(0,5).map(function(h){
+    return '<div class="fp-hist-row"><span class="fp-hist-time">'+h.time+'</span><span class="fp-hist-name">'+h.track+'</span></div>';
+  }).join('');
+}
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});
+renderContent(); renderFpHist();
+</script>
+<script src="player-fixes.js"></script>
+</body>
+</html>
